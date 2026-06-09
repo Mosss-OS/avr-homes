@@ -54,7 +54,7 @@ function Detail() {
           <img src={p.gallery[active]} alt={p.title} className="h-full w-full object-cover" />
         </div>
         <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
-          {p.gallery.slice(0, 3).map((src, i) => (
+          {p.gallery.slice(0, 3).map((src: string, i: number) => (
             <button key={i} onClick={() => setActive(i)}
               className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
               <img src={src} alt="" className="h-full w-full object-cover" />
@@ -98,7 +98,7 @@ function Detail() {
           <section className="mt-8">
             <h2 className="font-display text-2xl font-semibold">Amenities</h2>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {p.amenities.map((a) => (
+              {p.amenities.map((a: string) => (
                 <li key={a} className="flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" /> {a}
                 </li>
