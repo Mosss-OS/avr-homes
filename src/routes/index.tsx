@@ -8,7 +8,7 @@ import { ArrowRight, ShieldCheck, Sparkles, Map } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Manzil — UAE Property Search" },
+      { title: "AVR Homes — UAE Property Search" },
       { name: "description", content: "Discover apartments, villas, and townhouses across Dubai, Abu Dhabi, and the UAE." },
     ],
   }),
@@ -33,7 +33,7 @@ function Home() {
               <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" /> The UAE home search, reimagined
             </span>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl">
-              Find a place to call <span className="text-[var(--gold)]">manzil</span>.
+              Find a place to call <span className="text-[var(--gold)]">home</span>.
             </h1>
             <p className="mt-4 max-w-xl text-base text-primary-foreground/85 sm:text-lg">
               From skyline penthouses in Downtown to beachfront villas on the Palm — explore thousands of verified listings across the Emirates.

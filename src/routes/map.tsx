@@ -6,7 +6,7 @@ import { formatAED, properties } from "@/lib/properties";
 export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
-      { title: "Map view — Manzil UAE Property Search" },
+      { title: "Map view — AVR Homes UAE Property Search" },
       { name: "description", content: "Explore UAE properties on an interactive map." },
     ],
   }),

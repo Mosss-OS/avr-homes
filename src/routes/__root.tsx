@@ -52,9 +52,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Manzil — UAE Property Search" },
+      { title: "AVR Homes — UAE Property Search" },
       { name: "description", content: "Buy, rent, and explore homes across Dubai, Abu Dhabi, and the wider UAE." },
-      { property: "og:title", content: "Manzil — UAE Property Search" },
+      { property: "og:title", content: "AVR Homes — UAE Property Search" },
       { property: "og:description", content: "Buy, rent, and explore homes across Dubai, Abu Dhabi, and the wider UAE." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
