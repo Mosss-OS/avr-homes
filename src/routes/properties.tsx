@@ -21,7 +21,7 @@ export const Route = createFileRoute("/properties")({
   validateSearch: zodValidator(schema),
   head: () => ({
     meta: [
-      { title: "Properties for sale & rent — Manzil" },
+      { title: "Properties for sale & rent — AVR Homes" },
       { name: "description", content: "Browse apartments, villas, and townhouses across the UAE." },
     ],
   }),

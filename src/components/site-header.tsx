@@ -10,7 +10,7 @@ export function SiteHeader() {
             <Building2 className="h-5 w-5" />
           </span>
           <span className="font-display text-xl font-semibold tracking-tight">
-            Manzil<span className="text-[var(--gold)]">.</span>
+            AVR Homes<span className="text-[var(--gold)]">.</span>
           </span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
@@ -62,7 +62,7 @@ export function SiteFooter() {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Building2 className="h-4 w-4" />
             </span>
-            <span className="font-display text-lg font-semibold">Manzil.</span>
+            <span className="font-display text-lg font-semibold">AVR Homes.</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             UAE's modern home search — Dubai, Abu Dhabi & beyond.
@@ -73,7 +73,7 @@ export function SiteFooter() {
         <FooterCol title="Company" links={["About", "Careers", "Contact", "Privacy"]} />
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Manzil. Independently built. Not affiliated with any third party.
+        © {new Date().getFullYear()} AVR Homes. Independently built. Not affiliated with any third party.
       </div>
     </footer>
   );

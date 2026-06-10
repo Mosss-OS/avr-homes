@@ -8,7 +8,7 @@ import { getSavedProps, getSavedSearches, removeSavedSearch, type SavedSearch } 
 export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
-      { title: "Saved properties & searches — Manzil" },
+      { title: "Saved properties & searches — AVR Homes" },
       { name: "description", content: "Your saved UAE properties and search alerts." },
     ],
   }),
