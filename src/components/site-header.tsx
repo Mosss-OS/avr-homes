@@ -115,15 +115,21 @@ export function SiteFooter() {
             <span className="font-display text-lg font-semibold">AVR Homes.</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            UAE's modern home search — Dubai, Abu Dhabi & beyond.
+            Lagos luxury home search — Lekki, Ikoyi, Victoria Island & beyond.
           </p>
+          <address className="mt-4 not-italic text-sm text-muted-foreground">
+            <div className="font-medium text-foreground">Visit us</div>
+            2 Lanre Olumide Street,<br />
+            Idado Estate, Igbo-efon,<br />
+            Lekki, Lagos, Nigeria.
+          </address>
         </div>
         <FooterCol title="Explore" links={["Buy", "Rent", "New projects", "Map view"]} />
         <FooterCol title="For pros" links={["List property", "Agent dashboard", "Pricing", "Insights"]} />
         <FooterCol title="Company" links={["About", "Careers", "Contact", "Privacy"]} />
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} AVR Homes. Independently built. Not affiliated with any third party.
+        © {new Date().getFullYear()} AVR Homes — Lekki, Lagos. All rights reserved.
       </div>
     </footer>
   );

@@ -13,10 +13,10 @@ export interface Property {
   title: string;
   type: PropertyType;
   purpose: Purpose;
-  price: number; // AED, per year if rent
+  price: number; // NGN, per year if rent
   beds: number;
   baths: number;
-  area: number; // sqft
+  area: number; // sqm
   city: string;
   community: string;
   address: string;
@@ -35,74 +35,74 @@ export interface Property {
 export const properties: Property[] = [
   {
     id: "p-101",
-    title: "Skyline Penthouse with Burj Khalifa Views",
-    type: "penthouse", purpose: "buy", price: 12500000,
-    beds: 4, baths: 5, area: 4200,
-    city: "Dubai", community: "Downtown Dubai", address: "Burj Vista, Downtown",
-    lat: 25.1972, lng: 55.2744,
+    title: "Skyline Penthouse with Lagos Lagoon Views",
+    type: "penthouse", purpose: "buy", price: 950000000,
+    beds: 4, baths: 5, area: 390,
+    city: "Lagos", community: "Eko Atlantic", address: "Eko Pearl Towers, Eko Atlantic City",
+    lat: 6.4204, lng: 3.4106,
     image: prop4, gallery: [prop4, prop1, prop2],
-    description: "A rare full-floor penthouse with wraparound terraces, private elevator access, and uninterrupted views of the Burj Khalifa and Dubai Fountain.",
+    description: "A rare full-floor penthouse with wraparound terraces, private elevator access, and uninterrupted views of the Atlantic and Victoria Island skyline.",
     amenities: ["Private pool", "Concierge", "Smart home", "Covered parking", "Gym"],
     agentId: "a-1", featured: true, verified: true, postedDaysAgo: 2,
   },
   {
     id: "p-102",
-    title: "Beachfront Villa on Palm Jumeirah",
-    type: "villa", purpose: "buy", price: 32000000,
-    beds: 6, baths: 7, area: 9800,
-    city: "Dubai", community: "Palm Jumeirah", address: "Frond M, Palm Jumeirah",
-    lat: 25.1124, lng: 55.139,
+    title: "Waterfront Mansion on Banana Island",
+    type: "villa", purpose: "buy", price: 2800000000,
+    beds: 6, baths: 7, area: 910,
+    city: "Lagos", community: "Banana Island", address: "Block C, Banana Island, Ikoyi",
+    lat: 6.4456, lng: 3.4459,
     image: prop2, gallery: [prop2, prop6, prop1],
-    description: "Signature waterfront villa with private beach access, infinity pool, and bespoke interiors by an award-winning studio.",
-    amenities: ["Private beach", "Infinity pool", "Maid's room", "Driver's room", "Home cinema"],
+    description: "Signature waterfront mansion with private jetty access, infinity pool, and bespoke interiors by an award-winning Lagos studio.",
+    amenities: ["Private jetty", "Infinity pool", "BQ", "Driver's quarters", "Home cinema"],
     agentId: "a-2", featured: true, verified: true, postedDaysAgo: 5,
   },
   {
     id: "p-103",
-    title: "Modern 2BR Apartment in Dubai Marina",
-    type: "apartment", purpose: "rent", price: 165000,
-    beds: 2, baths: 2, area: 1320,
-    city: "Dubai", community: "Dubai Marina", address: "Marina Gate 1",
-    lat: 25.0805, lng: 55.1403,
+    title: "Modern 2BR Apartment in Lekki Phase 1",
+    type: "apartment", purpose: "rent", price: 18000000,
+    beds: 2, baths: 2, area: 120,
+    city: "Lagos", community: "Lekki Phase 1", address: "Admiralty Way, Lekki Phase 1",
+    lat: 6.4399, lng: 3.4716,
     image: prop1, gallery: [prop1, prop5, prop4],
-    description: "Chic two-bedroom on a high floor with full marina views, modern kitchen, and access to a resort-style amenity deck.",
+    description: "Chic two-bedroom on a high floor with skyline views, modern kitchen, and access to a resort-style amenity deck.",
     amenities: ["Pool", "Gym", "24/7 security", "Parking", "Balcony"],
     agentId: "a-3", verified: true, postedDaysAgo: 1,
   },
   {
     id: "p-104",
-    title: "Family Townhouse in Yas Island",
-    type: "townhouse", purpose: "buy", price: 3850000,
-    beds: 4, baths: 4, area: 2950,
-    city: "Abu Dhabi", community: "Yas Acres", address: "The Cedars, Yas Acres",
-    lat: 24.4672, lng: 54.6066,
+    title: "Family Townhouse in Ikoyi",
+    type: "townhouse", purpose: "buy", price: 420000000,
+    beds: 4, baths: 4, area: 275,
+    city: "Lagos", community: "Old Ikoyi", address: "Bourdillon Road, Ikoyi",
+    lat: 6.4488, lng: 3.4364,
     image: prop3, gallery: [prop3, prop1],
-    description: "Bright family townhouse with private garden, double garage, and access to community pools, gym, and golf.",
-    amenities: ["Garden", "Garage", "Community pool", "Golf access"],
+    description: "Bright family townhouse with private garden, double garage, and access to a shared pool and 24/7 estate security.",
+    amenities: ["Garden", "Garage", "Estate pool", "24/7 security"],
     agentId: "a-1", verified: true, postedDaysAgo: 9,
   },
   {
     id: "p-105",
-    title: "Cozy Studio in JBR",
-    type: "studio", purpose: "rent", price: 72000,
-    beds: 0, baths: 1, area: 480,
-    city: "Dubai", community: "JBR", address: "Bahar 4, JBR",
-    lat: 25.0782, lng: 55.1334,
+    title: "Cozy Furnished Studio in Victoria Island",
+    type: "studio", purpose: "rent", price: 7200000,
+    beds: 0, baths: 1, area: 45,
+    city: "Lagos", community: "Victoria Island", address: "Ozumba Mbadiwe Avenue, VI",
+    lat: 6.4281, lng: 3.4219,
     image: prop5, gallery: [prop5, prop1],
-    description: "Fully furnished beach-walk studio, perfect for young professionals. Walking distance to The Walk and the tram.",
-    amenities: ["Furnished", "Beach access", "Pool", "Gym"],
+    description: "Fully furnished studio in the heart of VI — walking distance to offices, dining, and the lagoon waterfront.",
+    amenities: ["Furnished", "Backup power", "Pool", "Gym"],
     agentId: "a-3", postedDaysAgo: 0,
   },
   {
     id: "p-106",
-    title: "Cliffside Villa, Ras Al Khaimah",
-    type: "villa", purpose: "buy", price: 7400000,
-    beds: 5, baths: 6, area: 6100,
-    city: "Ras Al Khaimah", community: "Al Hamra", address: "Marbella Bay",
-    lat: 25.6896, lng: 55.7766,
+    title: "Luxury Detached Villa, Lekki Phase 2",
+    type: "villa", purpose: "buy", price: 680000000,
+    beds: 5, baths: 6, area: 560,
+    city: "Lagos", community: "Lekki Phase 2", address: "Idado Estate, Igbo-efon, Lekki",
+    lat: 6.4413, lng: 3.5234,
     image: prop6, gallery: [prop6, prop2],
-    description: "Mediterranean-inspired villa with infinity pool overlooking the Arabian Gulf and direct lagoon access.",
-    amenities: ["Infinity pool", "Sea view", "Maid's room", "Boat mooring"],
+    description: "Contemporary villa with private pool, tropical landscaping, smart home automation, and a full backup power system.",
+    amenities: ["Private pool", "Smart home", "BQ", "Solar inverter", "CCTV"],
     agentId: "a-2", verified: true, postedDaysAgo: 14,
   },
 ];
@@ -119,12 +119,12 @@ export interface Agent {
 }
 
 export const agents: Agent[] = [
-  { id: "a-1", name: "Layla Hassan", agency: "Mirage Estates", phone: "+971 50 123 4567", email: "layla@mirage.ae", languages: ["English", "Arabic"], listings: 42, avatarHue: 195 },
-  { id: "a-2", name: "Omar Al Falasi", agency: "Sandstone Realty", phone: "+971 55 987 6543", email: "omar@sandstone.ae", languages: ["English", "Arabic", "French"], listings: 28, avatarHue: 75 },
-  { id: "a-3", name: "Priya Menon", agency: "Harbor Homes", phone: "+971 52 555 1212", email: "priya@harborhomes.ae", languages: ["English", "Hindi", "Malayalam"], listings: 36, avatarHue: 220 },
+  { id: "a-1", name: "Adaeze Okafor", agency: "AVR Homes", phone: "+234 802 123 4567", email: "adaeze@avrhomes.ng", languages: ["English", "Igbo"], listings: 42, avatarHue: 195 },
+  { id: "a-2", name: "Tunde Bakare", agency: "AVR Homes", phone: "+234 809 987 6543", email: "tunde@avrhomes.ng", languages: ["English", "Yoruba", "French"], listings: 28, avatarHue: 75 },
+  { id: "a-3", name: "Zainab Mohammed", agency: "AVR Homes", phone: "+234 813 555 1212", email: "zainab@avrhomes.ng", languages: ["English", "Hausa"], listings: 36, avatarHue: 220 },
 ];
 
-export const cities = ["Dubai", "Abu Dhabi", "Sharjah", "Ras Al Khaimah", "Ajman"];
+export const cities = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Benin City"];
 export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "apartment", label: "Apartment" },
   { value: "villa", label: "Villa" },
@@ -134,9 +134,10 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
 ];
 
 export function formatAED(n: number): string {
-  if (n >= 1_000_000) return `AED ${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 2)}M`;
-  if (n >= 1_000) return `AED ${(n / 1_000).toFixed(0)}K`;
-  return `AED ${n}`;
+  if (n >= 1_000_000_000) return `₦${(n / 1_000_000_000).toFixed(n % 1_000_000_000 === 0 ? 0 : 2)}B`;
+  if (n >= 1_000_000) return `₦${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (n >= 1_000) return `₦${(n / 1_000).toFixed(0)}K`;
+  return `₦${n}`;
 }
 
 export function getProperty(id: string) {

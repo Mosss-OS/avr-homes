@@ -5,8 +5,8 @@ import { agents, properties } from "@/lib/properties";
 export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
-      { title: "Top UAE Real Estate Agents — AVR Homes" },
-      { name: "description", content: "Connect with verified agents across Dubai, Abu Dhabi, and the UAE." },
+      { title: "Top Lagos Real Estate Agents — AVR Homes" },
+      { name: "description", content: "Connect with verified luxury property agents across Lagos." },
     ],
   }),
   component: Agents,
@@ -16,7 +16,7 @@ function Agents() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <p className="text-xs font-medium uppercase tracking-wider text-[var(--gold)]">Talk to a pro</p>
-      <h1 className="mt-1 font-display text-4xl font-semibold sm:text-5xl">Top UAE agents</h1>
+      <h1 className="mt-1 font-display text-4xl font-semibold sm:text-5xl">Top Lagos agents</h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">
         Verified, top-rated agents who actually respond. Pick someone who knows your neighborhood.
       </p>

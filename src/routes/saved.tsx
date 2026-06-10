@@ -9,7 +9,7 @@ export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
       { title: "Saved properties & searches — AVR Homes" },
-      { name: "description", content: "Your saved UAE properties and search alerts." },
+      { name: "description", content: "Your saved Lagos properties and search alerts." },
     ],
   }),
   component: Saved,

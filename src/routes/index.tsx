@@ -8,8 +8,8 @@ import { ArrowRight, ShieldCheck, Sparkles, Map } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AVR Homes — UAE Property Search" },
-      { name: "description", content: "Discover apartments, villas, and townhouses across Dubai, Abu Dhabi, and the UAE." },
+      { title: "AVR Homes — Lagos Luxury Property Search" },
+      { name: "description", content: "Discover luxury apartments, villas, and penthouses across Lekki, Ikoyi, Victoria Island, and the rest of Lagos." },
     ],
   }),
   component: Home,
@@ -23,20 +23,20 @@ function Home() {
       {/* Hero */}
       <section className="relative">
         <div className="absolute inset-0 -z-10">
-          <img src={heroImg} alt="Dubai skyline at dusk" width={1920} height={1080}
+          <img src={heroImg} alt="Lagos skyline at dusk" width={1920} height={1080}
             className="h-full w-full object-cover" />
           <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
         </div>
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-28 md:pb-24 md:pt-36">
           <div className="max-w-3xl text-primary-foreground">
             <span className="inline-flex items-center gap-2 rounded-full bg-background/15 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" /> The UAE home search, reimagined
+              <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" /> Lagos luxury, reimagined
             </span>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl">
               Find a place to call <span className="text-[var(--gold)]">home</span>.
             </h1>
             <p className="mt-4 max-w-xl text-base text-primary-foreground/85 sm:text-lg">
-              From skyline penthouses in Downtown to beachfront villas on the Palm — explore thousands of verified listings across the Emirates.
+              From skyline penthouses in Eko Atlantic to waterfront mansions on Banana Island — explore verified luxury listings across Lagos.
             </p>
           </div>
           <div className="mt-8 max-w-4xl"><SearchBar /></div>
@@ -84,7 +84,7 @@ function Home() {
         <ValueCard icon={<Map className="h-5 w-5" />} title="Map-first search"
           body="Draw an area, save a search, get alerts when a matching home goes live." />
         <ValueCard icon={<Sparkles className="h-5 w-5" />} title="Trusted agents"
-          body="Talk directly to top-rated UAE agents — no middleman, no spam calls." />
+          body="Talk directly to top-rated Lagos agents — no middleman, no spam calls." />
       </section>
 
       {/* Recent */}
