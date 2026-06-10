@@ -134,16 +134,6 @@ export function SiteFooter() {
     </footer>
   );
 }
-        <FooterCol title="Explore" links={["Buy", "Rent", "New projects", "Map view"]} />
-        <FooterCol title="For pros" links={["List property", "Agent dashboard", "Pricing", "Insights"]} />
-        <FooterCol title="Company" links={["About", "Careers", "Contact", "Privacy"]} />
-      </div>
-      <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} AVR Homes. Independently built. Not affiliated with any third party.
-      </div>
-    </footer>
-  );
-}
 
 function FooterCol({ title, links }: { title: string; links: string[] }) {
   return (
