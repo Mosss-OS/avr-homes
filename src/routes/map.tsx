@@ -6,14 +6,14 @@ import { formatAED, properties } from "@/lib/properties";
 export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
-      { title: "Map view — AVR Homes UAE Property Search" },
-      { name: "description", content: "Explore UAE properties on an interactive map." },
+      { title: "Map view — AVR Homes Lagos Property Search" },
+      { name: "description", content: "Explore Lagos luxury properties on an interactive map." },
     ],
   }),
   component: MapView,
 });
 
-// Simple SVG "map" with stylized UAE layout — no external map dependency.
+// Simple SVG "map" with stylized Lagos layout — no external map dependency.
 function MapView() {
   const [hoverId, setHoverId] = useState<string | null>(null);
   const bounds = useMemo(() => {

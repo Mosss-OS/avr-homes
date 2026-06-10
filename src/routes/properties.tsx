@@ -22,7 +22,7 @@ export const Route = createFileRoute("/properties")({
   head: () => ({
     meta: [
       { title: "Properties for sale & rent — AVR Homes" },
-      { name: "description", content: "Browse apartments, villas, and townhouses across the UAE." },
+      { name: "description", content: "Browse luxury apartments, villas, and penthouses across Lagos." },
     ],
   }),
   component: List,
@@ -53,7 +53,7 @@ function List() {
     const params = new URLSearchParams();
     Object.entries(search).forEach(([k, v]) => { if (v) params.set(k, String(v)); });
     addSavedSearch({
-      name: `${search.purpose === "rent" ? "Rent" : "Buy"} · ${search.city || "UAE"}${search.type ? " · " + search.type : ""}`,
+      name: `${search.purpose === "rent" ? "Rent" : "Buy"} · ${search.city || "Lagos"}${search.type ? " · " + search.type : ""}`,
       query: params.toString(),
     });
     setSaved(true);
