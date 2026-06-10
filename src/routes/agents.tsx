@@ -5,8 +5,8 @@ import { agents, properties } from "@/lib/properties";
 export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
-      { title: "Top UAE Real Estate Agents — AVR Homes" },
-      { name: "description", content: "Connect with verified agents across Dubai, Abu Dhabi, and the UAE." },
+      { title: "Top Lagos Real Estate Agents — AVR Homes" },
+      { name: "description", content: "Connect with verified luxury property agents across Lagos." },
     ],
   }),
   component: Agents,
