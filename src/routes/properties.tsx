@@ -98,43 +98,45 @@ function List() {
 
 function Filters({ current }: { current: z.infer<typeof schema> }) {
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-      <span className="ml-1 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+    <div className="mt-6 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
+      <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
-      </span>
-      <Pill label="Purpose">
-        {(["buy", "rent"] as Purpose[]).map((p) => (
-          <Link key={p} to="/properties" search={{ ...current, purpose: p } as never}
-            className={chip(current.purpose === p)}>{p}</Link>
-        ))}
-      </Pill>
-      <Pill label="City">
-        <Link to="/properties" search={{ ...current, city: undefined } as never} className={chip(!current.city)}>All</Link>
-        {cities.map((c) => (
-          <Link key={c} to="/properties" search={{ ...current, city: c } as never} className={chip(current.city === c)}>{c}</Link>
-        ))}
-      </Pill>
-      <Pill label="Type">
-        <Link to="/properties" search={{ ...current, type: undefined } as never} className={chip(!current.type)}>Any</Link>
-        {propertyTypes.map((t) => (
-          <Link key={t.value} to="/properties" search={{ ...current, type: t.value } as never} className={chip(current.type === t.value)}>{t.label}</Link>
-        ))}
-      </Pill>
-      <Pill label="Beds">
-        {[0, 1, 2, 3, 4].map((b) => (
-          <Link key={b} to="/properties" search={{ ...current, beds: b || undefined } as never} className={chip((current.beds || 0) === b)}>
-            {b === 0 ? "Any" : `${b}+`}
-          </Link>
-        ))}
-      </Pill>
+      </div>
+      <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible">
+        <Pill label="Purpose">
+          {(["buy", "rent"] as Purpose[]).map((p) => (
+            <Link key={p} to="/properties" search={{ ...current, purpose: p } as never}
+              className={chip(current.purpose === p)}>{p}</Link>
+          ))}
+        </Pill>
+        <Pill label="City">
+          <Link to="/properties" search={{ ...current, city: undefined } as never} className={chip(!current.city)}>All</Link>
+          {cities.map((c) => (
+            <Link key={c} to="/properties" search={{ ...current, city: c } as never} className={chip(current.city === c)}>{c}</Link>
+          ))}
+        </Pill>
+        <Pill label="Type">
+          <Link to="/properties" search={{ ...current, type: undefined } as never} className={chip(!current.type)}>Any</Link>
+          {propertyTypes.map((t) => (
+            <Link key={t.value} to="/properties" search={{ ...current, type: t.value } as never} className={chip(current.type === t.value)}>{t.label}</Link>
+          ))}
+        </Pill>
+        <Pill label="Beds">
+          {[0, 1, 2, 3, 4].map((b) => (
+            <Link key={b} to="/properties" search={{ ...current, beds: b || undefined } as never} className={chip((current.beds || 0) === b)}>
+              {b === 0 ? "Any" : `${b}+`}
+            </Link>
+          ))}
+        </Pill>
+      </div>
     </div>
   );
 }
 
 function Pill({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1 rounded-xl bg-secondary/60 p-1">
-      <span className="px-2 text-xs font-medium text-muted-foreground">{label}</span>
+    <div className="flex shrink-0 items-center gap-1 rounded-xl bg-secondary/60 p-1">
+      <span className="shrink-0 px-2 text-xs font-medium text-muted-foreground">{label}</span>
       {children}
     </div>
   );
