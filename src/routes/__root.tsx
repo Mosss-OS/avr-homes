@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 
 function NotFoundComponent() {
   return (
@@ -52,14 +53,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AVR Homes — Lagos Luxury Property Search" },
-      { name: "description", content: "Buy, rent, and explore luxury homes across Lagos — Lekki, Ikoyi, Victoria Island, and beyond." },
-      { property: "og:title", content: "AVR Homes — Lagos Luxury Property Search" },
-      { property: "og:description", content: "Buy, rent, and explore luxury homes across Lagos — Lekki, Ikoyi, Victoria Island, and beyond." },
+      { title: "AVR Homes — Lagos Verified Luxury Property" },
+      { name: "description", content: "Buy, rent or invest in verified luxury properties across Lagos. AVR Homes connects serious buyers with professional realtors across Lekki, Ikoyi, Victoria Island and Eko Atlantic." },
+      { property: "og:title", content: "AVR Homes — Lagos Verified Luxury Property" },
+      { property: "og:description", content: "Buy, rent or invest in verified luxury properties across Lagos. AVR Homes connects serious buyers with professional realtors across Lekki, Ikoyi, Victoria Island and Eko Atlantic." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "AVR Homes — Lagos Luxury Property Search" },
-      { name: "twitter:description", content: "Buy, rent, and explore luxury homes across Lagos — Lekki, Ikoyi, Victoria Island, and beyond." },
+      { name: "twitter:title", content: "AVR Homes — Lagos Verified Luxury Property" },
+      { name: "twitter:description", content: "Buy, rent or invest in verified luxury properties across Lagos." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92026b89-620b-4033-8e7d-6685fbd26263/id-preview-1b1dd8ac--1836a95d-1452-408c-aa22-e8af95dbb033.lovable.app-1781082039191.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92026b89-620b-4033-8e7d-6685fbd26263/id-preview-1b1dd8ac--1836a95d-1452-408c-aa22-e8af95dbb033.lovable.app-1781082039191.png" },
     ],
@@ -93,6 +94,7 @@ function RootComponent() {
         <SiteHeader />
         <main className="flex-1"><Outlet /></main>
         <SiteFooter />
+        <WhatsAppButton />
       </div>
     </QueryClientProvider>
   );
