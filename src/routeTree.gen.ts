@@ -12,43 +12,63 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as PropertiesRouteImport } from './routes/properties'
 import { Route as MapRouteImport } from './routes/map'
-import { Route as AgentsRouteImport } from './routes/agents'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as ContactRouteImport } from './routes/contact'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as DiasporaRouteImport } from './routes/diaspora'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 
 const SavedRoute = SavedRouteImport.update({
-  id: '/saved', path: '/saved', getParentRoute: () => rootRouteImport,
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesRoute = PropertiesRouteImport.update({
-  id: '/properties', path: '/properties', getParentRoute: () => rootRouteImport,
+  id: '/properties',
+  path: '/properties',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MapRoute = MapRouteImport.update({
-  id: '/map', path: '/map', getParentRoute: () => rootRouteImport,
-} as any)
-const AgentsRoute = AgentsRouteImport.update({
-  id: '/agents', path: '/agents', getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about', path: '/about', getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact', path: '/contact', getParentRoute: () => rootRouteImport,
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InsightsRoute = InsightsRouteImport.update({
-  id: '/insights', path: '/insights', getParentRoute: () => rootRouteImport,
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DiasporaRoute = DiasporaRouteImport.update({
-  id: '/diaspora', path: '/diaspora', getParentRoute: () => rootRouteImport,
+  id: '/diaspora',
+  path: '/diaspora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentsRoute = AgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
-  id: '/', path: '/', getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIdRoute = PropertiesIdRouteImport.update({
-  id: '/$id', path: '/$id', getParentRoute: () => PropertiesRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PropertiesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -91,13 +111,40 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/' | '/about' | '/agents' | '/contact' | '/diaspora' | '/insights'
-    | '/map' | '/properties' | '/saved' | '/properties/$id'
+    | '/'
+    | '/about'
+    | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
+    | '/map'
+    | '/properties'
+    | '/saved'
+    | '/properties/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/agents' | '/contact' | '/diaspora' | '/insights' | '/map' | '/properties' | '/saved' | '/properties/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
+    | '/map'
+    | '/properties'
+    | '/saved'
+    | '/properties/$id'
   id:
-    | '__root__' | '/' | '/about' | '/agents' | '/contact' | '/diaspora'
-    | '/insights' | '/map' | '/properties' | '/saved' | '/properties/$id'
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
+    | '/map'
+    | '/properties'
+    | '/saved'
+    | '/properties/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,37 +161,102 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/saved': { id: '/saved'; path: '/saved'; fullPath: '/saved'; preLoaderRoute: typeof SavedRouteImport; parentRoute: typeof rootRouteImport }
-    '/properties': { id: '/properties'; path: '/properties'; fullPath: '/properties'; preLoaderRoute: typeof PropertiesRouteImport; parentRoute: typeof rootRouteImport }
-    '/map': { id: '/map'; path: '/map'; fullPath: '/map'; preLoaderRoute: typeof MapRouteImport; parentRoute: typeof rootRouteImport }
-    '/agents': { id: '/agents'; path: '/agents'; fullPath: '/agents'; preLoaderRoute: typeof AgentsRouteImport; parentRoute: typeof rootRouteImport }
-    '/about': { id: '/about'; path: '/about'; fullPath: '/about'; preLoaderRoute: typeof AboutRouteImport; parentRoute: typeof rootRouteImport }
-    '/contact': { id: '/contact'; path: '/contact'; fullPath: '/contact'; preLoaderRoute: typeof ContactRouteImport; parentRoute: typeof rootRouteImport }
-    '/insights': { id: '/insights'; path: '/insights'; fullPath: '/insights'; preLoaderRoute: typeof InsightsRouteImport; parentRoute: typeof rootRouteImport }
-    '/diaspora': { id: '/diaspora'; path: '/diaspora'; fullPath: '/diaspora'; preLoaderRoute: typeof DiasporaRouteImport; parentRoute: typeof rootRouteImport }
-    '/': { id: '/'; path: '/'; fullPath: '/'; preLoaderRoute: typeof IndexRouteImport; parentRoute: typeof rootRouteImport }
-    '/properties/$id': { id: '/properties/$id'; path: '/$id'; fullPath: '/properties/$id'; preLoaderRoute: typeof PropertiesIdRouteImport; parentRoute: typeof PropertiesRoute }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/properties': {
+      id: '/properties'
+      path: '/properties'
+      fullPath: '/properties'
+      preLoaderRoute: typeof PropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diaspora': {
+      id: '/diaspora'
+      path: '/diaspora'
+      fullPath: '/diaspora'
+      preLoaderRoute: typeof DiasporaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agents': {
+      id: '/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/properties/$id': {
+      id: '/properties/$id'
+      path: '/$id'
+      fullPath: '/properties/$id'
+      preLoaderRoute: typeof PropertiesIdRouteImport
+      parentRoute: typeof PropertiesRoute
+    }
   }
 }
 
-interface PropertiesRouteChildren { PropertiesIdRoute: typeof PropertiesIdRoute }
-const PropertiesRouteChildren: PropertiesRouteChildren = { PropertiesIdRoute: PropertiesIdRoute }
-const PropertiesRouteWithChildren = PropertiesRoute._addFileChildren(PropertiesRouteChildren)
+interface PropertiesRouteChildren {
+  PropertiesIdRoute: typeof PropertiesIdRoute
+}
+
+const PropertiesRouteChildren: PropertiesRouteChildren = {
+  PropertiesIdRoute: PropertiesIdRoute,
+}
+
+const PropertiesRouteWithChildren = PropertiesRoute._addFileChildren(
+  PropertiesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute, AboutRoute, AgentsRoute, ContactRoute, DiasporaRoute,
-  InsightsRoute, MapRoute, PropertiesRoute: PropertiesRouteWithChildren, SavedRoute,
+  IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AgentsRoute: AgentsRoute,
+  ContactRoute: ContactRoute,
+  DiasporaRoute: DiasporaRoute,
+  InsightsRoute: InsightsRoute,
+  MapRoute: MapRoute,
+  PropertiesRoute: PropertiesRouteWithChildren,
+  SavedRoute: SavedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
