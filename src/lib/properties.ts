@@ -7,6 +7,7 @@ import prop6 from "@/assets/prop-6.jpg";
 
 export type Purpose = "buy" | "rent";
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio";
+export type Currency = "NGN" | "USD" | "GBP";
 
 export interface Property {
   id: string;
@@ -37,7 +38,7 @@ export const properties: Property[] = [
     id: "p-101",
     title: "Skyline Penthouse with Lagos Lagoon Views",
     type: "penthouse", purpose: "buy", price: 950000000,
-    beds: 4, baths: 5, area: 390,
+    beds: 4, baths: 5, area: 380,
     city: "Lagos", community: "Eko Atlantic", address: "Eko Pearl Towers, Eko Atlantic City",
     lat: 6.4204, lng: 3.4106,
     image: prop4, gallery: [prop4, prop1, prop2],
@@ -49,7 +50,7 @@ export const properties: Property[] = [
     id: "p-102",
     title: "Waterfront Mansion on Banana Island",
     type: "villa", purpose: "buy", price: 2800000000,
-    beds: 6, baths: 7, area: 910,
+    beds: 6, baths: 7, area: 580,
     city: "Lagos", community: "Banana Island", address: "Block C, Banana Island, Ikoyi",
     lat: 6.4456, lng: 3.4459,
     image: prop2, gallery: [prop2, prop6, prop1],
@@ -61,7 +62,7 @@ export const properties: Property[] = [
     id: "p-103",
     title: "Modern 2BR Apartment in Lekki Phase 1",
     type: "apartment", purpose: "rent", price: 18000000,
-    beds: 2, baths: 2, area: 120,
+    beds: 2, baths: 2, area: 110,
     city: "Lagos", community: "Lekki Phase 1", address: "Admiralty Way, Lekki Phase 1",
     lat: 6.4399, lng: 3.4716,
     image: prop1, gallery: [prop1, prop5, prop4],
@@ -73,7 +74,7 @@ export const properties: Property[] = [
     id: "p-104",
     title: "Family Townhouse in Ikoyi",
     type: "townhouse", purpose: "buy", price: 420000000,
-    beds: 4, baths: 4, area: 275,
+    beds: 4, baths: 4, area: 180,
     city: "Lagos", community: "Old Ikoyi", address: "Bourdillon Road, Ikoyi",
     lat: 6.4488, lng: 3.4364,
     image: prop3, gallery: [prop3, prop1],
@@ -97,7 +98,7 @@ export const properties: Property[] = [
     id: "p-106",
     title: "Luxury Detached Villa, Lekki Phase 2",
     type: "villa", purpose: "buy", price: 680000000,
-    beds: 5, baths: 6, area: 560,
+    beds: 5, baths: 6, area: 520,
     city: "Lagos", community: "Lekki Phase 2", address: "Idado Estate, Igbo-efon, Lekki",
     lat: 6.4413, lng: 3.5234,
     image: prop6, gallery: [prop6, prop2],
@@ -133,12 +134,21 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "studio", label: "Studio" },
 ];
 
-export function formatAED(n: number): string {
-  if (n >= 1_000_000_000) return `₦${(n / 1_000_000_000).toFixed(n % 1_000_000_000 === 0 ? 0 : 2)}B`;
-  if (n >= 1_000_000) return `₦${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
-  if (n >= 1_000) return `₦${(n / 1_000).toFixed(0)}K`;
-  return `₦${n}`;
+// Indicative FX (NGN-based). Update centrally when needed.
+const RATES: Record<Currency, number> = { NGN: 1, USD: 1 / 1500, GBP: 1 / 1900 };
+const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
+
+export function formatPrice(n: number, currency: Currency = "NGN"): string {
+  const sym = SYMBOL[currency];
+  const v = n * RATES[currency];
+  if (v >= 1_000_000_000) return `${sym}${(v / 1_000_000_000).toFixed(v % 1_000_000_000 === 0 ? 0 : 2)}B`;
+  if (v >= 1_000_000) return `${sym}${(v / 1_000_000).toFixed(v % 1_000_000 === 0 ? 0 : 2)}M`;
+  if (v >= 1_000) return `${sym}${(v / 1_000).toFixed(0)}K`;
+  return `${sym}${Math.round(v)}`;
 }
+
+// Back-compat alias used in older imports.
+export const formatAED = (n: number) => formatPrice(n, "NGN");
 
 export function getProperty(id: string) {
   return properties.find((p) => p.id === id);

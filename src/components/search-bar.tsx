@@ -35,7 +35,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
             value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="Community, building, or keyword"
+            placeholder="Search by area, property type or budget…"
             className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </label>

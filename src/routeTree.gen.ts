@@ -12,7 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as PropertiesRouteImport } from './routes/properties'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as DiasporaRouteImport } from './routes/diaspora'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 
@@ -31,9 +35,29 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiasporaRoute = DiasporaRouteImport.update({
+  id: '/diaspora',
+  path: '/diaspora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsRoute = AgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,7 +73,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/agents': typeof AgentsRoute
+  '/contact': typeof ContactRoute
+  '/diaspora': typeof DiasporaRoute
+  '/insights': typeof InsightsRoute
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
@@ -57,7 +85,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/agents': typeof AgentsRoute
+  '/contact': typeof ContactRoute
+  '/diaspora': typeof DiasporaRoute
+  '/insights': typeof InsightsRoute
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
@@ -66,7 +98,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/agents': typeof AgentsRoute
+  '/contact': typeof ContactRoute
+  '/diaspora': typeof DiasporaRoute
+  '/insights': typeof InsightsRoute
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
@@ -76,17 +112,35 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
     | '/map'
     | '/properties'
     | '/saved'
     | '/properties/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agents' | '/map' | '/properties' | '/saved' | '/properties/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
+    | '/map'
+    | '/properties'
+    | '/saved'
+    | '/properties/$id'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/agents'
+    | '/contact'
+    | '/diaspora'
+    | '/insights'
     | '/map'
     | '/properties'
     | '/saved'
@@ -95,7 +149,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AgentsRoute: typeof AgentsRoute
+  ContactRoute: typeof ContactRoute
+  DiasporaRoute: typeof DiasporaRoute
+  InsightsRoute: typeof InsightsRoute
   MapRoute: typeof MapRoute
   PropertiesRoute: typeof PropertiesRouteWithChildren
   SavedRoute: typeof SavedRoute
@@ -124,11 +182,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diaspora': {
+      id: '/diaspora'
+      path: '/diaspora'
+      fullPath: '/diaspora'
+      preLoaderRoute: typeof DiasporaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents': {
       id: '/agents'
       path: '/agents'
       fullPath: '/agents'
       preLoaderRoute: typeof AgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -162,7 +248,11 @@ const PropertiesRouteWithChildren = PropertiesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AgentsRoute: AgentsRoute,
+  ContactRoute: ContactRoute,
+  DiasporaRoute: DiasporaRoute,
+  InsightsRoute: InsightsRoute,
   MapRoute: MapRoute,
   PropertiesRoute: PropertiesRouteWithChildren,
   SavedRoute: SavedRoute,
@@ -170,13 +260,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

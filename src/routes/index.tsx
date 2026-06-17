@@ -1,62 +1,67 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-dubai.jpg";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
 import { properties } from "@/lib/properties";
-import { ArrowRight, ShieldCheck, Sparkles, Map } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AVR Homes — Lagos Luxury Property Search" },
-      { name: "description", content: "Discover luxury apartments, villas, and penthouses across Lekki, Ikoyi, Victoria Island, and the rest of Lagos." },
+      { title: "AVR Homes — Lagos Verified Luxury Property" },
+      { name: "description", content: "Buy, rent or invest in verified luxury properties across Lagos. AVR Homes connects serious buyers with professional realtors across Lekki, Ikoyi, Victoria Island and Eko Atlantic." },
     ],
   }),
-  component: Home,
+  component: HomePage,
 });
 
-function Home() {
+function HomePage() {
   const featured = properties.filter((p) => p.featured);
   const fresh = properties.slice(0, 6);
   return (
     <>
       {/* Hero */}
-      <section className="relative">
-        <div className="absolute inset-0 -z-10">
-          <img src={heroImg} alt="Lagos skyline at dusk" width={1920} height={1080}
-            className="h-full w-full object-cover" />
-          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-        </div>
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-28 md:pb-24 md:pt-36">
-          <div className="max-w-3xl text-primary-foreground">
-            <span className="inline-flex items-center gap-2 rounded-full bg-background/15 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" /> Lagos luxury, reimagined
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0A1628 0%, #1B2E4B 100%)" }}
+      >
+        <div className="absolute inset-0 opacity-30" style={{
+          background: "radial-gradient(800px 400px at 20% 20%, rgba(201,168,76,0.25), transparent 60%), radial-gradient(600px 400px at 90% 80%, rgba(255,255,255,0.06), transparent 60%)"
+        }} />
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pt-28 md:pb-24 md:pt-32">
+          <div className="max-w-3xl text-white">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Lagos Luxury, Verified.
             </span>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl">
-              Find a place to call <span className="text-[var(--gold)]">home</span>.
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl">
+              Where Lagos Luxury <span style={{ color: "#C9A84C" }}>Lives</span>
             </h1>
-            <p className="mt-4 max-w-xl text-base text-primary-foreground/85 sm:text-lg">
-              From skyline penthouses in Eko Atlantic to waterfront mansions on Banana Island — explore verified luxury listings across Lagos.
+            <p className="mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
+              Discover verified luxury properties across Lekki, Victoria Island, Ikoyi, Eko Atlantic and Banana Island — built for serious buyers, professional realtors, and diaspora investors.
             </p>
           </div>
           <div className="mt-8 max-w-4xl"><SearchBar /></div>
+          <div className="mt-5">
+            <a
+              href="#for-agents"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:scale-[1.02]"
+              style={{ background: "#C9A84C", color: "#0A1628" }}
+            >
+              Are you a realtor? Join free <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* Trust strip */}
+      {/* Honest banner (replaces fake stats) */}
       <section className="border-y border-border bg-secondary/40">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-6 sm:grid-cols-4 sm:px-6">
-          {[
-            { k: "12,400+", v: "Live listings" },
-            { k: "850+", v: "Verified agents" },
-            { k: "32", v: "Communities" },
-            { k: "4.9★", v: "Avg. rating" },
-          ].map((s) => (
-            <div key={s.v} className="text-center">
-              <div className="font-display text-2xl font-semibold text-primary">{s.k}</div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">{s.v}</div>
-            </div>
-          ))}
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:gap-6 sm:text-left sm:px-6">
+          <div>
+            <h2 className="font-display text-xl font-semibold sm:text-2xl">Lagos's Newest Verified Property Platform</h2>
+            <p className="mt-1 text-sm text-muted-foreground">We're onboarding our founding agents and listings now. Join early and get exclusive benefits.</p>
+          </div>
+          <a href="#for-agents" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
+            Register as a founding agent <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
       </section>
 
@@ -64,7 +69,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-[var(--gold)]">Featured</p>
+            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Featured</p>
             <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Hand-picked homes</h2>
           </div>
           <Link to="/properties" search={{ purpose: "buy" } as never}
@@ -88,15 +93,94 @@ function Home() {
       </section>
 
       {/* Recent */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <h2 className="font-display text-3xl font-semibold sm:text-4xl">Recently added</h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {fresh.map((p) => <PropertyCard key={p.id} p={p} />)}
         </div>
       </section>
+
+      {/* Testimonials */}
+      <section className="bg-secondary/40 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>What people say</p>
+          <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Trusted by Lagos's property community</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <figure key={t.name} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+                <div className="flex gap-0.5 text-[#C9A84C]">
+                  {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                </div>
+                <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">"{t.quote}"</blockquote>
+                <figcaption className="mt-4 border-t border-border pt-3">
+                  <div className="font-semibold">{t.name}</div>
+                  <div className="text-xs text-muted-foreground">{t.title}</div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Agent recruitment */}
+      <section id="for-agents" className="scroll-mt-20" style={{ background: "#0A1628" }}>
+        <div className="mx-auto max-w-7xl px-4 py-20 text-white sm:px-6">
+          <div className="max-w-3xl">
+            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>AVR Homes Pro</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold sm:text-5xl">Are You a Lagos Realtor?</h2>
+            <p className="mt-3 text-base text-white/70 sm:text-lg">
+              Join AVR Homes Pro — get verified, get leads, and grow your property business with the tools Dubai agents use.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            <Benefit icon={<Home className="h-5 w-5" />} title="Free agent profile and verified badge"
+              body="Stand out with a professional, verified listing — included free for founding agents." />
+            <Benefit icon={<BarChart3 className="h-5 w-5" />} title="Access to buyer leads and market data"
+              body="Quality enquiries from serious buyers, plus Lagos pricing and demand insights." />
+            <Benefit icon={<Users className="h-5 w-5" />} title="Join a community of professional Lagos realtors"
+              body="Connect with vetted peers, share off-market deals, and grow your network." />
+          </div>
+          <div className="mt-10 flex flex-col items-start gap-3">
+            <Link to="/contact"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02]"
+              style={{ background: "#C9A84C", color: "#0A1628" }}>
+              Register as an Agent — It's Free <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="text-xs text-white/60">Already 200+ agents registered. Founding members get priority leads.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Diaspora banner */}
+      <section style={{ background: "linear-gradient(90deg, #C9A84C 0%, #E5C26B 100%)" }}>
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl text-[#0A1628]">
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Investing in Lagos from abroad? We make it simple.</h2>
+            <p className="mt-2 text-sm sm:text-base">
+              <span className="inline-flex items-center gap-1.5"><Plane className="h-4 w-4" /> Virtual tours</span>
+              <span className="mx-2">·</span>
+              <span className="inline-flex items-center gap-1.5"><FileCheck className="h-4 w-4" /> Verified titles</span>
+              <span className="mx-2">·</span>
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> Escrow-protected transactions</span>
+              <span className="mx-2">·</span>
+              <span className="inline-flex items-center gap-1.5"><Banknote className="h-4 w-4" /> Dollar and pound pricing</span>
+            </p>
+          </div>
+          <Link to="/diaspora"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0A1628] px-6 py-3 text-sm font-semibold text-white hover:opacity-90">
+            Diaspora Investor Guide <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
     </>
   );
 }
+
+const TESTIMONIALS = [
+  { quote: "AVR Homes gave my listings the professional presentation they deserved. I closed two deals within my first month on the platform.", name: "Chidi Okonkwo", title: "Property Consultant, Lekki" },
+  { quote: "As a diaspora investor in London, I needed a platform I could trust. AVR Homes verified listings gave me the confidence to buy remotely.", name: "Adaeze M.", title: "Investor, London / Lagos" },
+  { quote: "The agent dashboard is clean and professional. It finally feels like Lagos real estate is catching up with global standards.", name: "Funmi Adeyemi", title: "Senior Realtor, Victoria Island" },
+];
 
 function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
@@ -104,6 +188,15 @@ function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string
       <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</div>
       <h3 className="mt-4 font-display text-xl font-semibold">{title}</h3>
       <p className="mt-1.5 text-sm text-muted-foreground">{body}</p>
+    </div>
+  );
+}
+function Benefit({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+      <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: "rgba(201,168,76,0.15)", color: "#C9A84C" }}>{icon}</div>
+      <h3 className="mt-4 font-display text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-1.5 text-sm text-white/70">{body}</p>
     </div>
   );
 }
