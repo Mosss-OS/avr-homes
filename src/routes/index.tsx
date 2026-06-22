@@ -48,7 +48,7 @@ function HomePage() {
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}
             >
-              Are you a realtor? Join free <ArrowRight className="h-4 w-4" />
+              Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-4 w-4" />
             </a>
           </div>
 
@@ -59,11 +59,13 @@ function HomePage() {
       <section className="border-y border-border bg-secondary/40">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:gap-6 sm:text-left sm:px-6">
           <div>
-            <h2 className="font-display text-xl font-semibold sm:text-2xl">Lagos's Newest Verified Property Platform</h2>
-            <p className="mt-1 text-sm text-muted-foreground">We're onboarding our founding agents and listings now. Join early and get exclusive benefits.</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">For Agents & Realtors — Early Access</p>
+            <h2 className="mt-1 font-display text-xl font-semibold sm:text-2xl">Founding Member Sign-Ups Are Open</h2>
+            <p className="mt-1 text-sm text-muted-foreground">A new Lagos real estate platform for realtors — free lead generation, listing tools, and training. Benefits are exclusive to early sign-ups. Takes 2 minutes.</p>
           </div>
           <a href="https://tally.so/r/RGrA0p" target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
-            Register as a founding agent <ArrowRight className="h-4 w-4" />
+            Register your interest <ArrowRight className="h-4 w-4" />
+
           </a>
 
         </div>
@@ -130,19 +132,19 @@ function HomePage() {
       <section id="for-agents" className="scroll-mt-20" style={{ background: "#0A1628" }}>
         <div className="mx-auto max-w-7xl px-4 py-20 text-white sm:px-6">
           <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>AVR Homes Pro</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold sm:text-5xl">Are You a Lagos Realtor?</h2>
+            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>For Agents, Realtors & Early Access Members</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold sm:text-5xl">Join the Nigerian Realtor Community</h2>
             <p className="mt-3 text-base text-white/70 sm:text-lg">
-              Join AVR Homes Pro — get verified, get leads, and grow your property business with the tools Dubai agents use.
+              We're building a professional community for Lagos realtors — with free lead generation, listing tools, and training. We're onboarding founding members now, and the benefits are exclusive to early sign-ups. It takes 2 minutes to register your interest.
             </p>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             <Benefit icon={<Home className="h-5 w-5" />} title="Free agent profile and verified badge"
               body="Stand out with a professional, verified listing — included free for founding agents." />
-            <Benefit icon={<BarChart3 className="h-5 w-5" />} title="Access to buyer leads and market data"
+            <Benefit icon={<BarChart3 className="h-5 w-5" />} title="Free lead generation and market data"
               body="Quality enquiries from serious buyers, plus Lagos pricing and demand insights." />
-            <Benefit icon={<Users className="h-5 w-5" />} title="Join a community of professional Lagos realtors"
-              body="Connect with vetted peers, share off-market deals, and grow your network." />
+            <Benefit icon={<Users className="h-5 w-5" />} title="Listing tools & realtor training"
+              body="Professional tools to manage listings, plus training built for the Lagos market." />
           </div>
           <div className="mt-10 flex flex-col items-start gap-3">
             <a href="https://tally.so/r/RGrA0p"
@@ -150,8 +152,10 @@ function HomePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}>
-              Register as an Agent — It's Free <ArrowRight className="h-4 w-4" />
+              Register your interest — Founding Members Only <ArrowRight className="h-4 w-4" />
             </a>
+
+
 
             <p className="text-xs text-white/60">Already 200+ agents registered. Founding members get priority leads.</p>
           </div>
