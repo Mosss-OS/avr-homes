@@ -48,7 +48,7 @@ function HomePage() {
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}
             >
-              Are you a realtor? Join free <ArrowRight className="h-4 w-4" />
+              Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-4 w-4" />
             </a>
           </div>
 
