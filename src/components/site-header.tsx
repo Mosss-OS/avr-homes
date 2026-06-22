@@ -1,6 +1,7 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2 } from "lucide-react";
 import { useState } from "react";
+import logoAsset from "@/assets/avr-logo.jpg.asset.json";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -25,10 +26,12 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Building2 className="h-5 w-5" />
-          </span>
+        <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
+          <img
+            src={logoAsset.url}
+            alt="AVR Homes"
+            className="h-10 w-10 rounded-lg object-cover sm:h-11 sm:w-11"
+          />
           <span className="flex flex-col leading-tight">
             <span className="font-display text-lg font-semibold tracking-tight sm:text-xl">
               AVR Homes<span className="text-[var(--gold)]">.</span>
@@ -155,10 +158,8 @@ export function SiteFooter() {
     <footer className="mt-20 border-t border-border bg-secondary/40">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Building2 className="h-4 w-4" />
-            </span>
+          <div className="flex items-center gap-2.5">
+            <img src={logoAsset.url} alt="AVR Homes" className="h-9 w-9 rounded-lg object-cover" />
             <span className="font-display text-lg font-semibold">AVR Homes.</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
