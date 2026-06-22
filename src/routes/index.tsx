@@ -3,6 +3,7 @@ import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
 import { properties } from "@/lib/properties";
 import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote } from "lucide-react";
+import heroLekki from "@/assets/hero-lekki.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,19 @@ function HomePage() {
         className="relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0A1628 0%, #1B2E4B 100%)" }}
       >
+        <img
+          src={heroLekki}
+          alt="Civic Towers, Lekki — Lagos luxury skyline"
+          className="absolute inset-0 h-full w-full object-cover opacity-40"
+          loading="eager"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(27,46,75,0.65) 50%, rgba(10,22,40,0.55) 100%)",
+          }}
+        />
         <div className="absolute inset-0 opacity-30" style={{
           background: "radial-gradient(800px 400px at 20% 20%, rgba(201,168,76,0.25), transparent 60%), radial-gradient(600px 400px at 90% 80%, rgba(255,255,255,0.06), transparent 60%)"
         }} />
