@@ -42,13 +42,16 @@ function HomePage() {
           <div className="mt-8 max-w-4xl"><SearchBar /></div>
           <div className="mt-5">
             <a
-              href="#for-agents"
+              href="https://tally.so/r/RGrA0p"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}
             >
               Are you a realtor? Join free <ArrowRight className="h-4 w-4" />
             </a>
           </div>
+
         </div>
       </section>
 
@@ -59,9 +62,10 @@ function HomePage() {
             <h2 className="font-display text-xl font-semibold sm:text-2xl">Lagos's Newest Verified Property Platform</h2>
             <p className="mt-1 text-sm text-muted-foreground">We're onboarding our founding agents and listings now. Join early and get exclusive benefits.</p>
           </div>
-          <a href="#for-agents" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
+          <a href="https://tally.so/r/RGrA0p" target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
             Register as a founding agent <ArrowRight className="h-4 w-4" />
           </a>
+
         </div>
       </section>
 
@@ -141,11 +145,14 @@ function HomePage() {
               body="Connect with vetted peers, share off-market deals, and grow your network." />
           </div>
           <div className="mt-10 flex flex-col items-start gap-3">
-            <Link to="/contact"
+            <a href="https://tally.so/r/RGrA0p"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}>
               Register as an Agent — It's Free <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
+
             <p className="text-xs text-white/60">Already 200+ agents registered. Founding members get priority leads.</p>
           </div>
         </div>
