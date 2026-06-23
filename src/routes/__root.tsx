@@ -14,6 +14,45 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 
+const FAVICON = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782134894/AVRUST_LOGO_egadjg.jpg";
+
+const SITE_URL = "https://avrusthomes.com";
+
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: "AVR Homes",
+  description: "Lagos luxury real estate marketplace connecting buyers and diaspora investors with verified realtors.",
+  url: SITE_URL,
+  logo: FAVICON,
+  image: FAVICON,
+  areaServed: [
+    { "@type": "City", name: "Lekki" },
+    { "@type": "City", name: "Victoria Island" },
+    { "@type": "City", name: "Ikoyi" },
+    { "@type": "City", name: "Eko Atlantic" },
+    { "@type": "City", name: "Banana Island" },
+  ],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "2 Lanre Olumide Street, Idado Estate, Igbo-efon",
+    addressLocality: "Lekki",
+    addressRegion: "Lagos",
+    addressCountry: "NG",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+234-XXX-XXX-XXXX",
+    contactType: "customer service",
+    email: "hello@avrhomes.ng",
+  },
+  sameAs: [
+    "https://instagram.com/avrhomes.ng",
+    "https://tiktok.com/@avrhomes",
+    "https://linkedin.com/company/avr-homes",
+  ],
+};
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -58,17 +97,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "AVR Homes — Lagos Verified Luxury Property" },
       { property: "og:description", content: "Buy, rent or invest in verified luxury properties across Lagos. AVR Homes connects serious buyers with professional realtors across Lekki, Ikoyi, Victoria Island and Eko Atlantic." },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: FAVICON },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:site_name", content: "AVR Homes" },
+      { property: "og:locale", content: "en_NG" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "AVR Homes — Lagos Verified Luxury Property" },
       { name: "twitter:description", content: "Buy, rent or invest in verified luxury properties across Lagos." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92026b89-620b-4033-8e7d-6685fbd26263/id-preview-1b1dd8ac--1836a95d-1452-408c-aa22-e8af95dbb033.lovable.app-1781082039191.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92026b89-620b-4033-8e7d-6685fbd26263/id-preview-1b1dd8ac--1836a95d-1452-408c-aa22-e8af95dbb033.lovable.app-1781082039191.png" },
+      { name: "twitter:image", content: FAVICON },
+      { name: "twitter:site", content: "@avrhomes" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/jpeg", href: FAVICON },
+      { rel: "apple-touch-icon", href: FAVICON },
+      { rel: "canonical", href: SITE_URL },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        innerHTML: JSON.stringify(STRUCTURED_DATA),
+      },
     ],
   }),
   shellComponent: RootShell,

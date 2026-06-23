@@ -18,7 +18,10 @@ export const Route = createFileRoute("/properties/$id")({
       { property: "og:title", content: loaderData.property.title },
       { property: "og:description", content: loaderData.property.description.slice(0, 160) },
       { property: "og:image", content: loaderData.property.image },
+      { property: "og:url", content: `https://avrusthomes.com/properties/${loaderData.property.id}` },
+      { name: "twitter:card", content: "summary_large_image" },
     ] : [],
+    links: loaderData ? [{ rel: "canonical", href: `https://avrusthomes.com/properties/${loaderData.property.id}` }] : [],
   }),
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">

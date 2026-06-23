@@ -5,8 +5,12 @@ export const Route = createFileRoute("/insights")({
   head: () => ({
     meta: [
       { title: "Lagos Market Insights — AVR Homes" },
-      { name: "description", content: "Lagos luxury real estate market insights and price trends — coming soon." },
+      { name: "description", content: "Lagos luxury real estate market insights, price trends, and neighborhood analysis — coming soon." },
+      { property: "og:title", content: "Lagos Market Insights — AVR Homes" },
+      { property: "og:description", content: "Stay informed with Lagos luxury real estate market insights, pricing trends, and neighborhood data." },
+      { property: "og:url", content: "https://avrusthomes.com/insights" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/insights" }],
   }),
   component: Insights,
 });
