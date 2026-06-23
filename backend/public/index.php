@@ -63,7 +63,23 @@ $handler = $matched['handler'];
 $params  = $matched['params'];
 
 try {
-  $handler($params);
+  if (is_array($handler)) {
+    [$class, $method] = $handler;
+    $controllerFile = __DIR__ . "/../controllers/{$class}.php";
+    if (!file_exists($controllerFile)) {
+      Response::error('Controller not found', 500);
+    }
+    require_once $controllerFile;
+    if (!class_exists($class)) {
+      Response::error('Controller class not found', 500);
+    }
+    if (!method_exists($class, $method)) {
+      Response::error('Controller method not found', 500);
+    }
+    call_user_func([$class, $method], $params);
+  } else {
+    $handler($params);
+  }
 } catch (PDOException $e) {
   $message = $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Database error occurred';
   Response::error($message, 500);
