@@ -97,16 +97,18 @@ function Detail() {
       {/* Gallery */}
       <div className="mt-4 grid gap-3 md:grid-cols-[2fr_1fr]">
         <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-          <img src={p.gallery[active]} alt={p.title} className="h-full w-full object-cover" />
+          <img src={p.gallery[active] || p.image} alt={p.title} className="h-full w-full object-cover" />
         </div>
-        <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
-          {p.gallery.slice(0, 3).map((src: string, i: number) => (
-            <button key={i} onClick={() => setActive(i)}
-              className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
-              <img src={src} alt="" className="h-full w-full object-cover" />
-            </button>
-          ))}
-        </div>
+        {p.gallery.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
+            {p.gallery.slice(0, 3).map((src: string, i: number) => (
+              <button key={i} onClick={() => setActive(i)}
+                className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
@@ -235,7 +237,7 @@ function Detail() {
               </>
             )}
           </div>
-          <InquiryForm propertyTitle={p.title} />
+          <InquiryForm propertyId={Number(p.id)} propertyTitle={p.title} />
         </aside>
       </div>
     </div>
@@ -314,7 +316,7 @@ function Range({ label, suffix, min, max, value, onChange }: { label: string; su
   );
 }
 
-function InquiryForm({ propertyTitle }: { propertyTitle: string }) {
+function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; propertyTitle: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
@@ -328,7 +330,7 @@ function InquiryForm({ propertyTitle }: { propertyTitle: string }) {
         email: form.get("email") as string,
         phone: form.get("phone") as string,
         message: form.get("message") as string,
-        property_title: propertyTitle,
+        property_id: propertyId,
       });
       setSent(true);
     } catch {
