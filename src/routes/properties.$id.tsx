@@ -1,15 +1,27 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { formatAED, getProperty, getAgent, properties } from "@/lib/properties";
+import { formatAED, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
+import type { Property } from "@/lib/properties";
 
 export const Route = createFileRoute("/properties/$id")({
-  loader: ({ params }) => {
-    const p = getProperty(params.id);
-    if (!p) throw notFound();
-    return { property: p };
+  loader: async ({ params }) => {
+    const id = parseInt(params.id.replace("p-", ""), 10);
+    if (isNaN(id)) {
+      const p = getProperty(params.id);
+      if (!p) throw notFound();
+      return { property: p as unknown as Property };
+    }
+    try {
+      const property = await fetchProperty(id);
+      return { property };
+    } catch {
+      const p = getProperty(params.id);
+      if (!p) throw notFound();
+      return { property: p as unknown as Property };
+    }
   },
   head: ({ loaderData }) => ({
     meta: loaderData ? [
@@ -41,9 +53,13 @@ export const Route = createFileRoute("/properties/$id")({
 
 function Detail() {
   const { property: p } = Route.useLoaderData();
-  const agent = getAgent(p.agentId);
+  const agent = p.agent_id != null && !("agent_name" in p)
+    ? getAgent(p.agent_id.toString())
+    : p.agent_name
+      ? { name: p.agent_name, agency: p.agent_agency || "", phone: p.agent_phone || "", email: p.agent_email || "", avatarHue: p.agent_avatar_hue || 0, listings: 0, languages: p.agent_languages || [], isVerified: p.agent_is_verified || false }
+      : null;
   const [active, setActive] = useState(0);
-  const [saved, setSaved] = useState(() => isSaved(p.id));
+  const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [shared, setShared] = useState(false);
 
   const similar = useMemo(
@@ -70,7 +86,7 @@ function Detail() {
           <button onClick={share} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-secondary">
             <Share2 className="h-3.5 w-3.5" /> {shared ? "Copied!" : "Share"}
           </button>
-          <button onClick={() => { toggleSavedProp(p.id); setSaved((s) => !s); }}
+          <button onClick={() => { toggleSavedProp(String(p.id)); setSaved((s) => !s); }}
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-secondary">
             <Heart className={`h-3.5 w-3.5 ${saved ? "fill-destructive text-destructive" : ""}`} />
             {saved ? "Saved" : "Save"}
@@ -97,12 +113,12 @@ function Detail() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary-foreground">For {p.purpose}</span>
-            {p.verified && (
+            {(p.verified || p.is_verified) && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)]/15 px-3 py-1 text-xs font-medium text-[var(--gold-foreground)]">
                 <BadgeCheck className="h-3.5 w-3.5" /> Verified
               </span>
             )}
-            <span className="text-xs text-muted-foreground">Listed {p.postedDaysAgo === 0 ? "today" : `${p.postedDaysAgo}d ago`}</span>
+            <span className="text-xs text-muted-foreground">Listed {(p.posted_days_ago ?? p.postedDaysAgo) === 0 ? "today" : `${(p.posted_days_ago ?? p.postedDaysAgo)}d ago`}</span>
           </div>
           <h1 className="mt-3 font-display text-2xl font-semibold sm:text-4xl">{p.title}</h1>
           <div className="mt-1 inline-flex items-start gap-1.5 text-sm text-muted-foreground">
@@ -130,7 +146,7 @@ function Detail() {
             <h2 className="font-display text-2xl font-semibold">Property details</h2>
             <dl className="mt-3 grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
               <Detail2 icon={<Building2 className="h-4 w-4" />} label="Type" value={p.type} />
-              <Detail2 icon={<Compass className="h-4 w-4" />} label="Reference" value={p.id.toUpperCase()} />
+              <Detail2 icon={<Compass className="h-4 w-4" />} label="Reference" value={String(p.id)} />
               <Detail2 icon={<Calendar className="h-4 w-4" />} label="Listed" value={p.postedDaysAgo === 0 ? "Today" : `${p.postedDaysAgo} days ago`} />
               <Detail2 icon={<MapPin className="h-4 w-4" />} label="Community" value={p.community} />
               <Detail2 icon={<Maximize2 className="h-4 w-4" />} label="Plot area" value={`${p.area.toLocaleString()} sqm`} />
@@ -210,7 +226,7 @@ function Detail() {
                   <a href={`mailto:${agent.email}?subject=Inquiry about ${encodeURIComponent(p.title)}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary">
                     <Mail className="h-4 w-4" /> Email agent
                   </a>
-                  <a href={`https://wa.me/${agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${agent.name}, I'm interested in ${p.title} (${p.id.toUpperCase()}).`)}`}
+                  <a href={`https://wa.me/${agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${agent.name}, I'm interested in ${p.title} (${String(p.id)}).`)}`}
                     target="_blank" rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary">
                     WhatsApp
@@ -300,8 +316,28 @@ function Range({ label, suffix, min, max, value, onChange }: { label: string; su
 
 function InquiryForm({ propertyTitle }: { propertyTitle: string }) {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    const form = new FormData(e.currentTarget);
+    try {
+      await submitInquiry({
+        name: form.get("name") as string,
+        email: form.get("email") as string,
+        phone: form.get("phone") as string,
+        message: form.get("message") as string,
+        property_title: propertyTitle,
+      });
+      setSent(true);
+    } catch {
+      setError("Failed to send. Try emailing the agent directly.");
+    }
+  }
+
   return (
-    <form onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+    <form onSubmit={handleSubmit}
       className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
       <h3 className="font-display text-lg font-semibold">Request a viewing</h3>
       {sent ? (
@@ -310,10 +346,11 @@ function InquiryForm({ propertyTitle }: { propertyTitle: string }) {
         </div>
       ) : (
         <div className="mt-3 grid gap-2">
-          <input required placeholder="Your name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <input required type="email" placeholder="Email" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <input required type="tel" placeholder="Phone" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <textarea rows={3} defaultValue={`I'd like to schedule a viewing for "${propertyTitle}".`}
+          {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+          <input required name="name" placeholder="Your name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <input required type="email" name="email" placeholder="Email" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <input required type="tel" name="phone" placeholder="Phone" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <textarea name="message" rows={3} defaultValue={`I'd like to schedule a viewing for "${propertyTitle}".`}
             className="resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           <button type="submit" className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90">
             Send inquiry

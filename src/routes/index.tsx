@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
-import { properties } from "@/lib/properties";
+import { fetchProperties, properties } from "@/lib/properties";
+import { useEffect, useState } from "react";
+import type { Property } from "@/lib/properties";
 import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote } from "lucide-react";
 import heroLekki from "@/assets/hero-lekki.jpg";
 
@@ -20,8 +22,26 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const featured = properties.filter((p) => p.featured);
-  const fresh = properties.slice(0, 6);
+  const [featured, setFeatured] = useState<Property[]>([]);
+  const [fresh, setFresh] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetchProperties({ featured: "1", per_page: "6" }),
+      fetchProperties({ per_page: "6", sort: "created_at", order: "desc" }),
+    ])
+      .then(([featuredRes, freshRes]) => {
+        setFeatured(featuredRes.data);
+        setFresh(freshRes.data);
+      })
+      .catch(() => {
+        setFeatured(properties.filter((p) => p.featured));
+        setFresh(properties.slice(0, 6));
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <>
       {/* Hero */}
