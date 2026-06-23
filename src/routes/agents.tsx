@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Phone, Mail, Globe } from "lucide-react";
-import { agents, properties } from "@/lib/properties";
+import { fetchAgents, agents as fallbackAgents, properties } from "@/lib/properties";
+import type { AgentData } from "@/lib/types";
 
 export const Route = createFileRoute("/agents")({
   head: () => ({
@@ -17,6 +19,41 @@ export const Route = createFileRoute("/agents")({
 });
 
 function Agents() {
+  const [agentList, setAgentList] = useState<AgentData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAgents()
+      .then(setAgentList)
+      .catch(() => {
+        setAgentList(
+          fallbackAgents.map((a) => ({
+            id: a.id,
+            name: a.name,
+            agency: a.agency,
+            phone: a.phone,
+            email: a.email,
+            languages: a.languages,
+            avatar_hue: a.avatarHue,
+            listings: a.listings,
+            bio: null,
+            photo_url: null,
+          } as AgentData))
+        );
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <p className="text-xs font-medium uppercase tracking-wider text-[var(--gold)]">Talk to a pro</p>
+        <h1 className="mt-1 font-display text-4xl font-semibold sm:text-5xl">Top Lagos agents</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">Loading agents…</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <p className="text-xs font-medium uppercase tracking-wider text-[var(--gold)]">Talk to a pro</p>
@@ -26,14 +63,14 @@ function Agents() {
       </p>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {agents.map((a) => {
-          const count = properties.filter((p) => p.agentId === a.id).length;
+        {agentList.map((a) => {
+          const count = a.listings;
           return (
             <div key={a.id} className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-              <div className="h-20" style={{ background: `linear-gradient(135deg, oklch(0.55 0.12 ${a.avatarHue}), oklch(0.4 0.08 ${a.avatarHue + 30}))` }} />
+              <div className="h-20" style={{ background: `linear-gradient(135deg, oklch(0.55 0.12 ${a.avatar_hue}), oklch(0.4 0.08 ${a.avatar_hue + 30}))` }} />
               <div className="-mt-10 p-5">
                 <div className="grid h-20 w-20 place-items-center rounded-full border-4 border-card font-display text-2xl font-semibold text-primary-foreground"
-                  style={{ background: `oklch(0.45 0.1 ${a.avatarHue})` }}>
+                  style={{ background: `oklch(0.45 0.1 ${a.avatar_hue})` }}>
                   {a.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <h3 className="mt-3 font-display text-xl font-semibold">{a.name}</h3>
