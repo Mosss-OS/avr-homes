@@ -19,7 +19,7 @@ export const Route = createFileRoute("/map")({
 
 // Simple SVG "map" with stylized Lagos layout — no external map dependency.
 function MapView() {
-  const [hoverId, setHoverId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | number | null>(null);
   const bounds = useMemo(() => {
     const lats = properties.map((p) => p.lat);
     const lngs = properties.map((p) => p.lng);

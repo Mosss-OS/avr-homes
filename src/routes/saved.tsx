@@ -25,7 +25,7 @@ function Saved() {
     setSearches(getSavedSearches());
   }, []);
 
-  const savedProps = properties.filter((p) => savedIds.includes(p.id));
+  const savedProps = properties.filter((p) => savedIds.includes(String(p.id)));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">

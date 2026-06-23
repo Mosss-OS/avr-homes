@@ -1,3 +1,5 @@
+import { api } from "./api-client";
+import type { PropertyData, AgentData, PaginatedResponse } from "./types";
 import prop1 from "@/assets/prop-1.jpg";
 import prop2 from "@/assets/prop-2.jpg";
 import prop3 from "@/assets/prop-3.jpg";
@@ -9,28 +11,82 @@ export type Purpose = "buy" | "rent";
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio";
 export type Currency = "NGN" | "USD" | "GBP";
 
+/**
+ * Property shape used at runtime — works for both API data
+ * (after propertyFromApi conversion) and legacy static fallback.
+ */
 export interface Property {
-  id: string;
+  id: string | number;
   title: string;
   type: PropertyType;
   purpose: Purpose;
-  price: number; // NGN, per year if rent
+  price: number;
   beds: number;
   baths: number;
-  area: number; // sqm
+  area: number;
   city: string;
   community: string;
   address: string;
   lat: number;
   lng: number;
-  image: string;
+  image: any;
   gallery: string[];
   description: string;
   amenities: string[];
-  agentId: string;
+  agent_id?: string | number | null;
+  agentId?: string;
   featured?: boolean;
+  is_verified?: boolean;
   verified?: boolean;
-  postedDaysAgo: number;
+  posted_days_ago?: number;
+  postedDaysAgo?: number;
+  images?: { url: string }[];
+  agent_name?: string;
+  agent_agency?: string;
+  agent_phone?: string;
+  agent_email?: string;
+  agent_avatar_hue?: number;
+  agent_languages?: string[];
+  agent_is_verified?: boolean;
+}
+
+export function propertyFromApi(p: PropertyData): Property {
+  return {
+    ...p,
+    image: p.image || (p.images?.[0]?.url ?? null),
+    gallery: p.images?.map((i) => i.url) || [],
+    agent_id: p.agent_id ?? null,
+    posted_days_ago: p.posted_days_ago,
+    lat: Number(p.lat),
+    lng: Number(p.lng),
+  };
+}
+
+export async function fetchProperties(params?: Record<string, string>): Promise<PaginatedResponse<Property>> {
+  const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+  const res = await api.get<PaginatedResponse<PropertyData>>(`/api/properties${qs}`);
+  return {
+    ...res.data,
+    data: res.data.data.map(propertyFromApi),
+  };
+}
+
+export async function fetchProperty(id: number): Promise<Property> {
+  const res = await api.get<PropertyData>(`/api/properties/${id}`);
+  return propertyFromApi(res.data);
+}
+
+export async function fetchAgents(): Promise<AgentData[]> {
+  const res = await api.get<AgentData[]>("/api/agents");
+  return res.data;
+}
+
+export async function submitContact(data: Record<string, string>): Promise<void> {
+  await api.post("/api/contact", data);
+}
+
+export async function submitInquiry(data: Record<string, string | number>): Promise<void> {
+  await api.post("/api/inquiries", data);
 }
 
 export const properties: Property[] = [

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { useState } from "react";
+import { submitContact } from "@/lib/properties";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -15,8 +16,28 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
   const address = "2 Lanre Olumide Street, Idado Estate, Igbo-efon, Lekki, Lagos";
   const mapsSrc = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    const form = new FormData(e.currentTarget);
+    try {
+      await submitContact({
+        name: form.get("name") as string,
+        email: form.get("email") as string,
+        phone: form.get("phone") as string,
+        enquiry_type: form.get("subject") as string,
+        message: form.get("message") as string,
+      });
+      setSent(true);
+    } catch {
+      setError("Failed to send. Please try again or email us directly.");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Contact</p>
@@ -40,10 +61,7 @@ function Contact() {
           </div>
         </div>
 
-        <form
-          onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]"
-        >
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
           <h2 className="font-display text-2xl font-semibold">Send us a message</h2>
           {sent ? (
             <div className="mt-4 rounded-lg bg-primary/10 p-4 text-sm text-primary">
@@ -51,22 +69,23 @@ function Contact() {
             </div>
           ) : (
             <div className="mt-4 grid gap-3">
-              <Field label="Name"><input required className="field" /></Field>
+              {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+              <Field label="Name"><input required name="name" className="field" /></Field>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Email"><input required type="email" className="field" /></Field>
-                <Field label="Phone"><input required type="tel" className="field" /></Field>
+                <Field label="Email"><input required type="email" name="email" className="field" /></Field>
+                <Field label="Phone"><input required type="tel" name="phone" className="field" /></Field>
               </div>
               <Field label="Enquiry type">
-                <select required className="field">
+                <select required name="subject" className="field">
                   <option value="">Select…</option>
-                  <option>Buy</option>
-                  <option>Rent</option>
-                  <option>Agent Enquiry</option>
-                  <option>Developer Partnership</option>
-                  <option>Media</option>
+                  <option value="Buy">Buy</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Agent Enquiry">Agent Enquiry</option>
+                  <option value="Developer Partnership">Developer Partnership</option>
+                  <option value="Media">Media</option>
                 </select>
               </Field>
-              <Field label="Message"><textarea required rows={4} className="field resize-none" /></Field>
+              <Field label="Message"><textarea required name="message" rows={4} className="field resize-none" /></Field>
               <button type="submit" className="mt-2 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
                 Send enquiry
               </button>
