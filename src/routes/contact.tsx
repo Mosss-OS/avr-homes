@@ -8,7 +8,7 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact AVR Homes — Lekki, Lagos" },
       { name: "description", content: "Get in touch with AVR Homes — visit our Lekki office, message us on WhatsApp, or send a property enquiry." },
     ],
-    links: [{ rel: "canonical", href: "https://avr-homes.lovable.app/contact" }],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/contact" }],
   }),
   component: Contact,
 });

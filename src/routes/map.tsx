@@ -7,8 +7,12 @@ export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
       { title: "Map view — AVR Homes Lagos Property Search" },
-      { name: "description", content: "Explore Lagos luxury properties on an interactive map." },
+      { name: "description", content: "Explore luxury properties across Lekki, Ikoyi, Victoria Island and Eko Atlantic on an interactive map." },
+      { property: "og:title", content: "Map view — AVR Homes Lagos Property Search" },
+      { property: "og:description", content: "Explore Lagos luxury properties on an interactive map of the city's prime neighborhoods." },
+      { property: "og:url", content: "https://avrusthomes.com/map" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/map" }],
   }),
   component: MapView,
 });

@@ -6,10 +6,11 @@ export const Route = createFileRoute("/about")({
     meta: [
       { title: "About AVR Homes — Building the Standard for Lagos Real Estate" },
       { name: "description", content: "AVR Homes brings trust, transparency, and world-class standards to Nigerian luxury real estate — from Lekki to the world." },
-      { property: "og:title", content: "About AVR Homes" },
+      { property: "og:title", content: "About AVR Homes — Building the Standard for Lagos Real Estate" },
       { property: "og:description", content: "Building the standard for Lagos real estate — verified listings, professional realtors, diaspora-ready transactions." },
+      { property: "og:url", content: "https://avrusthomes.com/about" },
     ],
-    links: [{ rel: "canonical", href: "https://avr-homes.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/about" }],
   }),
   component: About,
 });

@@ -1,7 +1,7 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2 } from "lucide-react";
 import { useState } from "react";
-import logoAsset from "@/assets/avr-logo.jpg.asset.json";
+const LOGO_URL = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -28,9 +28,9 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <img
-            src={logoAsset.url}
+            src={LOGO_URL}
             alt="AVR Homes"
-            className="h-10 w-10 rounded-lg object-cover sm:h-11 sm:w-11"
+            className="h-14 w-14 rounded-xl object-cover sm:h-16 sm:w-16"
           />
           <span className="flex flex-col leading-tight">
             <span className="font-display text-lg font-semibold tracking-tight sm:text-xl">
@@ -159,8 +159,8 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2.5">
-            <img src={logoAsset.url} alt="AVR Homes" className="h-9 w-9 rounded-lg object-cover" />
-            <span className="font-display text-lg font-semibold">AVR Homes.</span>
+            <img src={LOGO_URL} alt="AVR Homes" className="h-14 w-14 rounded-xl object-cover" />
+            <span className="font-display text-xl font-semibold">AVR Homes.</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             Lagos Luxury, Verified. — Lekki, Ikoyi, Victoria Island, Banana Island & Eko Atlantic.

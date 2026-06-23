@@ -10,7 +10,11 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "AVR Homes — Lagos Verified Luxury Property" },
       { name: "description", content: "Buy, rent or invest in verified luxury properties across Lagos. AVR Homes connects serious buyers with professional realtors across Lekki, Ikoyi, Victoria Island and Eko Atlantic." },
+      { property: "og:title", content: "AVR Homes — Lagos Verified Luxury Property" },
+      { property: "og:description", content: "Buy, rent or invest in verified luxury properties across Lagos — the premier marketplace for Lagos luxury real estate." },
+      { property: "og:url", content: "https://avrusthomes.com" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com" }],
   }),
   component: HomePage,
 });
@@ -22,7 +26,7 @@ function HomePage() {
     <>
       {/* Hero */}
       <section
-        className="relative overflow-hidden"
+        className="relative flex min-h-dvh flex-col justify-center overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0A1628 0%, #1B2E4B 100%)" }}
       >
         <img
@@ -41,7 +45,7 @@ function HomePage() {
         <div className="absolute inset-0 opacity-30" style={{
           background: "radial-gradient(800px 400px at 20% 20%, rgba(201,168,76,0.25), transparent 60%), radial-gradient(600px 400px at 90% 80%, rgba(255,255,255,0.06), transparent 60%)"
         }} />
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pt-28 md:pb-24 md:pt-32">
+        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6">
           <div className="max-w-3xl text-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Lagos Luxury, Verified.

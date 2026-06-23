@@ -10,6 +10,7 @@ export const Route = createFileRoute("/saved")({
     meta: [
       { title: "Saved properties & searches — AVR Homes" },
       { name: "description", content: "Your saved Lagos properties and search alerts." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: Saved,
