@@ -8,6 +8,14 @@ require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Validator.php';
 require_once __DIR__ . '/../middleware/Cors.php';
 
+// Autoload models, middleware, and services
+foreach (glob(__DIR__ . '/../models/*.php') as $modelFile) {
+    require_once $modelFile;
+}
+foreach (glob(__DIR__ . '/../middleware/*.php') as $middlewareFile) {
+    require_once $middlewareFile;
+}
+
 Cors::handle();
 
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -24,7 +32,7 @@ $routes = [
   'DELETE' => [],
 ];
 
-function route(string $method, string $pattern, callable $handler): void
+function route(string $method, string $pattern, array|callable $handler): void
 {
   global $routes;
   $routes[strtoupper($method)][$pattern] = $handler;
