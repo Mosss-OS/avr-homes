@@ -6,8 +6,12 @@ export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
       { title: "Top Lagos Real Estate Agents — AVR Homes" },
-      { name: "description", content: "Connect with verified luxury property agents across Lagos." },
+      { name: "description", content: "Connect with verified luxury property agents across Lekki, Ikoyi, Victoria Island and beyond." },
+      { property: "og:title", content: "Top Lagos Real Estate Agents — AVR Homes" },
+      { property: "og:description", content: "Find trusted, verified real estate agents in Lagos. Browse agent profiles and get in touch directly." },
+      { property: "og:url", content: "https://avrusthomes.com/agents" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/agents" }],
   }),
   component: Agents,
 });

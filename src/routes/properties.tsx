@@ -22,8 +22,12 @@ export const Route = createFileRoute("/properties")({
   head: () => ({
     meta: [
       { title: "Properties for sale & rent — AVR Homes" },
-      { name: "description", content: "Browse luxury apartments, villas, and penthouses across Lagos." },
+      { name: "description", content: "Browse luxury apartments, villas, and penthouses across Lekki, Ikoyi, Victoria Island, and Eko Atlantic." },
+      { property: "og:title", content: "Properties for sale & rent — AVR Homes" },
+      { property: "og:description", content: "Browse luxury apartments, villas, and penthouses across Lagos." },
+      { property: "og:url", content: "https://avrusthomes.com/properties" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/properties" }],
   }),
   component: List,
 });

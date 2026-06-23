@@ -5,8 +5,12 @@ export const Route = createFileRoute("/diaspora")({
   head: () => ({
     meta: [
       { title: "Diaspora Investor Guide — AVR Homes" },
-      { name: "description", content: "Buying Lagos property from abroad? Virtual tours, verified titles, escrow protection, and multi-currency pricing." },
+      { name: "description", content: "Buying Lagos property from abroad? Virtual tours, verified titles, escrow protection, and multi-currency pricing for diaspora investors." },
+      { property: "og:title", content: "Diaspora Investor Guide — AVR Homes" },
+      { property: "og:description", content: "Invest in Lagos real estate from abroad. Virtual tours, verified titles, escrow-protected transactions, and multi-currency pricing in USD, GBP, and NGN." },
+      { property: "og:url", content: "https://avrusthomes.com/diaspora" },
     ],
+    links: [{ rel: "canonical", href: "https://avrusthomes.com/diaspora" }],
   }),
   component: Diaspora,
 });
