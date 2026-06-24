@@ -42,3 +42,4 @@ backend/logs/*
 !backend/logs/.gitkeep
 .vercel
 .env*.local
+.env.vercel

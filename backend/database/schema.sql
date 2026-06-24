@@ -146,10 +146,13 @@ CREATE TABLE inquiries (
   phone       VARCHAR(30)     NOT NULL,
   message     TEXT            NOT NULL,
   is_read     TINYINT(1)      NOT NULL DEFAULT 0,
+  status      ENUM('new','contacted','qualified','closed') NOT NULL DEFAULT 'new',
+  notes       TEXT            NULL,
   created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   INDEX idx_inquiries_property (property_id),
   INDEX idx_inquiries_read (is_read),
+  INDEX idx_inquiries_status (status),
 
   CONSTRAINT fk_inquiries_property
     FOREIGN KEY (property_id) REFERENCES properties(id)

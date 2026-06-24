@@ -42,6 +42,14 @@ route('POST', '/api/contact', ['ContactController', 'store']);
 route('GET', '/api/contact', ['ContactController', 'index']);
 route('DELETE', '/api/contact/{id}', ['ContactController', 'destroy']);
 
+// Agent Lead routes (agent only)
+route('GET', '/api/agent/leads', ['AgentLeadController', 'index']);
+route('GET', '/api/agent/leads/unread-count', ['AgentLeadController', 'unreadCount']);
+route('GET', '/api/agent/leads/{id}', ['AgentLeadController', 'show']);
+route('PUT', '/api/agent/leads/{id}/read', ['AgentLeadController', 'markRead']);
+route('PUT', '/api/agent/leads/{id}/status', ['AgentLeadController', 'updateStatus']);
+route('PUT', '/api/agent/leads/{id}/notes', ['AgentLeadController', 'updateNotes']);
+
 // Agent Listing routes (agent only)
 route('GET', '/api/agent/listings', ['AgentListingController', 'index']);
 route('POST', '/api/agent/listings', ['AgentListingController', 'store']);
