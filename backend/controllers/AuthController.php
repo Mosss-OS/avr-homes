@@ -102,15 +102,19 @@ class AuthController
       ]);
       $userId = (int)$db->lastInsertId();
 
+      $slug = Agent::generateSlug($data['name']);
+
       $stmt = $db->prepare(
-        'INSERT INTO agents (user_id, name, agency, phone, email, whatsapp, languages, bio, avatar_hue,
+        'INSERT INTO agents (user_id, slug, photo_url, name, agency, phone, email, whatsapp, languages, bio, avatar_hue,
           experience, state, city, lasrera_number, niesv_number, avg_monthly_listings, property_types,
           avg_deal_size, specialization, social_instagram, social_facebook, social_linkedin, social_tiktok,
           social_youtube, why_join, support_needed, referral_source, is_verified, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
       );
       $stmt->execute([
         $userId,
+        $slug,
+        null,
         $data['name'],
         $data['agency'] ?? 'AVR Homes',
         $data['phone'],
@@ -209,7 +213,7 @@ class AuthController
     $logStmt = $db->prepare('INSERT INTO activity_logs (user_id, action, entity_type, ip_address) VALUES (?, ?, ?, ?)');
     $logStmt->execute([$user['id'], 'login', 'agent', $_SERVER['REMOTE_ADDR'] ?? '']);
 
-    $stmt = $db->prepare('SELECT id, name, phone, email, agency, is_verified, avatar_hue FROM agents WHERE user_id = ?');
+    $stmt = $db->prepare('SELECT id, slug, photo_url, name, phone, email, agency, is_verified, avatar_hue FROM agents WHERE user_id = ?');
     $stmt->execute([$user['id']]);
     $profile = $stmt->fetch();
 
@@ -223,6 +227,8 @@ class AuthController
         'role'        => 'agent',
         'profile'     => $profile ? [
           'agent_id'    => (int)$profile['id'],
+          'slug'        => $profile['slug'],
+          'photo_url'   => $profile['photo_url'],
           'agency'      => $profile['agency'],
           'phone'       => $profile['phone'],
           'is_verified' => (bool)$profile['is_verified'],
@@ -239,7 +245,7 @@ class AuthController
     if ($user['role'] === 'agent') {
       $db = Database::getConnection();
       $stmt = $db->prepare(
-        'SELECT id, name, agency, phone, email, whatsapp, languages, listings, avatar_hue, bio,
+        'SELECT id, slug, photo_url, name, agency, phone, email, whatsapp, languages, listings, avatar_hue, bio,
           experience, state, city, lasrera_number, niesv_number, avg_monthly_listings, property_types,
           avg_deal_size, specialization, social_instagram, social_facebook, social_linkedin, social_tiktok,
           social_youtube, why_join, support_needed, referral_source, is_verified, created_at
