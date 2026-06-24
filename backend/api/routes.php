@@ -28,9 +28,15 @@ route('POST', '/api/properties', ['PropertyController', 'store']);
 route('PUT', '/api/properties/{id}', ['PropertyController', 'update']);
 route('DELETE', '/api/properties/{id}', ['PropertyController', 'destroy']);
 
-// Agent routes
+// Agent public routes
 route('GET', '/api/agents', ['AgentController', 'index']);
+route('GET', '/api/agents/by-slug/{slug}', ['AgentController', 'showBySlug']);
 route('GET', '/api/agents/{id}', ['AgentController', 'show']);
+
+// Agent Profile routes (agent only)
+route('GET', '/api/agent/profile', ['AgentController', 'profile']);
+route('PUT', '/api/agent/profile', ['AgentController', 'updateProfile']);
+route('POST', '/api/agent/profile/avatar', ['AgentController', 'updateAvatar']);
 
 // Inquiry routes
 route('POST', '/api/inquiries', ['InquiryController', 'store']);

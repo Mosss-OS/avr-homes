@@ -32,6 +32,8 @@ CREATE TABLE users (
 CREATE TABLE agents (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id     INT UNSIGNED    NULL,
+  slug        VARCHAR(255)    NULL UNIQUE,
+  photo_url   VARCHAR(500)    NULL,
   name        VARCHAR(100)    NOT NULL,
   agency      VARCHAR(150)    NOT NULL DEFAULT 'AVR Homes',
   phone       VARCHAR(30)     NOT NULL,
