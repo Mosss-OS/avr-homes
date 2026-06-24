@@ -63,3 +63,53 @@ export interface PaginatedResponse<T> {
   per_page: number;
   total_pages: number;
 }
+
+export interface AgentProfile {
+  agent_id: number;
+  slug: string | null;
+  photo_url: string | null;
+  agency: string;
+  phone: string;
+  is_verified: boolean;
+  avatar_hue: number;
+}
+
+export interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  profile?: AgentProfile | null;
+}
+
+export interface AuthResponse {
+  token: string;
+  refresh_token: string;
+  user: UserData;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  agency?: string;
+  whatsapp?: string;
+  city?: string;
+  state?: string;
+  bio?: string;
+  experience?: string;
+  lasrera_number?: string;
+  niesv_number?: string;
+  avg_monthly_listings?: string;
+  property_types?: string[];
+  avg_deal_size?: string;
+  specialization?: string[];
+  social_instagram?: string;
+  social_facebook?: string;
+  social_linkedin?: string;
+  social_tiktok?: string;
+  social_youtube?: string;
+  why_join?: string;
+  referral_source?: string;
+}
