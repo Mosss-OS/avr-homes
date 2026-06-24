@@ -42,6 +42,15 @@ route('POST', '/api/contact', ['ContactController', 'store']);
 route('GET', '/api/contact', ['ContactController', 'index']);
 route('DELETE', '/api/contact/{id}', ['ContactController', 'destroy']);
 
+// Agent Listing routes (agent only)
+route('GET', '/api/agent/listings', ['AgentListingController', 'index']);
+route('POST', '/api/agent/listings', ['AgentListingController', 'store']);
+route('GET', '/api/agent/listings/stats', ['AgentListingController', 'stats']);
+route('GET', '/api/agent/listings/{id}', ['AgentListingController', 'show']);
+route('PUT', '/api/agent/listings/{id}', ['AgentListingController', 'update']);
+route('PUT', '/api/agent/listings/{id}/status', ['AgentListingController', 'updateStatus']);
+route('DELETE', '/api/agent/listings/{id}', ['AgentListingController', 'destroy']);
+
 // Upload routes
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
@@ -50,3 +59,8 @@ route('DELETE', '/api/upload/{id}', ['UploadController', 'destroy']);
 // Settings routes
 route('GET', '/api/settings', ['SettingController', 'index']);
 route('POST', '/api/settings', ['SettingController', 'update']);
+
+// Migration routes (admin only)
+route('POST', '/api/admin/migrations/run', ['MigrationController', 'run']);
+route('POST', '/api/admin/migrations/run/{name}', ['MigrationController', 'run']);
+route('GET', '/api/admin/migrations/status', ['MigrationController', 'status']);
