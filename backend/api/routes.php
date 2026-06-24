@@ -15,6 +15,11 @@ route('GET', '/api/health', function () {
 route('POST', '/api/auth/login', ['AuthController', 'login']);
 route('POST', '/api/auth/logout', ['AuthController', 'logout']);
 route('GET', '/api/auth/me', ['AuthController', 'me']);
+route('POST', '/api/auth/refresh', ['AuthController', 'refreshToken']);
+
+// Agent Auth routes
+route('POST', '/api/auth/agent/register', ['AuthController', 'registerAgent']);
+route('POST', '/api/auth/agent/login', ['AuthController', 'loginAgent']);
 
 // Property routes
 route('GET', '/api/properties', ['PropertyController', 'index']);
