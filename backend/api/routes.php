@@ -65,6 +65,15 @@ route('PUT', '/api/agent/listings/{id}', ['AgentListingController', 'update']);
 route('PUT', '/api/agent/listings/{id}/status', ['AgentListingController', 'updateStatus']);
 route('DELETE', '/api/agent/listings/{id}', ['AgentListingController', 'destroy']);
 
+// Verification routes (agent)
+route('POST', '/api/agent/listings/{id}/documents', ['PropertyVerificationController', 'uploadDocument']);
+route('GET', '/api/agent/listings/{id}/verification', ['PropertyVerificationController', 'getVerificationStatus']);
+
+// Verification routes (admin)
+route('GET', '/api/admin/verifications', ['PropertyVerificationController', 'adminIndex']);
+route('PUT', '/api/admin/verifications/{id}/approve', ['PropertyVerificationController', 'adminApprove']);
+route('PUT', '/api/admin/verifications/{id}/reject', ['PropertyVerificationController', 'adminReject']);
+
 // Upload routes
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
