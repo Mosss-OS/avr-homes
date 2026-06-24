@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { WhatsAppButton } from "@/components/whatsapp-button";
+import { AuthProvider } from "@/lib/auth-context";
 
 const FAVICON = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782134894/AVRUST_LOGO_egadjg.jpg";
 
@@ -142,12 +143,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="flex-1"><Outlet /></main>
-        <SiteFooter />
-        <WhatsAppButton />
-      </div>
+      <AuthProvider>
+        <div className="flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1"><Outlet /></main>
+          <SiteFooter />
+          <WhatsAppButton />
+        </div>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
