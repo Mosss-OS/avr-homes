@@ -8,40 +8,64 @@ CREATE DATABASE IF NOT EXISTS avr_homes
 USE avr_homes;
 
 -- -----------------------------------------------------------
--- Users (Admin)
+-- Users (Admin + Agents)
 -- -----------------------------------------------------------
 CREATE TABLE users (
-  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name        VARCHAR(100)    NOT NULL,
-  email       VARCHAR(255)    NOT NULL UNIQUE,
-  password    VARCHAR(255)    NOT NULL,
-  role        ENUM('admin','superadmin') NOT NULL DEFAULT 'admin',
-  is_active   TINYINT(1)      NOT NULL DEFAULT 1,
-  created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name            VARCHAR(100)    NOT NULL,
+  email           VARCHAR(255)    NOT NULL UNIQUE,
+  password        VARCHAR(255)    NOT NULL,
+  role            ENUM('admin','superadmin','agent') NOT NULL DEFAULT 'agent',
+  is_active       TINYINT(1)      NOT NULL DEFAULT 1,
+  email_verified_at TIMESTAMP     NULL,
+  lasrera_number  VARCHAR(50)     NULL,
+  niesv_number    VARCHAR(50)     NULL,
+  created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_users_email (email),
   INDEX idx_users_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------
--- Agents
+-- Agents (Public Profiles)
 -- -----------------------------------------------------------
 CREATE TABLE agents (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED    NULL,
   name        VARCHAR(100)    NOT NULL,
   agency      VARCHAR(150)    NOT NULL DEFAULT 'AVR Homes',
   phone       VARCHAR(30)     NOT NULL,
   email       VARCHAR(255)    NOT NULL,
+  whatsapp    VARCHAR(30)     NULL,
   languages   JSON            NOT NULL,
   listings    INT UNSIGNED    NOT NULL DEFAULT 0,
   avatar_hue  INT UNSIGNED    NOT NULL DEFAULT 195,
   bio         TEXT            NULL,
+  experience  ENUM('1-2','3-5','6-10','10+') NULL,
+  state       VARCHAR(100)    NULL,
+  city        VARCHAR(100)    NULL,
+  niesv_number VARCHAR(50)    NULL,
+  lasrera_number VARCHAR(50)  NULL,
+  avg_monthly_listings ENUM('1-5','6-15','16-30','30+') NULL,
+  property_types JSON        NULL,
+  avg_deal_size ENUM('below-10m','10m-50m','50m-200m','200m+') NULL,
+  specialization JSON        NULL,
+  social_instagram VARCHAR(100) NULL,
+  social_facebook VARCHAR(100) NULL,
+  social_linkedin VARCHAR(100) NULL,
+  social_tiktok VARCHAR(100) NULL,
+  social_youtube VARCHAR(100) NULL,
+  why_join    TEXT            NULL,
+  support_needed JSON         NULL,
+  referral_source VARCHAR(100) NULL,
   is_verified TINYINT(1)      NOT NULL DEFAULT 0,
   is_active   TINYINT(1)      NOT NULL DEFAULT 1,
   created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_agents_email (email),
-  INDEX idx_agents_active (is_active)
+  INDEX idx_agents_active (is_active),
+  INDEX idx_agents_user (user_id),
+  CONSTRAINT fk_agents_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------
@@ -162,6 +186,90 @@ CREATE TABLE newsletter_subscribers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------
+-- Agent Subscriptions & Tiers
+-- -----------------------------------------------------------
+CREATE TABLE agent_subscriptions (
+  id                      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  agent_id                INT UNSIGNED    NOT NULL,
+  tier                    ENUM('free','bronze','silver','gold','platinum') NOT NULL DEFAULT 'free',
+  status                  ENUM('active','cancelled','past_due','trialing') NOT NULL DEFAULT 'active',
+  listings_limit          INT UNSIGNED    NOT NULL DEFAULT 3,
+  featured_slots          INT UNSIGNED    NOT NULL DEFAULT 0,
+  lead_priority           TINYINT(1)      NOT NULL DEFAULT 0,
+  analytics_access        TINYINT(1)      NOT NULL DEFAULT 0,
+  verification_priority   TINYINT(1)      NOT NULL DEFAULT 0,
+  dedicated_manager       TINYINT(1)      NOT NULL DEFAULT 0,
+  current_period_start    TIMESTAMP       NOT NULL,
+  current_period_end      TIMESTAMP       NOT NULL,
+  paystack_subscription_code VARCHAR(100) NULL,
+  paystack_customer_code  VARCHAR(100)    NULL,
+  cancelled_at            TIMESTAMP       NULL,
+  created_at              TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at              TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_sub_agent (agent_id),
+  INDEX idx_sub_status (status),
+  CONSTRAINT fk_sub_agent FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------
+-- Referral System
+-- -----------------------------------------------------------
+CREATE TABLE referrals (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  referrer_id     INT UNSIGNED    NOT NULL,
+  referred_id     INT UNSIGNED    NULL,
+  referral_code   VARCHAR(20)     NOT NULL UNIQUE,
+  status          ENUM('pending','signed_up','upgraded','developer_referred','bulk_buyer_referred') NOT NULL DEFAULT 'pending',
+  reward_amount   DECIMAL(12,2)   NOT NULL DEFAULT 0,
+  reward_paid     TINYINT(1)      NOT NULL DEFAULT 0,
+  paid_at         TIMESTAMP       NULL,
+  created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_ref_referrer (referrer_id),
+  INDEX idx_ref_referred (referred_id),
+  INDEX idx_ref_code (referral_code),
+  INDEX idx_ref_status (status),
+  CONSTRAINT fk_ref_referrer FOREIGN KEY (referrer_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ref_referred FOREIGN KEY (referred_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------
+-- Agent Wallet (Referral Credits)
+-- -----------------------------------------------------------
+CREATE TABLE agent_wallets (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  agent_id        INT UNSIGNED    NOT NULL,
+  balance         DECIMAL(12,2)   NOT NULL DEFAULT 0,
+  total_earned    DECIMAL(12,2)   NOT NULL DEFAULT 0,
+  total_withdrawn DECIMAL(12,2)   NOT NULL DEFAULT 0,
+  created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_wallet_agent (agent_id),
+  CONSTRAINT fk_wallet_agent FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------
+-- Wallet Transactions
+-- -----------------------------------------------------------
+CREATE TABLE wallet_transactions (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  wallet_id       INT UNSIGNED    NOT NULL,
+  type            ENUM('credit','debit') NOT NULL,
+  amount          DECIMAL(12,2)   NOT NULL,
+  description     VARCHAR(255)    NOT NULL,
+  reference       VARCHAR(100)    NULL,
+  status          ENUM('pending','completed','failed') NOT NULL DEFAULT 'completed',
+  created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX idx_wtx_wallet (wallet_id),
+  INDEX idx_wtx_status (status),
+  CONSTRAINT fk_wtx_wallet FOREIGN KEY (wallet_id) REFERENCES agent_wallets(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------
 -- Saved Properties (User Favourites)
 -- -----------------------------------------------------------
 CREATE TABLE saved_properties (
@@ -181,6 +289,23 @@ CREATE TABLE saved_properties (
   CONSTRAINT fk_saved_property
     FOREIGN KEY (property_id) REFERENCES properties(id)
     ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------
+-- Refresh Tokens
+-- -----------------------------------------------------------
+CREATE TABLE refresh_tokens (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED    NOT NULL,
+  token       VARCHAR(500)    NOT NULL UNIQUE,
+  expires_at  TIMESTAMP       NOT NULL,
+  revoked_at  TIMESTAMP       NULL,
+  created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX idx_rt_user (user_id),
+  INDEX idx_rt_token (token),
+  INDEX idx_rt_expires (expires_at),
+  CONSTRAINT fk_rt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------
@@ -233,13 +358,14 @@ INSERT INTO settings (`key`, `value`, `description`) VALUES
 -- -----------------------------------------------------------
 -- Seed Admin User (password: admin123)
 -- -----------------------------------------------------------
-INSERT INTO users (name, email, password, role) VALUES
-('Admin', 'admin@avrhomes.ng', '$2y$12$LJ3m4ys3Lk0TSwHnbfOMe.XkMkPBs0aRHcGXOYz1kzKVqGPmD3MWe', 'superadmin');
+-- Password: admin123 (change immediately in production)
+INSERT INTO users (name, email, password, role, is_active, email_verified_at) VALUES
+('Admin', 'admin@avrhomes.ng', '$2y$12$JAkpOpgW2WMuFhRHJem53e.OpRuBfr5wT6QOJr1btS9HlWdQjbz1O', 'superadmin', 1, NOW());
 
 -- -----------------------------------------------------------
 -- Seed Agents
 -- -----------------------------------------------------------
-INSERT INTO agents (id, name, agency, phone, email, languages, listings, avatar_hue, is_verified) VALUES
-(1, 'Adaeze Okafor', 'AVR Homes', '+234 802 123 4567', 'adaeze@avrhomes.ng', '["English","Igbo"]', 42, 195, 1),
-(2, 'Tunde Bakare', 'AVR Homes', '+234 809 987 6543', 'tunde@avrhomes.ng', '["English","Yoruba","French"]', 28, 75, 1),
-(3, 'Zainab Mohammed', 'AVR Homes', '+234 813 555 1212', 'zainab@avrhomes.ng', '["English","Hausa"]', 36, 220, 1);
+INSERT INTO agents (id, user_id, name, agency, phone, email, whatsapp, languages, listings, avatar_hue, is_verified, experience, state, city) VALUES
+(1, NULL, 'Adaeze Okafor', 'AVR Homes', '+234 802 123 4567', 'adaeze@avrhomes.ng', '+234 802 123 4567', '["English","Igbo"]', 42, 195, 1, '10+', 'Lagos', 'Lekki'),
+(2, NULL, 'Tunde Bakare', 'AVR Homes', '+234 809 987 6543', 'tunde@avrhomes.ng', '+234 809 987 6543', '["English","Yoruba","French"]', 28, 75, 1, '6-10', 'Lagos', 'Victoria Island'),
+(3, NULL, 'Zainab Mohammed', 'AVR Homes', '+234 813 555 1212', 'zainab@avrhomes.ng', '+234 813 555 1212', '["English","Hausa"]', 36, 220, 1, '3-5', 'Lagos', 'Ikoyi');
