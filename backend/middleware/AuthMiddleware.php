@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 class AuthMiddleware
 {
-  public static function authenticate(): array
+  public static function authenticate(?string $requiredRole = null): array
   {
     $token = self::getBearerToken();
 
@@ -26,7 +26,32 @@ class AuthMiddleware
       Response::error('User not found or inactive', 401);
     }
 
+    if ($requiredRole && $user['role'] !== $requiredRole && $user['role'] !== 'superadmin') {
+      Response::error('Insufficient permissions', 403);
+    }
+
     return $user;
+  }
+
+  public static function authenticateAgent(): array
+  {
+    $user = self::authenticate();
+    if ($user['role'] !== 'agent') {
+      $db = Database::getConnection();
+      $stmt = $db->prepare('SELECT id FROM agents WHERE user_id = ? AND is_active = 1');
+      $stmt->execute([$user['id']]);
+      $agent = $stmt->fetch();
+      if (!$agent) {
+        Response::error('Agent profile not found', 404);
+      }
+      $user['agent_id'] = (int)$agent['id'];
+    }
+    return $user;
+  }
+
+  public static function authenticateAdmin(): array
+  {
+    return self::authenticate('admin');
   }
 
   private static function getBearerToken(): ?string
@@ -37,7 +62,6 @@ class AuthMiddleware
       return $matches[1];
     }
 
-    // Also check for token in query string for GET requests
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['token'])) {
       return $_GET['token'];
     }
@@ -49,13 +73,13 @@ class AuthMiddleware
   {
     $secret = $_ENV['JWT_SECRET'] ?? 'change-this-to-a-random-secret-key';
     $issuedAt = time();
-    $expiresAt = $issuedAt + 86400; // 24 hours
+    $expiresAt = $issuedAt + 86400;
 
     $header = self::base64UrlEncode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $payload = self::base64UrlEncode(json_encode([
-      'user_id'  => $userId,
-      'iat'      => $issuedAt,
-      'exp'      => $expiresAt,
+      'user_id' => $userId,
+      'iat'     => $issuedAt,
+      'exp'     => $expiresAt,
     ]));
 
     $signature = self::base64UrlEncode(
@@ -63,6 +87,20 @@ class AuthMiddleware
     );
 
     return "{$header}.{$payload}.{$signature}";
+  }
+
+  public static function generateRefreshToken(int $userId): string
+  {
+    $token = bin2hex(random_bytes(32));
+    $expiresAt = date('Y-m-d H:i:s', time() + 604800);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+    );
+    $stmt->execute([$userId, $token, $expiresAt]);
+
+    return $token;
   }
 
   private static function validateToken(string $token): ?array
@@ -91,7 +129,7 @@ class AuthMiddleware
     return $data;
   }
 
-  private static function base64UrlEncode(string $data): string
+  public static function base64UrlEncode(string $data): string
   {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
   }
