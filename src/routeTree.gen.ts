@@ -19,6 +19,13 @@ import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as AgentRegisterRouteImport } from './routes/agent.register'
+import { Route as AgentLoginRouteImport } from './routes/agent.login'
+import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
+import { Route as AgentDashboardVerificationRouteImport } from './routes/agent.dashboard.verification'
+import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashboard.profile'
+import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
+import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
 
 const SavedRoute = SavedRouteImport.update({
   id: '/saved',
@@ -70,6 +77,42 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PropertiesRoute,
 } as any)
+const AgentRegisterRoute = AgentRegisterRouteImport.update({
+  id: '/agent/register',
+  path: '/agent/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentLoginRoute = AgentLoginRouteImport.update({
+  id: '/agent/login',
+  path: '/agent/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDashboardRoute = AgentDashboardRouteImport.update({
+  id: '/agent/dashboard',
+  path: '/agent/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDashboardVerificationRoute =
+  AgentDashboardVerificationRouteImport.update({
+    id: '/verification',
+    path: '/verification',
+    getParentRoute: () => AgentDashboardRoute,
+  } as any)
+const AgentDashboardProfileRoute = AgentDashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
+const AgentDashboardListingsRoute = AgentDashboardListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
+const AgentDashboardLeadsRoute = AgentDashboardLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,7 +124,14 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
+  '/agent/dashboard': typeof AgentDashboardRouteWithChildren
+  '/agent/login': typeof AgentLoginRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
+  '/agent/dashboard/listings': typeof AgentDashboardListingsRoute
+  '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,7 +143,14 @@ export interface FileRoutesByTo {
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
+  '/agent/dashboard': typeof AgentDashboardRouteWithChildren
+  '/agent/login': typeof AgentLoginRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
+  '/agent/dashboard/listings': typeof AgentDashboardListingsRoute
+  '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,7 +163,14 @@ export interface FileRoutesById {
   '/map': typeof MapRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/saved': typeof SavedRoute
+  '/agent/dashboard': typeof AgentDashboardRouteWithChildren
+  '/agent/login': typeof AgentLoginRoute
+  '/agent/register': typeof AgentRegisterRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
+  '/agent/dashboard/listings': typeof AgentDashboardListingsRoute
+  '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,7 +184,14 @@ export interface FileRouteTypes {
     | '/map'
     | '/properties'
     | '/saved'
+    | '/agent/dashboard'
+    | '/agent/login'
+    | '/agent/register'
     | '/properties/$id'
+    | '/agent/dashboard/leads'
+    | '/agent/dashboard/listings'
+    | '/agent/dashboard/profile'
+    | '/agent/dashboard/verification'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,7 +203,14 @@ export interface FileRouteTypes {
     | '/map'
     | '/properties'
     | '/saved'
+    | '/agent/dashboard'
+    | '/agent/login'
+    | '/agent/register'
     | '/properties/$id'
+    | '/agent/dashboard/leads'
+    | '/agent/dashboard/listings'
+    | '/agent/dashboard/profile'
+    | '/agent/dashboard/verification'
   id:
     | '__root__'
     | '/'
@@ -144,7 +222,14 @@ export interface FileRouteTypes {
     | '/map'
     | '/properties'
     | '/saved'
+    | '/agent/dashboard'
+    | '/agent/login'
+    | '/agent/register'
     | '/properties/$id'
+    | '/agent/dashboard/leads'
+    | '/agent/dashboard/listings'
+    | '/agent/dashboard/profile'
+    | '/agent/dashboard/verification'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -157,6 +242,9 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   PropertiesRoute: typeof PropertiesRouteWithChildren
   SavedRoute: typeof SavedRoute
+  AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
+  AgentLoginRoute: typeof AgentLoginRoute
+  AgentRegisterRoute: typeof AgentRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +319,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof PropertiesRoute
     }
+    '/agent/register': {
+      id: '/agent/register'
+      path: '/agent/register'
+      fullPath: '/agent/register'
+      preLoaderRoute: typeof AgentRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/login': {
+      id: '/agent/login'
+      path: '/agent/login'
+      fullPath: '/agent/login'
+      preLoaderRoute: typeof AgentLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/dashboard': {
+      id: '/agent/dashboard'
+      path: '/agent/dashboard'
+      fullPath: '/agent/dashboard'
+      preLoaderRoute: typeof AgentDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/dashboard/verification': {
+      id: '/agent/dashboard/verification'
+      path: '/verification'
+      fullPath: '/agent/dashboard/verification'
+      preLoaderRoute: typeof AgentDashboardVerificationRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
+    '/agent/dashboard/profile': {
+      id: '/agent/dashboard/profile'
+      path: '/profile'
+      fullPath: '/agent/dashboard/profile'
+      preLoaderRoute: typeof AgentDashboardProfileRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
+    '/agent/dashboard/listings': {
+      id: '/agent/dashboard/listings'
+      path: '/listings'
+      fullPath: '/agent/dashboard/listings'
+      preLoaderRoute: typeof AgentDashboardListingsRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
+    '/agent/dashboard/leads': {
+      id: '/agent/dashboard/leads'
+      path: '/leads'
+      fullPath: '/agent/dashboard/leads'
+      preLoaderRoute: typeof AgentDashboardLeadsRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
   }
 }
 
@@ -246,6 +383,24 @@ const PropertiesRouteWithChildren = PropertiesRoute._addFileChildren(
   PropertiesRouteChildren,
 )
 
+interface AgentDashboardRouteChildren {
+  AgentDashboardLeadsRoute: typeof AgentDashboardLeadsRoute
+  AgentDashboardListingsRoute: typeof AgentDashboardListingsRoute
+  AgentDashboardProfileRoute: typeof AgentDashboardProfileRoute
+  AgentDashboardVerificationRoute: typeof AgentDashboardVerificationRoute
+}
+
+const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
+  AgentDashboardLeadsRoute: AgentDashboardLeadsRoute,
+  AgentDashboardListingsRoute: AgentDashboardListingsRoute,
+  AgentDashboardProfileRoute: AgentDashboardProfileRoute,
+  AgentDashboardVerificationRoute: AgentDashboardVerificationRoute,
+}
+
+const AgentDashboardRouteWithChildren = AgentDashboardRoute._addFileChildren(
+  AgentDashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -256,6 +411,9 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   PropertiesRoute: PropertiesRouteWithChildren,
   SavedRoute: SavedRoute,
+  AgentDashboardRoute: AgentDashboardRouteWithChildren,
+  AgentLoginRoute: AgentLoginRoute,
+  AgentRegisterRoute: AgentRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
