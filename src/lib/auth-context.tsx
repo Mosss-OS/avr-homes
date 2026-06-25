@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("auth_token");
     if (stored) {
       setToken(stored);
-      api.get<UserData>("/auth/me")
+      api.get<UserData>("/api/auth/me")
         .then((res) => setUser(res.data))
         .catch(() => {
           localStorage.removeItem("auth_token");
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<AuthResponse>("/auth/agent/login", { email, password });
+    const res = await api.post<AuthResponse>("/api/auth/agent/login", { email, password });
     localStorage.setItem("auth_token", res.data.token);
     localStorage.setItem("refresh_token", res.data.refresh_token);
     setToken(res.data.token);
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (payload: RegisterPayload) => {
-    const res = await api.post<AuthResponse>("/auth/agent/register", payload);
+    const res = await api.post<AuthResponse>("/api/auth/agent/register", payload);
     localStorage.setItem("auth_token", res.data.token);
     localStorage.setItem("refresh_token", res.data.refresh_token);
     setToken(res.data.token);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     const refreshToken = localStorage.getItem("refresh_token");
     if (refreshToken) {
-      api.post("/auth/logout", { refresh_token: refreshToken }).catch(() => {});
+      api.post("/api/auth/logout", { refresh_token: refreshToken }).catch(() => {});
     }
     localStorage.removeItem("auth_token");
     localStorage.removeItem("refresh_token");
