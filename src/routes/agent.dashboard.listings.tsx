@@ -43,7 +43,7 @@ function AgentListingsPage() {
     if (search) params.set("search", search);
     if (statusFilter) params.set("status", statusFilter);
 
-    api.get<{ data: Property[]; total: number }>("/agent/listings?" + params.toString())
+    api.get<{ data: Property[]; total: number }>("/api/agent/listings?" + params.toString())
       .then((res) => setListings(res.data.data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -52,7 +52,7 @@ function AgentListingsPage() {
   async function handleDelete(id: number) {
     if (!confirm("Delete this listing?")) return;
     try {
-      await api.delete(`/agent/listings/${id}`);
+      await api.delete(`/api/agent/listings/${id}`);
       setListings((prev) => prev.filter((l) => l.id !== id));
     } catch {}
   }
@@ -60,7 +60,7 @@ function AgentListingsPage() {
   async function handleToggleStatus(id: number, currentStatus: string) {
     const newStatus = currentStatus === "published" ? "draft" : "published";
     try {
-      await api.put(`/agent/listings/${id}/status`, { status: newStatus });
+      await api.put(`/api/agent/listings/${id}/status`, { status: newStatus });
       setListings((prev) => prev.map((l) => l.id === id ? { ...l, status: newStatus } : l));
     } catch {}
   }

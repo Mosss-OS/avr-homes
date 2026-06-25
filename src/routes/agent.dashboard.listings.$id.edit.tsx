@@ -37,7 +37,7 @@ function EditListingPage() {
   });
 
   useEffect(() => {
-    api.get<any>(`/agent/listings/${id}`)
+    api.get<any>(`/api/agent/listings/${id}`)
       .then((res) => {
         const p = res.data;
         setForm({
@@ -76,7 +76,7 @@ function EditListingPage() {
     setSaving(true);
     setError("");
     try {
-      await api.put(`/agent/listings/${id}`, {
+      await api.put(`/api/agent/listings/${id}`, {
         ...form,
         price: Number(form.price),
         beds: Number(form.beds),

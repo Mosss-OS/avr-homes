@@ -34,7 +34,7 @@ function AgentDashboardPage() {
   }, [user, isLoading, navigate]);
 
   useEffect(() => {
-    api.get<DashboardStats>("/agent/listings/stats")
+    api.get<DashboardStats>("/api/agent/listings/stats")
       .then((res) => setStats(res.data))
       .catch(() => setError("Failed to load stats"));
   }, []);

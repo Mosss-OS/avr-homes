@@ -98,14 +98,14 @@ function CreateListingPage() {
       };
       delete payload.image;
 
-      const res = await api.post<{ id: number }>("/agent/listings", payload);
+      const res = await api.post<{ id: number }>("/api/agent/listings", payload);
 
       // Upload image if selected
       if (form.image && res.data?.id) {
         const imgData = new FormData();
         imgData.append("image", form.image);
         imgData.append("property_id", String(res.data.id));
-        await api.post("/upload", imgData).catch(() => {});
+        await api.post("/api/upload", imgData).catch(() => {});
       }
 
       navigate({ to: "/agent/dashboard/listings" });

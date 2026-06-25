@@ -72,7 +72,7 @@ function AgentLeadsPage() {
 
     try {
       const res = await api.get<{ data: Lead[]; total: number; total_pages: number }>(
-        "/agent/leads?" + params.toString()
+        "/api/agent/leads?" + params.toString()
       );
       setLeads(res.data.data);
       setTotal(res.data.total);
@@ -84,7 +84,7 @@ function AgentLeadsPage() {
 
   const fetchUnread = useCallback(async () => {
     try {
-      const res = await api.get<{ unread_count: number }>("/agent/leads/unread-count");
+      const res = await api.get<{ unread_count: number }>("/api/agent/leads/unread-count");
       setUnreadCount(res.data.unread_count);
     } catch {}
   }, []);
@@ -99,7 +99,7 @@ function AgentLeadsPage() {
     setDetailOpen(true);
     if (!lead.is_read) {
       try {
-        await api.put(`/agent/leads/${lead.id}/read`, {});
+        await api.put(`/api/agent/leads/${lead.id}/read`, {});
         setLeads((prev) => prev.map((l) => l.id === lead.id ? { ...l, is_read: true } : l));
         setUnreadCount((c) => Math.max(0, c - 1));
       } catch {}
@@ -108,7 +108,7 @@ function AgentLeadsPage() {
 
   async function updateStatus(id: number, status: string) {
     try {
-      await api.put(`/agent/leads/${id}/status`, { status });
+      await api.put(`/api/agent/leads/${id}/status`, { status });
       setLeads((prev) => prev.map((l) => l.id === id ? { ...l, status } : l));
       setSelected((prev) => prev?.id === id ? { ...prev, status } : prev);
     } catch {}
@@ -116,7 +116,7 @@ function AgentLeadsPage() {
 
   async function updateNotes(id: number, notes: string) {
     try {
-      await api.put(`/agent/leads/${id}/notes`, { notes });
+      await api.put(`/api/agent/leads/${id}/notes`, { notes });
       setLeads((prev) => prev.map((l) => l.id === id ? { ...l, notes } : l));
       setSelected((prev) => prev?.id === id ? { ...prev, notes } : prev);
     } catch {}
