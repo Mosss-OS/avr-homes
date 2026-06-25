@@ -1,14 +1,21 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2 } from "lucide-react";
+import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2, LogIn, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 const LOGO_URL = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
 
 export function SiteHeader() {
+  const { user, isAgent, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [shared, setShared] = useState(false);
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const isPropertyPage = pathname.startsWith("/properties/") && pathname.split("/").length === 3;
+
+  function handleLogout() {
+    logout();
+    router.navigate({ to: "/" });
+  }
 
   async function share() {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -50,22 +57,47 @@ export function SiteHeader() {
           <NavLink to="/agents">
             <span className="inline-flex items-center gap-1.5"><Users className="h-4 w-4" />Agents</span>
           </NavLink>
-          <NavAnchor href="/#for-agents">For Agents</NavAnchor>
+          <NavLink to="/agent/register">Become an Agent</NavLink>
           <NavLink to="/insights">Market Insights</NavLink>
           <NavLink to="/about">About</NavLink>
           <NavLink to="/saved">
             <span className="inline-flex items-center gap-1.5"><Heart className="h-4 w-4" />Saved</span>
           </NavLink>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {isPropertyPage && (
             <button
               onClick={share}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
             >
               {shared ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Share2 className="h-3.5 w-3.5" />}
               {shared ? "Copied" : "Share"}
             </button>
+          )}
+          {user && isAgent ? (
+            <>
+              <Link
+                to="/agent/dashboard"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />Dashboard
+              </Link>
+              <div className="hidden sm:grid h-8 w-8 place-items-center rounded-full text-xs font-semibold text-primary-foreground"
+                style={{ background: `oklch(0.45 0.1 200)` }}>
+                {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+              </div>
+              <button onClick={handleLogout}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-destructive hover:text-destructive-foreground">
+                <LogOut className="h-3.5 w-3.5" />Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/agent/login"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
+            >
+              <LogIn className="h-3.5 w-3.5" />Agent Login
+            </Link>
           )}
           <Link
             to="/contact"
@@ -91,11 +123,26 @@ export function SiteHeader() {
             <MobileLink to="/properties" search={{ purpose: "rent" }} onClick={() => setOpen(false)}>Rent</MobileLink>
             <MobileLink to="/map" onClick={() => setOpen(false)}>Map</MobileLink>
             <MobileLink to="/agents" onClick={() => setOpen(false)}>Agents</MobileLink>
-            <a href="/#for-agents" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-secondary">For Agents</a>
+            <MobileLink to="/agent/register" onClick={() => setOpen(false)}>Become an Agent</MobileLink>
             <MobileLink to="/insights" onClick={() => setOpen(false)}>Market Insights</MobileLink>
             <MobileLink to="/about" onClick={() => setOpen(false)}>About</MobileLink>
             <MobileLink to="/saved" onClick={() => setOpen(false)}>Saved</MobileLink>
             <MobileLink to="/contact" onClick={() => setOpen(false)}>Contact</MobileLink>
+            <hr className="my-2 border-border" />
+            {user && isAgent ? (
+              <>
+                <MobileLink to="/agent/dashboard" onClick={() => setOpen(false)}>Dashboard</MobileLink>
+                <button onClick={() => { handleLogout(); setOpen(false); }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-destructive hover:text-destructive-foreground">
+                  <LogOut className="h-4 w-4" />Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <MobileLink to="/agent/login" onClick={() => setOpen(false)}>Agent Login</MobileLink>
+                <MobileLink to="/agent/register" onClick={() => setOpen(false)}>Become an Agent</MobileLink>
+              </>
+            )}
             {isPropertyPage && (
               <button
                 onClick={() => { share(); setOpen(false); }}
@@ -182,6 +229,8 @@ export function SiteFooter() {
             <li><Link to="/insights" className="hover:text-foreground">Market Insights</Link></li>
             <li><Link to="/about" className="hover:text-foreground">About</Link></li>
             <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
+            <li><Link to="/agent/register" className="hover:text-foreground">Become an Agent</Link></li>
+            <li><Link to="/agent/login" className="hover:text-foreground">Agent Login</Link></li>
             <li><Link to="/diaspora" className="hover:text-foreground">Diaspora Investors</Link></li>
           </ul>
         </div>

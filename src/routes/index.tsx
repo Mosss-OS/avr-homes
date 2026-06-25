@@ -185,17 +185,15 @@ function HomePage() {
               body="Professional tools to manage listings, plus training built for the Lagos market." />
           </div>
           <div className="mt-10 flex flex-col items-start gap-3">
-            <a href="https://tally.so/r/RGrA0p"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link to="/agent/register"
               className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02]"
               style={{ background: "#C9A84C", color: "#0A1628" }}>
-              Register your interest — Founding Members Only <ArrowRight className="h-4 w-4" />
-            </a>
-
-
-
-            <p className="text-xs text-white/60">Already 200+ agents registered. Founding members get priority leads.</p>
+              Create Your Free Agent Account <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/agent/login"
+              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-[#C9A84C] transition-colors">
+              Already registered? Log in here <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
         </div>
       </section>
