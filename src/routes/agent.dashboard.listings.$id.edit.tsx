@@ -20,6 +20,7 @@ interface EditForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
+  video_url: string; virtual_tour_url: string; floor_plan_url: string;
 }
 
 function EditListingPage() {
@@ -34,6 +35,7 @@ function EditListingPage() {
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
+    video_url: "", virtual_tour_url: "", floor_plan_url: "",
   });
 
   useEffect(() => {
@@ -55,6 +57,9 @@ function EditListingPage() {
           address: p.address || "",
           lat: p.lat ? String(p.lat) : "",
           lng: p.lng ? String(p.lng) : "",
+          video_url: p.video_url || "",
+          virtual_tour_url: p.virtual_tour_url || "",
+          floor_plan_url: p.floor_plan_url || "",
         });
       })
       .catch(() => navigate({ to: "/agent/dashboard/listings" }))
@@ -84,6 +89,9 @@ function EditListingPage() {
         area: Number(form.area),
         lat: form.lat ? Number(form.lat) : 6.45,
         lng: form.lng ? Number(form.lng) : 3.42,
+        video_url: form.video_url || null,
+        virtual_tour_url: form.virtual_tour_url || null,
+        floor_plan_url: form.floor_plan_url || null,
       });
       navigate({ to: "/agent/dashboard/listings" });
     } catch (err) {
@@ -206,19 +214,37 @@ function EditListingPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Address</label>
                 <Input value={form.address} onChange={(e) => update("address", e.target.value)} />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Latitude</label>
-                  <Input type="number" step="any" value={form.lat} onChange={(e) => update("lat", e.target.value)} />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Longitude</label>
-                  <Input type="number" step="any" value={form.lng} onChange={(e) => update("lng", e.target.value)} />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Latitude</label>
+                    <Input type="number" step="any" value={form.lat} onChange={(e) => update("lat", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Longitude</label>
+                    <Input type="number" step="any" value={form.lng} onChange={(e) => update("lng", e.target.value)} />
+                  </div>
+                </div>
+                <div className="mt-6 space-y-4 border-t border-border pt-6">
+                  <h3 className="text-sm font-medium text-muted-foreground">Media</h3>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Video Walkthrough URL</label>
+                    <Input type="url" value={form.video_url} onChange={(e) => update("video_url", e.target.value)}
+                      placeholder="https://youtube.com/watch?v=..." />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Virtual Tour URL</label>
+                    <Input type="url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)}
+                      placeholder="https://my.matterport.com/show/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Floor Plan URL</label>
+                    <Input type="url" value={form.floor_plan_url} onChange={(e) => update("floor_plan_url", e.target.value)}
+                      placeholder="https://example.com/floor-plan.jpg" />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {step === 3 && (
             <div className="rounded-lg bg-accent/50 p-4 space-y-2">
@@ -227,6 +253,9 @@ function EditListingPage() {
                 <span className="text-muted-foreground">Price:</span><span className="font-medium">₦{Number(form.price).toLocaleString()}</span>
                 <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds}/{form.baths}</span>
                 <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
+                {form.video_url && <><span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span></>}
+                {form.virtual_tour_url && <><span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span></>}
+                {form.floor_plan_url && <><span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span></>}
               </div>
             </div>
           )}

@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -22,6 +23,19 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadLeads, setUnreadLeads] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchUnread = () => {
+      api.get<{ unread_count: number }>("/api/agent/leads/unread-count")
+        .then((r) => setUnreadLeads(r.data.unread_count))
+        .catch(() => {});
+    };
+    fetchUnread();
+    const iv = setInterval(fetchUnread, 30000);
+    return () => clearInterval(iv);
+  }, [user]);
 
   const profile = user?.profile;
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "AG";
@@ -50,7 +64,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                   }`}>
                   <Icon className="h-4 w-4" />
                   {label}
-                  {active && <ChevronRight className="ml-auto h-4 w-4" />}
+                  <span className="ml-auto flex items-center gap-1">
+                    {label === "Leads" && unreadLeads > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                        {unreadLeads > 99 ? "99+" : unreadLeads}
+                      </span>
+                    )}
+                    {active && <ChevronRight className="h-4 w-4" />}
+                  </span>
                 </Link>
               );
             })}

@@ -26,7 +26,7 @@ interface ListingForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  image: File | null; status: string;
+  image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string; status: string;
 }
 
 function CreateListingPage() {
@@ -41,7 +41,7 @@ function CreateListingPage() {
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    image: null, status: "draft",
+    image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "", status: "draft",
   });
 
   function update<K extends keyof ListingForm>(field: K, value: ListingForm[K]) {
@@ -246,26 +246,52 @@ function CreateListingPage() {
           )}
 
           {step === 3 && (
-            <div className="space-y-4">
-              <Label>Main Image</Label>
-              <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8">
-                {imagePreview ? (
-                  <div className="relative">
-                    <img src={imagePreview} alt="Preview" className="max-h-48 rounded-lg object-cover" />
-                    <button type="button" onClick={() => { setForm((p) => ({ ...p, image: null })); setImagePreview(null); }}
-                      className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-white text-xs">✕</button>
-                  </div>
-                ) : (
-                  <>
-                    <Upload className="mb-2 h-8 w-8 text-muted-foreground/60" />
-                    <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG or WebP (max 10MB)</p>
-                  </>
-                )}
-                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImage} className="hidden" id="image-upload" />
-                <label htmlFor="image-upload" className="mt-3 cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
-                  {imagePreview ? "Change image" : "Select image"}
-                </label>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <Label>Main Image</Label>
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8">
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img src={imagePreview} alt="Preview" className="max-h-48 rounded-lg object-cover" />
+                      <button type="button" onClick={() => { setForm((p) => ({ ...p, image: null })); setImagePreview(null); }}
+                        className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-white text-xs">✕</button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="mb-2 h-8 w-8 text-muted-foreground/60" />
+                      <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG or WebP (max 10MB)</p>
+                    </>
+                  )}
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImage} className="hidden" id="image-upload" />
+                  <label htmlFor="image-upload" className="mt-3 cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
+                    {imagePreview ? "Change image" : "Select image"}
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-muted-foreground">Additional Media</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="video_url">Video Walkthrough URL</Label>
+                  <Input id="video_url" type="url" value={form.video_url}
+                    onChange={(e) => update("video_url", e.target.value)}
+                    placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
+                  <p className="text-xs text-muted-foreground">YouTube or Vimeo link</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="virtual_tour_url">Virtual Tour URL</Label>
+                  <Input id="virtual_tour_url" type="url" value={form.virtual_tour_url}
+                    onChange={(e) => update("virtual_tour_url", e.target.value)}
+                    placeholder="https://my.matterport.com/show/..." />
+                  <p className="text-xs text-muted-foreground">Matterport, Kuula, or any 3D tour link</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="floor_plan_url">Floor Plan URL</Label>
+                  <Input id="floor_plan_url" type="url" value={form.floor_plan_url}
+                    onChange={(e) => update("floor_plan_url", e.target.value)}
+                    placeholder="https://example.com/floor-plan.jpg" />
+                  <p className="text-xs text-muted-foreground">Link to an image of the floor plan</p>
+                </div>
               </div>
             </div>
           )}
@@ -280,6 +306,9 @@ function CreateListingPage() {
                   <span className="text-muted-foreground">Purpose:</span><span className="font-medium capitalize">{form.purpose}</span>
                   <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds} / {form.baths}</span>
                   <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
+                  {form.video_url && <> <span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span> </>}
+                  {form.virtual_tour_url && <> <span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span> </>}
+                  {form.floor_plan_url && <> <span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span> </>}
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">You can save as draft and publish later.</p>

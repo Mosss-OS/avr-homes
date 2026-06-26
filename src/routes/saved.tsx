@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Heart, Search, Trash2 } from "lucide-react";
+import { Heart, Search, Trash2, Bell, BellOff } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
 import { properties } from "@/lib/properties";
-import { getSavedProps, getSavedSearches, removeSavedSearch, type SavedSearch } from "@/lib/saved";
+import { getSavedProps, getSavedSearches, removeSavedSearch, toggleSearchAlert, type SavedSearch } from "@/lib/saved";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
@@ -61,15 +61,26 @@ function Saved() {
           <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {searches.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 p-4">
-                <div>
+                <div className="min-w-0 flex-1">
                   <Link to="/properties" search={Object.fromEntries(new URLSearchParams(s.query)) as never}
                     className="font-medium hover:underline">{s.name}</Link>
                   <div className="text-xs text-muted-foreground">{new Date(s.createdAt).toLocaleDateString()}</div>
                 </div>
-                <button onClick={() => setSearches(removeSavedSearch(s.id))}
-                  className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setSearches(toggleSearchAlert(s.id))}
+                    className={`grid h-9 w-9 place-items-center rounded-full transition ${
+                      s.alert_enabled
+                        ? "text-primary hover:bg-primary/10"
+                        : "text-muted-foreground hover:bg-secondary"
+                    }`}
+                    title={s.alert_enabled ? "Alerts on" : "Alerts off"}>
+                    {s.alert_enabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                  </button>
+                  <button onClick={() => setSearches(removeSavedSearch(s.id))}
+                    className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

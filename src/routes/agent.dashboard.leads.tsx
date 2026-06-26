@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
+import { toast } from "sonner";
 import { Loader2, Mail, Phone, MessageSquare, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/agent/dashboard/leads")({
@@ -50,6 +51,11 @@ const STATUS_STYLES: Record<string, string> = {
   closed: "bg-slate-500/10 text-slate-600 border-slate-200",
 };
 
+interface AgentProperty {
+  id: number;
+  title: string;
+}
+
 function AgentLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
@@ -58,17 +64,31 @@ function AgentLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [propertyFilter, setPropertyFilter] = useState("all");
+  const [properties, setProperties] = useState<AgentProperty[]>([]);
   const [selected, setSelected] = useState<Lead | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const prevUnreadRef = useRef(unreadCount);
 
   const perPage = 20;
+
+  useEffect(() => {
+    api.get<{ data: AgentProperty[] }>("/api/agent/listings?per_page=100")
+      .then((r) => setProperties(r.data.data || []))
+      .catch(() => {});
+  }, []);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: String(perPage) });
     if (statusFilter) params.set("status", statusFilter);
     if (search) params.set("search", search);
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    if (propertyFilter && propertyFilter !== "all") params.set("property_id", propertyFilter);
 
     try {
       const res = await api.get<{ data: Lead[]; total: number; total_pages: number }>(
@@ -80,19 +100,30 @@ function AgentLeadsPage() {
     } catch {} finally {
       setLoading(false);
     }
-  }, [page, statusFilter, search]);
+  }, [page, statusFilter, search, dateFrom, dateTo, propertyFilter]);
 
   const fetchUnread = useCallback(async () => {
     try {
       const res = await api.get<{ unread_count: number }>("/api/agent/leads/unread-count");
-      setUnreadCount(res.data.unread_count);
+      const newCount = res.data.unread_count;
+      if (newCount > prevUnreadRef.current && prevUnreadRef.current > 0) {
+        toast(`You have ${newCount} unread lead${newCount !== 1 ? "s" : ""}`, {
+          description: "New inquiries from your property listings",
+          action: { label: "View", onClick: () => window.location.href = "/agent/dashboard/leads" },
+        });
+      }
+      prevUnreadRef.current = newCount;
+      setUnreadCount(newCount);
     } catch {}
   }, []);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
+  useEffect(() => {
+    prevUnreadRef.current = unreadCount;
+  }, [unreadCount]);
   useEffect(() => { fetchUnread(); const iv = setInterval(fetchUnread, 30000); return () => clearInterval(iv); }, [fetchUnread]);
 
-  useEffect(() => { setPage(1); }, [statusFilter, search]);
+  useEffect(() => { setPage(1); }, [statusFilter, search, dateFrom, dateTo, propertyFilter]);
 
   async function openDetail(lead: Lead) {
     setSelected(lead);
@@ -140,20 +171,40 @@ function AgentLeadsPage() {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Search by name, email, phone..."
             value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        {["", ...STATUS_OPTIONS].map((s) => (
-          <button key={s} onClick={() => setStatusFilter(s)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              statusFilter === s ? "bg-primary text-primary-foreground" : "border border-input bg-background hover:bg-accent"
-            }`}>
-            {s ? s.charAt(0).toUpperCase() + s.slice(1) : "All"}
-          </button>
-        ))}
+        <div className="flex flex-wrap items-center gap-2">
+          {["", ...STATUS_OPTIONS].map((s) => (
+            <button key={s} onClick={() => setStatusFilter(s)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                statusFilter === s ? "bg-primary text-primary-foreground" : "border border-input bg-background hover:bg-accent"
+              }`}>
+              {s ? s.charAt(0).toUpperCase() + s.slice(1) : "All"}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+            className="h-9 w-36 text-xs" />
+          <span className="text-xs text-muted-foreground">—</span>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+            className="h-9 w-36 text-xs" />
+        </div>
+        <Select value={propertyFilter} onValueChange={setPropertyFilter}>
+          <SelectTrigger className="h-9 w-44 text-xs">
+            <SelectValue placeholder="All properties" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All properties</SelectItem>
+            {properties.map((p) => (
+              <SelectItem key={p.id} value={String(p.id)}>{p.title}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -271,7 +322,10 @@ function AgentLeadsPage() {
                   <div className="space-y-2">
                     <Label>Property</Label>
                     <div className="rounded-lg bg-accent/50 p-3 space-y-1 text-sm">
-                      <p className="font-medium">{selected.property_title}</p>
+                      <Link to={"/properties/$id"} params={{ id: String(selected.property_id) }}
+                        className="font-medium text-primary hover:underline">
+                        {selected.property_title}
+                      </Link>
                       <p className="text-muted-foreground">
                         {selected.property_city}, {selected.property_community}
                         {selected.property_price && ` · ₦${(selected.property_price / 1e6).toFixed(1)}M`}

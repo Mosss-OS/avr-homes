@@ -19,6 +19,7 @@ import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as AgentLoginRouteImport } from './routes/agent.login'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
@@ -79,6 +80,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PropertiesRoute,
 } as any)
+const AgentsSlugRoute = AgentsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AgentsRoute,
+} as any)
 const AgentRegisterRoute = AgentRegisterRouteImport.update({
   id: '/agent/register',
   path: '/agent/register',
@@ -131,7 +137,7 @@ const AgentDashboardListingsIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/agents': typeof AgentsRoute
+  '/agents': typeof AgentsRouteWithChildren
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agents/$slug': typeof AgentsSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -152,7 +159,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/agents': typeof AgentsRoute
+  '/agents': typeof AgentsRouteWithChildren
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agents/$slug': typeof AgentsSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -174,7 +182,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/agents': typeof AgentsRoute
+  '/agents': typeof AgentsRouteWithChildren
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agents/$slug': typeof AgentsSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
+    | '/agents/$slug'
     | '/properties/$id'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
+    | '/agents/$slug'
     | '/properties/$id'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
+    | '/agents/$slug'
     | '/properties/$id'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -261,7 +273,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AgentsRoute: typeof AgentsRoute
+  AgentsRoute: typeof AgentsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DiasporaRoute: typeof DiasporaRoute
   InsightsRoute: typeof InsightsRoute
@@ -345,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof PropertiesRoute
     }
+    '/agents/$slug': {
+      id: '/agents/$slug'
+      path: '/$slug'
+      fullPath: '/agents/$slug'
+      preLoaderRoute: typeof AgentsSlugRouteImport
+      parentRoute: typeof AgentsRoute
+    }
     '/agent/register': {
       id: '/agent/register'
       path: '/agent/register'
@@ -411,6 +430,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AgentsRouteChildren {
+  AgentsSlugRoute: typeof AgentsSlugRoute
+}
+
+const AgentsRouteChildren: AgentsRouteChildren = {
+  AgentsSlugRoute: AgentsSlugRoute,
+}
+
+const AgentsRouteWithChildren =
+  AgentsRoute._addFileChildren(AgentsRouteChildren)
+
 interface PropertiesRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
@@ -460,7 +490,7 @@ const AgentDashboardRouteWithChildren = AgentDashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AgentsRoute: AgentsRoute,
+  AgentsRoute: AgentsRouteWithChildren,
   ContactRoute: ContactRoute,
   DiasporaRoute: DiasporaRoute,
   InsightsRoute: InsightsRoute,

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon } from "lucide-react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { formatAED, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
@@ -61,11 +61,32 @@ function Detail() {
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [shared, setShared] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [mediaTab, setMediaTab] = useState<"photos" | "video" | "tour" | "plan">("photos");
 
   const similar = useMemo(
     () => properties.filter((x) => x.id !== p.id && (x.community === p.community || x.type === p.type)).slice(0, 3),
     [p.id, p.community, p.type]
   );
+
+  const mediaTabs = [
+    { key: "photos" as const, icon: ImageIcon, label: "Photos", count: p.gallery.length },
+    { key: "video" as const, icon: Video, label: "Video", disabled: !p.video_url },
+    { key: "tour" as const, icon: Globe, label: "Virtual Tour", disabled: !p.virtual_tour_url },
+    { key: "plan" as const, icon: FileImage, label: "Floor Plan", disabled: !p.floor_plan_url },
+  ].filter((t) => !(t as any).disabled || t.key === "photos");
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowLeft") setLightboxIndex((i) => (i - 1 + p.gallery.length) % p.gallery.length);
+      if (e.key === "ArrowRight") setLightboxIndex((i) => (i + 1) % p.gallery.length);
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightboxOpen, p.gallery.length]);
 
   async function share() {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -94,22 +115,89 @@ function Detail() {
         </div>
       </div>
 
-      {/* Gallery */}
-      <div className="mt-4 grid gap-3 md:grid-cols-[2fr_1fr]">
-        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-          <img src={p.gallery[active] || p.image} alt={p.title} className="h-full w-full object-cover" />
+      {/* Media Gallery */}
+      <div className="mt-4">
+        <div className="flex gap-1 rounded-xl border border-border bg-card p-1">
+          {mediaTabs.map((tab) => (
+            <button key={tab.key} onClick={() => setMediaTab(tab.key)}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition sm:text-sm ${mediaTab === tab.key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+              {tab.count != null && <span className="ml-0.5 text-xs opacity-70">({tab.count})</span>}
+            </button>
+          ))}
         </div>
-        {p.gallery.length > 0 && (
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
-            {p.gallery.slice(0, 3).map((src: string, i: number) => (
-              <button key={i} onClick={() => setActive(i)}
-                className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
-                <img src={src} alt="" className="h-full w-full object-cover" />
+
+        <div className="mt-3">
+          {mediaTab === "photos" && (
+            <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
+              <button onClick={() => { setLightboxIndex(active); setLightboxOpen(true); }}
+                className="aspect-[4/3] overflow-hidden rounded-2xl text-left">
+                <img src={p.gallery[active] || p.image} alt={p.title} className="h-full w-full object-cover" />
               </button>
-            ))}
-          </div>
-        )}
+              {p.gallery.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
+                  {p.gallery.slice(0, 3).map((src: string, i: number) => (
+                    <button key={i} onClick={() => setActive(i)}
+                      className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {mediaTab === "video" && p.video_url && (
+            <div className="aspect-video overflow-hidden rounded-2xl bg-black">
+              <iframe src={embedUrl(p.video_url)} title="Property video" className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+            </div>
+          )}
+
+          {mediaTab === "tour" && p.virtual_tour_url && (
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-black">
+              <iframe src={embedUrl(p.virtual_tour_url)} title="Virtual Tour" className="h-full w-full"
+                allow="fullscreen" allowFullScreen />
+            </div>
+          )}
+
+          {mediaTab === "plan" && p.floor_plan_url && (
+            <a href={p.floor_plan_url} target="_blank" rel="noreferrer"
+              className="flex items-center justify-center overflow-hidden rounded-2xl border border-border bg-card">
+              <img src={p.floor_plan_url} alt="Floor plan" className="max-h-[500px] w-full object-contain" />
+            </a>
+          )}
+        </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && p.gallery.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={() => setLightboxOpen(false)}>
+          <button onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30">
+            <X className="h-5 w-5" />
+          </button>
+          {p.gallery.length > 1 && (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + p.gallery.length) % p.gallery.length); }}
+                className="absolute left-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % p.gallery.length); }}
+                className="absolute right-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30 md:right-20">
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
+          <img src={p.gallery[lightboxIndex]} alt="" className="max-h-[90vh] max-w-[90vw] object-contain"
+            onClick={(e) => e.stopPropagation()} />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/20 px-3 py-1 text-xs text-white">
+            {lightboxIndex + 1} / {p.gallery.length}
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <div className="min-w-0">
@@ -242,6 +330,21 @@ function Detail() {
       </div>
     </div>
   );
+}
+
+function embedUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+      const v = u.searchParams.get("v") || u.pathname.slice(1);
+      return `https://www.youtube.com/embed/${v}?autoplay=1`;
+    }
+    if (u.hostname.includes("vimeo.com")) {
+      const id = u.pathname.slice(1);
+      return `https://player.vimeo.com/video/${id}?autoplay=1`;
+    }
+  } catch { /* not a URL, return as-is */ }
+  return url;
 }
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
