@@ -18,6 +18,9 @@ export interface PropertyData {
   lat: number;
   lng: number;
   image: string | null;
+  video_url: string | null;
+  virtual_tour_url: string | null;
+  floor_plan_url: string | null;
   description: string;
   amenities: string[];
   agent_id: number | null;

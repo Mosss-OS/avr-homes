@@ -30,6 +30,9 @@ export interface Property {
   lat: number;
   lng: number;
   image: any;
+  video_url: string | null;
+  virtual_tour_url: string | null;
+  floor_plan_url: string | null;
   gallery: string[];
   description: string;
   amenities: string[];
@@ -54,6 +57,9 @@ export function propertyFromApi(p: PropertyData): Property {
   return {
     ...p,
     image: p.image || (p.images?.[0]?.url ?? null),
+    video_url: p.video_url ?? null,
+    virtual_tour_url: p.virtual_tour_url ?? null,
+    floor_plan_url: p.floor_plan_url ?? null,
     gallery: p.images?.map((i) => i.url) || [],
     agent_id: p.agent_id ?? null,
     posted_days_ago: p.posted_days_ago,
@@ -97,7 +103,7 @@ export const properties: Property[] = [
     beds: 4, baths: 5, area: 380,
     city: "Lagos", community: "Eko Atlantic", address: "Eko Pearl Towers, Eko Atlantic City",
     lat: 6.4204, lng: 3.4106,
-    image: prop4, gallery: [prop4, prop1, prop2],
+    image: prop4, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop4, prop1, prop2],
     description: "A rare full-floor penthouse with wraparound terraces, private elevator access, and uninterrupted views of the Atlantic and Victoria Island skyline.",
     amenities: ["Private pool", "Concierge", "Smart home", "Covered parking", "Gym"],
     agentId: "a-1", featured: true, verified: true, postedDaysAgo: 2,
@@ -109,7 +115,7 @@ export const properties: Property[] = [
     beds: 6, baths: 7, area: 580,
     city: "Lagos", community: "Banana Island", address: "Block C, Banana Island, Ikoyi",
     lat: 6.4456, lng: 3.4459,
-    image: prop2, gallery: [prop2, prop6, prop1],
+    image: prop2, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop2, prop6, prop1],
     description: "Signature waterfront mansion with private jetty access, infinity pool, and bespoke interiors by an award-winning Lagos studio.",
     amenities: ["Private jetty", "Infinity pool", "BQ", "Driver's quarters", "Home cinema"],
     agentId: "a-2", featured: true, verified: true, postedDaysAgo: 5,
@@ -121,7 +127,7 @@ export const properties: Property[] = [
     beds: 2, baths: 2, area: 110,
     city: "Lagos", community: "Lekki Phase 1", address: "Admiralty Way, Lekki Phase 1",
     lat: 6.4399, lng: 3.4716,
-    image: prop1, gallery: [prop1, prop5, prop4],
+    image: prop1, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop1, prop5, prop4],
     description: "Chic two-bedroom on a high floor with skyline views, modern kitchen, and access to a resort-style amenity deck.",
     amenities: ["Pool", "Gym", "24/7 security", "Parking", "Balcony"],
     agentId: "a-3", verified: true, postedDaysAgo: 1,
@@ -133,7 +139,7 @@ export const properties: Property[] = [
     beds: 4, baths: 4, area: 180,
     city: "Lagos", community: "Old Ikoyi", address: "Bourdillon Road, Ikoyi",
     lat: 6.4488, lng: 3.4364,
-    image: prop3, gallery: [prop3, prop1],
+    image: prop3, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop3, prop1],
     description: "Bright family townhouse with private garden, double garage, and access to a shared pool and 24/7 estate security.",
     amenities: ["Garden", "Garage", "Estate pool", "24/7 security"],
     agentId: "a-1", verified: true, postedDaysAgo: 9,
@@ -145,7 +151,7 @@ export const properties: Property[] = [
     beds: 0, baths: 1, area: 45,
     city: "Lagos", community: "Victoria Island", address: "Ozumba Mbadiwe Avenue, VI",
     lat: 6.4281, lng: 3.4219,
-    image: prop5, gallery: [prop5, prop1],
+    image: prop5, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop5, prop1],
     description: "Fully furnished studio in the heart of VI — walking distance to offices, dining, and the lagoon waterfront.",
     amenities: ["Furnished", "Backup power", "Pool", "Gym"],
     agentId: "a-3", postedDaysAgo: 0,
@@ -157,7 +163,7 @@ export const properties: Property[] = [
     beds: 5, baths: 6, area: 520,
     city: "Lagos", community: "Lekki Phase 2", address: "Idado Estate, Igbo-efon, Lekki",
     lat: 6.4413, lng: 3.5234,
-    image: prop6, gallery: [prop6, prop2],
+    image: prop6, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop6, prop2],
     description: "Contemporary villa with private pool, tropical landscaping, smart home automation, and a full backup power system.",
     amenities: ["Private pool", "Smart home", "BQ", "Solar inverter", "CCTV"],
     agentId: "a-2", verified: true, postedDaysAgo: 14,

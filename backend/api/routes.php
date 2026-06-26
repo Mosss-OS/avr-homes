@@ -83,6 +83,12 @@ route('DELETE', '/api/upload/{id}', ['UploadController', 'destroy']);
 route('GET', '/api/settings', ['SettingController', 'index']);
 route('POST', '/api/settings', ['SettingController', 'update']);
 
+// Saved Search routes (authenticated)
+route('GET', '/api/saved-searches', ['SavedSearchController', 'index']);
+route('POST', '/api/saved-searches', ['SavedSearchController', 'store']);
+route('PUT', '/api/saved-searches/{id}', ['SavedSearchController', 'update']);
+route('DELETE', '/api/saved-searches/{id}', ['SavedSearchController', 'destroy']);
+
 // Migration routes (admin only)
 route('POST', '/api/admin/migrations/run', ['MigrationController', 'run']);
 route('POST', '/api/admin/migrations/run/{name}', ['MigrationController', 'run']);

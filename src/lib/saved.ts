@@ -5,7 +5,8 @@ const SAVED_SEARCHES = "uae-saved-searches";
 export interface SavedSearch {
   id: string;
   name: string;
-  query: string; // serialized search string
+  query: string;
+  alert_enabled: boolean;
   createdAt: number;
 }
 
@@ -29,14 +30,21 @@ export function toggleSavedProp(id: string): string[] {
 export function isSaved(id: string): boolean { return getSavedProps().includes(id); }
 
 export function getSavedSearches(): SavedSearch[] { return read<SavedSearch[]>(SAVED_SEARCHES, []); }
-export function addSavedSearch(s: Omit<SavedSearch, "id" | "createdAt">): SavedSearch[] {
+export function addSavedSearch(s: Omit<SavedSearch, "id" | "createdAt" | "alert_enabled">): SavedSearch[] {
   const list = getSavedSearches();
-  const next = [...list, { ...s, id: crypto.randomUUID(), createdAt: Date.now() }];
+  const next = [...list, { ...s, alert_enabled: true, id: crypto.randomUUID(), createdAt: Date.now() }];
   write(SAVED_SEARCHES, next);
   return next;
 }
 export function removeSavedSearch(id: string): SavedSearch[] {
   const next = getSavedSearches().filter((s) => s.id !== id);
+  write(SAVED_SEARCHES, next);
+  return next;
+}
+export function toggleSearchAlert(id: string): SavedSearch[] {
+  const next = getSavedSearches().map((s) =>
+    s.id === id ? { ...s, alert_enabled: !s.alert_enabled } : s
+  );
   write(SAVED_SEARCHES, next);
   return next;
 }
