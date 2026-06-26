@@ -15,7 +15,11 @@ class Database
       $user = $_ENV['DB_USER'] ?? 'root';
       $pass = $_ENV['DB_PASS'] ?? '';
 
-      $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
+      if ($host[0] === '/') {
+        $dsn = "mysql:unix_socket={$host};dbname={$name};charset=utf8mb4";
+      } else {
+        $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
+      }
 
       self::$instance = new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
