@@ -103,7 +103,7 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70 relative">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <img
@@ -125,7 +125,7 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-0 lg:flex"
           onMouseLeave={handleMegaLeave}>
           {MEGA_MENU.map((group, i) => (
-            <div key={group.label} className="relative"
+            <div key={group.label}
               onMouseEnter={() => handleMegaEnter(i)}>
               <button
                 className={`flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition ${
@@ -135,51 +135,58 @@ export function SiteHeader() {
                 {group.label}
                 <ChevronDown className={`h-3.5 w-3.5 transition ${activeMega === i ? "rotate-180" : ""}`} />
               </button>
-
-              {activeMega === i && (
-                <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-2"
-                  onMouseEnter={() => handleMegaEnter(i)}>
-                  <div className="w-[80vw] max-w-6xl rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
-                    <div className="mb-3 flex items-center gap-2 border-b border-border pb-3">
-                      {group.icon && <group.icon className="h-5 w-5 text-primary" />}
-                      <span className="font-display text-base font-semibold">{group.label}</span>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                      {group.items.map((item) => {
-                        const content = (
-                          <div className="group/item flex items-start gap-3 rounded-xl p-3 transition hover:bg-secondary/80">
-                            {item.icon && (
-                              <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                                <item.icon className="h-4 w-4" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <div className="text-sm font-medium group-hover/item:text-primary">{item.label}</div>
-                              {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
-                            </div>
-                          </div>
-                        );
-
-                        if (item.to) {
-                          return (
-                            <Link key={item.label} to={item.to} search={item.search as never} onClick={() => setActiveMega(null)}>
-                              {content}
-                            </Link>
-                          );
-                        }
-                        return (
-                          <a key={item.label} href={item.href || "#"} onClick={() => setActiveMega(null)}>
-                            {content}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </nav>
+
+        {/* Mega Menu Dropdown - centered on page */}
+        {activeMega !== null && (() => {
+          const group = MEGA_MENU[activeMega];
+          const IconComp = group.icon;
+          return (
+            <div className="absolute left-[10vw] top-full z-50 w-[80vw] max-w-6xl pt-2"
+              onMouseEnter={() => handleMegaEnter(activeMega)}
+              onMouseLeave={handleMegaLeave}>
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
+                <div className="mb-3 flex items-center gap-2 border-b border-border pb-3">
+                  {IconComp && <IconComp className="h-5 w-5 text-primary" />}
+                  <span className="font-display text-base font-semibold">{group.label}</span>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {group.items.map((item) => {
+                    const ItemIcon = item.icon;
+                    const content = (
+                      <div className="group/item flex items-start gap-3 rounded-xl p-3 transition hover:bg-secondary/80">
+                        {ItemIcon && (
+                          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                            <ItemIcon className="h-4 w-4" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium group-hover/item:text-primary">{item.label}</div>
+                          {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
+                        </div>
+                      </div>
+                    );
+
+                    if (item.to) {
+                      return (
+                        <Link key={item.label} to={item.to} search={item.search as never} onClick={() => setActiveMega(null)}>
+                          {content}
+                        </Link>
+                      );
+                    }
+                    return (
+                      <a key={item.label} href={item.href || "#"} onClick={() => setActiveMega(null)}>
+                        {content}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {isPropertyPage && (
