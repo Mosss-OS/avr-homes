@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { Loader2, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/agent/register")({
@@ -62,6 +63,16 @@ function AgentRegisterPage() {
     });
   }
 
+  function getMissingRequired(): string[] {
+    const missing: string[] = [];
+    if (!form.name?.trim()) missing.push("Full Name");
+    if (!form.email?.trim()) missing.push("Email");
+    if (!form.password || form.password.length < 6) missing.push("Password (min 6 characters)");
+    if (!form.phone?.trim()) missing.push("Phone Number");
+    if (!agreeTerms) missing.push("Terms agreement");
+    return missing;
+  }
+
   function validateStep(): boolean {
     const errors: Record<string, string> = {};
     if (step === 0) {
@@ -75,7 +86,11 @@ function AgentRegisterPage() {
   }
 
   async function handleSubmit() {
-    if (!agreeTerms) { setError("You must agree to the terms"); return; }
+    const missing = getMissingRequired();
+    if (missing.length) {
+      toast.error(`Please fill in all required fields: ${missing.join(", ")}`);
+      return;
+    }
     setLoading(true);
     setError("");
     try {

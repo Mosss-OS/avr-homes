@@ -109,7 +109,7 @@ class AuthController
           experience, state, city, lasrera_number, niesv_number, avg_monthly_listings, property_types,
           avg_deal_size, specialization, social_instagram, social_facebook, social_linkedin, social_tiktok,
           social_youtube, why_join, support_needed, referral_source, is_verified, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
       );
       $stmt->execute([
         $userId,
