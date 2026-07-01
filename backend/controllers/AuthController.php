@@ -88,8 +88,8 @@ class AuthController
     $db->beginTransaction();
     try {
       $stmt = $db->prepare(
-        'INSERT INTO users (name, email, password, role, is_active, lasrera_number, niesv_number)
-         VALUES (?, ?, ?, ?, ?, ?, ?)'
+        'INSERT INTO users (name, email, password, role, is_active)
+         VALUES (?, ?, ?, ?, ?)'
       );
       $stmt->execute([
         $data['name'],
@@ -97,8 +97,6 @@ class AuthController
         $hashedPassword,
         'agent',
         1,
-        $data['lasrera_number'] ?? null,
-        $data['niesv_number'] ?? null,
       ]);
       $userId = (int)$db->lastInsertId();
 
