@@ -144,7 +144,7 @@ export function SiteHeader() {
           const group = MEGA_MENU[activeMega];
           const IconComp = group.icon;
           return (
-            <div className="absolute left-[10vw] top-full z-50 w-[80vw] max-w-6xl pt-2"
+            <div className="absolute left-1/2 top-full z-50 w-[80vw] max-w-6xl -translate-x-1/2 pt-2"
               onMouseEnter={() => handleMegaEnter(activeMega)}
               onMouseLeave={handleMegaLeave}>
               <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
