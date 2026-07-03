@@ -5,7 +5,7 @@ import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle,
+  LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users,
   Menu, X, LogOut, ChevronRight,
 } from "lucide-react";
 
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/agent/dashboard" },
   { icon: Home, label: "My Listings", to: "/agent/dashboard/listings" },
   { icon: Mail, label: "Leads", to: "/agent/dashboard/leads" },
+  { icon: Users, label: "Referrals", to: "/agent/dashboard/referrals" },
+  { icon: CreditCard, label: "Subscriptions", to: "/agent/dashboard/subscriptions" },
   { icon: UserCircle, label: "Profile", to: "/agent/dashboard/profile" },
   { icon: ShieldCheck, label: "Verification", to: "/agent/dashboard/verification" },
   { icon: HelpCircle, label: "Help & Support", to: "#" },

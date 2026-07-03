@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart } from "lucide-react";
 import { useState } from "react";
 import { formatPrice, type Currency, type Property } from "@/lib/properties";
@@ -8,16 +8,13 @@ const CURRENCIES: Currency[] = ["NGN", "USD", "GBP"];
 const SYMBOLS: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
 export function PropertyCard({ p }: { p: Property }) {
-  const navigate = useNavigate();
   const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [currency, setCurrency] = useState<Currency>("NGN");
-  function goToDetail() {
-    navigate({ to: "/properties/$id", params: { id: String(p.id) } });
-  }
   return (
-    <div
-      onClick={goToDetail}
-      className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
+    <Link
+      to="/properties/$id"
+      params={{ id: String(p.id) }}
+      className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
     >
       <div className="relative block aspect-[4/3] overflow-hidden">
         <img
@@ -40,6 +37,7 @@ export function PropertyCard({ p }: { p: Property }) {
         </div>
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             toggleSavedProp(String(p.id));
             setSaved((s) => !s);
@@ -61,7 +59,10 @@ export function PropertyCard({ p }: { p: Property }) {
           <span className="text-xs uppercase tracking-wider text-muted-foreground">{p.type}</span>
         </div>
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           className="mt-1.5 inline-flex items-center gap-0.5 rounded-full border border-border bg-secondary/60 p-0.5 text-[10px] font-semibold"
         >
           {CURRENCIES.map((c) => (
@@ -69,6 +70,7 @@ export function PropertyCard({ p }: { p: Property }) {
               key={c}
               type="button"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 setCurrency(c);
               }}
@@ -98,6 +100,6 @@ export function PropertyCard({ p }: { p: Property }) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

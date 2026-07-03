@@ -1,4 +1,5 @@
 import { api } from "./api-client";
+import { getRate } from "./settings";
 import type { PropertyData, AgentData, PaginatedResponse } from "./types";
 import prop1 from "@/assets/prop-1.jpg";
 import prop2 from "@/assets/prop-2.jpg";
@@ -288,13 +289,11 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "land", label: "Land" },
 ];
 
-// Indicative FX (NGN-based). Update centrally when needed.
-const RATES: Record<Currency, number> = { NGN: 1, USD: 1 / 1500, GBP: 1 / 1900 };
 const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
 export function formatPrice(n: number, currency: Currency = "NGN"): string {
   const sym = SYMBOL[currency];
-  const v = n * RATES[currency];
+  const v = n * getRate(currency);
   if (v >= 1_000_000_000) return `${sym}${(v / 1_000_000_000).toFixed(v % 1_000_000_000 === 0 ? 0 : 2)}B`;
   if (v >= 1_000_000) return `${sym}${(v / 1_000_000).toFixed(v % 1_000_000 === 0 ? 0 : 2)}M`;
   if (v >= 1_000) return `${sym}${(v / 1_000).toFixed(0)}K`;

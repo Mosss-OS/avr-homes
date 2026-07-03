@@ -20,6 +20,7 @@ route('POST', '/api/auth/refresh', ['AuthController', 'refreshToken']);
 // Agent Auth routes
 route('POST', '/api/auth/agent/register', ['AuthController', 'registerAgent']);
 route('POST', '/api/auth/agent/login', ['AuthController', 'loginAgent']);
+route('GET', '/api/agent/listings', ['AgentListingController', 'index'], ['middleware' => SubscriptionMiddleware::class]);
 
 // Property routes
 route('GET', '/api/properties', ['PropertyController', 'index']);
@@ -73,6 +74,35 @@ route('GET', '/api/agent/listings/{id}/verification', ['PropertyVerificationCont
 route('GET', '/api/admin/verifications', ['PropertyVerificationController', 'adminIndex']);
 route('PUT', '/api/admin/verifications/{id}/approve', ['PropertyVerificationController', 'adminApprove']);
 route('PUT', '/api/admin/verifications/{id}/reject', ['PropertyVerificationController', 'adminReject']);
+
+// Subscription routes (agent only)
+route('GET', '/api/agent/subscription', ['SubscriptionController', 'index']);
+route('POST', '/api/agent/subscription/upgrade', ['SubscriptionController', 'upgrade']);
+route('POST', '/api/agent/subscription/cancel', ['SubscriptionController', 'cancel']);
+
+// Referral routes (agent)
+route('GET', '/api/agent/referrals', ['ReferralController', 'index']);
+route('POST', '/api/agent/referrals/generate', ['ReferralController', 'generateCode']);
+route('GET', '/api/agent/referrals/stats', ['ReferralController', 'stats']);
+
+// Wallet routes (agent)
+route('GET', '/api/agent/wallet', ['WalletController', 'show']);
+route('GET', '/api/agent/wallet/transactions', ['WalletController', 'transactions']);
+route('POST', '/api/agent/wallet/withdraw', ['WalletController', 'requestWithdrawal']);
+
+// Leaderboard routes
+route('GET', '/api/leaderboard/weekly', ['LeaderboardController', 'weekly']);
+route('GET', '/api/leaderboard/monthly', ['LeaderboardController', 'monthly']);
+route('GET', '/api/leaderboard/quarterly', ['LeaderboardController', 'quarterly']);
+route('POST', '/api/admin/leaderboard/refresh', ['LeaderboardController', 'refresh']);
+
+// Market Data routes
+route('GET', '/api/market', ['MarketDataController', 'index']);
+route('GET', '/api/market/heatmap', ['MarketDataController', 'heatmap']);
+route('GET', '/api/market/price-index', ['MarketDataController', 'priceIndex']);
+route('GET', '/api/market/reports', ['MarketDataController', 'reportsList']);
+route('GET', '/api/market/reports/{period}', ['MarketDataController', 'report']);
+route('POST', '/api/market/reports', ['MarketDataController', 'publishReport']);
 
 // Upload routes
 route('POST', '/api/upload', ['UploadController', 'upload']);

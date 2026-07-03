@@ -349,11 +349,201 @@ Default settings:
 - `currency_ngn_gbp` — 0.00053
 - `whatsapp_number` — 2348000000000
 
+### Token Refresh
+
+| Method | Path                | Auth | Description                              |
+|--------|---------------------|------|------------------------------------------|
+| POST   | `/api/auth/refresh` | No   | Refresh an expired JWT using refresh token |
+
+**POST /api/auth/refresh**
+
+```json
+{ "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### Agent Authentication
+
+| Method | Path                          | Auth | Description                    |
+|--------|-------------------------------|------|--------------------------------|
+| POST   | `/api/auth/agent/register`    | No   | Register a new agent account   |
+| POST   | `/api/auth/agent/login`       | No   | Agent login, returns JWT + profile |
+
+**POST /api/auth/agent/register**
+
+```json
+{
+  "name": "Chidi Obi",
+  "email": "chidi@example.com",
+  "password": "securepass123",
+  "phone": "+234 812 345 6789",
+  "agency": "Luxury Homes Ltd.",
+  "whatsapp": "+234 812 345 6789",
+  "bio": "Experienced Lagos realtor...",
+  "experience": "6-10",
+  "state": "Lagos",
+  "city": "Lekki",
+  "languages": ["English", "Igbo"],
+  "property_types": ["apartment", "villa"],
+  "specialization": ["luxury", "commercial"],
+  "social_instagram": "@chidi_realtor",
+  "referral_source": "Google"
+}
+```
+
+On success, returns JWT token, refresh token, and user object. Also creates a `free` tier subscription and wallet.
+
+**POST /api/auth/agent/login**
+
+```json
+{ "email": "chidi@example.com", "password": "securepass123" }
+```
+
+Response includes agent profile:
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "...",
+    "user": {
+      "id": 2, "name": "Chidi Obi", "email": "chidi@example.com", "role": "agent",
+      "profile": {
+        "agent_id": 1, "slug": "chidi-obi", "photo_url": null,
+        "agency": "Luxury Homes Ltd.", "phone": "+234 812 345 6789",
+        "is_verified": false, "avatar_hue": 195
+      }
+    }
+  }
+}
+```
+
+### Agent Public
+
+| Method | Path                         | Auth | Description                       |
+|--------|------------------------------|------|-----------------------------------|
+| GET    | `/api/agents/by-slug/{slug}` | No   | Single agent by URL slug          |
+
+### Agent Profile Management
+
+All endpoints require agent JWT auth.
+
+| Method | Path                     | Auth  | Description                        |
+|--------|--------------------------|-------|------------------------------------|
+| GET    | `/api/agent/profile`     | Yes   | Get authenticated agent's profile  |
+| PUT    | `/api/agent/profile`     | Yes   | Update agent profile fields        |
+| POST   | `/api/agent/profile/avatar` | Yes | Upload avatar image                |
+
+**PUT /api/agent/profile** — accepts partial update. Validated fields: `name`, `phone`, `experience`, `avg_monthly_listings`, `avg_deal_size`, plus any agent column.
+
+**POST /api/agent/profile/avatar** — `multipart/form-data` with field `avatar`. Accepted: `jpg`, `jpeg`, `png`, `webp` (max 5 MB). Returns `{ "photo_url": "..." }`.
+
+### Agent Listings (Authenticated Agent)
+
+All endpoints require agent JWT auth.
+
+| Method | Path                               | Auth | Description                         |
+|--------|------------------------------------|------|-------------------------------------|
+| GET    | `/api/agent/listings`              | Yes  | List agent's own listings (paginated) |
+| POST   | `/api/agent/listings`              | Yes  | Create a new listing                |
+| GET    | `/api/agent/listings/stats`        | Yes  | Listing statistics (counts by status) |
+| GET    | `/api/agent/listings/{id}`         | Yes  | Single listing detail               |
+| PUT    | `/api/agent/listings/{id}`         | Yes  | Update listing                      |
+| PUT    | `/api/agent/listings/{id}/status`  | Yes  | Change listing status (draft/publish/archive) |
+| DELETE | `/api/agent/listings/{id}`         | Yes  | Delete listing                      |
+
+**Query params (GET /api/agent/listings):** `page`, `per_page`, `status` (draft/published/archived), `q` (search).
+
+**POST /api/agent/listings** — accepts property fields (title, description, type, purpose, price, beds, baths, area, city, community, address, lat, lng, amenities as JSON array).
+
+### Agent Leads
+
+All endpoints require agent JWT auth.
+
+| Method | Path                              | Auth | Description                          |
+|--------|-----------------------------------|------|--------------------------------------|
+| GET    | `/api/agent/leads`                | Yes  | List leads (viewing requests)        |
+| GET    | `/api/agent/leads/unread-count`   | Yes  | Count of unread leads                |
+| GET    | `/api/agent/leads/{id}`           | Yes  | Single lead detail                   |
+| PUT    | `/api/agent/leads/{id}/read`      | Yes  | Mark lead as read                    |
+| PUT    | `/api/agent/leads/{id}/status`    | Yes  | Update lead status                   |
+| PUT    | `/api/agent/leads/{id}/notes`     | Yes  | Add/update agent notes on lead       |
+
+**Query params (GET /api/agent/leads):** `page`, `per_page`, `status` (new/contacted/qualified/closed), `property_id`, `date_from`, `date_to`, `search`.
+
+**PUT /api/agent/leads/{id}/status** — body: `{ "status": "contacted" }`. Valid statuses: `new`, `contacted`, `qualified`, `closed`.
+
+**PUT /api/agent/leads/{id}/notes** — body: `{ "notes": "Called client, interested in viewing Saturday." }`.
+
+### Property Verification (Agent)
+
+| Method | Path                                          | Auth | Description                               |
+|--------|-----------------------------------------------|------|-------------------------------------------|
+| POST   | `/api/agent/listings/{id}/documents`          | Yes  | Upload verification document for a listing |
+| GET    | `/api/agent/listings/{id}/verification`       | Yes  | Get verification status + submitted docs   |
+
+**POST /api/agent/listings/{id}/documents** — `multipart/form-data` with field `document`, plus `document_type` field. Valid types: `certificate_of_occupancy`, `survey_plan`, `deed_of_assignment`, `governors_consent`, `agent_lasrera_id`, `property_photo`.
+
+### Admin Verification
+
+Requires admin JWT auth.
+
+| Method | Path                                    | Auth  | Description                             |
+|--------|-----------------------------------------|-------|-----------------------------------------|
+| GET    | `/api/admin/verifications`              | Yes   | List all pending verifications          |
+| PUT    | `/api/admin/verifications/{id}/approve` | Yes   | Approve a verification request          |
+| PUT    | `/api/admin/verifications/{id}/reject`  | Yes   | Reject a verification request           |
+
+**Query params (GET /api/admin/verifications):** `status` (pending/approved/rejected), `page`, `per_page`.
+
+### Saved Searches
+
+Requires authenticated user JWT.
+
+| Method | Path                        | Auth | Description                    |
+|--------|-----------------------------|------|--------------------------------|
+| GET    | `/api/saved-searches`       | Yes  | List user's saved searches     |
+| POST   | `/api/saved-searches`       | Yes  | Save a search                  |
+| PUT    | `/api/saved-searches/{id}`  | Yes  | Update saved search            |
+| DELETE | `/api/saved-searches/{id}`  | Yes  | Delete saved search            |
+
+**POST /api/saved-searches**
+
+```json
+{
+  "name": "3-bed Lekki buy",
+  "filters": { "purpose": "buy", "beds": 3, "city": "Lekki" },
+  "alert_enabled": true
+}
+```
+
+### Migrations (Admin)
+
+| Method | Path                              | Auth  | Description                   |
+|--------|-----------------------------------|-------|-------------------------------|
+| POST   | `/api/admin/migrations/run`       | Yes   | Run all pending migrations    |
+| POST   | `/api/admin/migrations/run/{name}`| Yes   | Run a specific migration file |
+| GET    | `/api/admin/migrations/status`    | Yes   | List executed migrations      |
+
+Migration files are `.sql` files in `backend/database/migrations/`. Already-executed migrations are skipped unless specifically requested (returns 409 conflict).
+
 ---
 
 ## Authentication
 
-All admin CRUD endpoints require a JWT Bearer token. Obtain one via `POST /api/auth/login`.
+All admin and agent CRUD endpoints require a JWT Bearer token. Obtain one via `POST /api/auth/login` or `POST /api/auth/agent/login`.
 
 Token format: custom HS256 JWT (header.payload.signature). No external JWT library required.
 
@@ -370,20 +560,24 @@ For GET requests, the token can also be passed as a query parameter: `?token=<to
 
 ## Database schema
 
-10 tables:
+14 tables:
 
-| Table                 | Rows (seed) | Purpose                              |
-|-----------------------|-------------|--------------------------------------|
-| users                 | 1           | Admin accounts                       |
-| agents                | 3           | Real estate agents                   |
-| properties            | 0           | Property listings                    |
-| property_images       | 0           | Image gallery per property           |
-| inquiries             | 0           | Viewing / tour requests              |
-| contact_messages      | 0           | Contact form submissions             |
-| newsletter_subscribers| 0           | Email subscribers                    |
-| saved_properties      | 0           | User-favourited properties           |
-| activity_logs         | 0           | Admin action audit trail             |
-| settings              | 7           | Key-value site settings              |
+| Table                  | Rows (seed) | Purpose                              |
+|------------------------|-------------|--------------------------------------|
+| users                  | 1           | Admin and agent accounts             |
+| agents                 | 3           | Real estate agent profiles           |
+| agent_subscriptions    | 3           | Agent subscription tiers & limits    |
+| agent_wallets          | 3           | Agent earnings and balances          |
+| properties             | 0           | Property listings                    |
+| property_images        | 0           | Image gallery per property           |
+| inquiries              | 0           | Viewing / tour requests              |
+| contact_messages       | 0           | Contact form submissions             |
+| saved_searches         | 0           | User-saved search filters            |
+| newsletter_subscribers | 0           | Email subscribers                    |
+| saved_properties       | 0           | User-favourited properties           |
+| activity_logs          | 0           | Admin action audit trail             |
+| settings               | 7           | Key-value site settings              |
+| migrations             | 0           | Executed migration tracking          |
 
 Full-text search is enabled on `properties.title`, `properties.description`, `properties.address`, and `properties.community`.
 

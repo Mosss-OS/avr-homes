@@ -20,19 +20,28 @@ class AgentListingController
   {
     $db = Database::getConnection();
     $stmt = $db->prepare(
-      "SELECT s.listings_limit, 
-        (SELECT COUNT(*) FROM properties p 
-         JOIN agents a ON p.agent_id = a.id 
-         WHERE a.user_id = ? AND p.is_active = 1) as current_listings
+      "SELECT s.tier, s.listings_limit, 
+             (SELECT COUNT(*) FROM properties p 
+              JOIN agents a ON p.agent_id = a.id 
+              WHERE a.user_id = ? AND p.is_active = 1) as current_listings
        FROM agent_subscriptions s 
-       WHERE s.agent_id = ? AND s.status = 'active'"
+       WHERE s.agent_id = ? AND s.status = 'active'
+       ORDER BY s.current_period_start DESC LIMIT 1"
     );
     $stmt->execute([$userId, $userId]);
     $sub = $stmt->fetch();
 
-    if ($sub && (int)$sub['current_listings'] >= (int)$sub['listings_limit']) {
+    $tier = $sub['tier'] ?? 'free';
+    $currentListings = (int)$sub['current_listings'] ?? 0;
+    $limit = (int)$sub['listings_limit'] ?? ($tier === 'platinum' ? -1 : 3);
+
+    if ($tier === 'platinum') {
+      return;
+    }
+
+    if ($limit > 0 && $currentListings >= $limit) {
       Response::error(
-        "Listing limit reached ({$sub['listings_limit']}). Upgrade your plan to add more listings.",
+        "Listing limit reached ({$limit}). Upgrade your plan to add more listings.",
         403
       );
     }
