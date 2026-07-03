@@ -1,15 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { MapPin } from "lucide-react";
-import { formatAED, properties } from "@/lib/properties";
+import { formatAED, properties as allProperties } from "@/lib/properties";
+
+const schema = z.object({
+  purpose: fallback(z.enum(["buy", "rent"]), "buy").optional(),
+  type: fallback(z.string(), "").optional(),
+  city: fallback(z.string(), "").optional(),
+});
 
 export const Route = createFileRoute("/map")({
+  validateSearch: zodValidator(schema),
   head: () => ({
     meta: [
-      { title: "Map view — AVR Homes Lagos Property Search" },
-      { name: "description", content: "Explore luxury properties across Lekki, Ikoyi, Victoria Island and Eko Atlantic on an interactive map." },
-      { property: "og:title", content: "Map view — AVR Homes Lagos Property Search" },
-      { property: "og:description", content: "Explore Lagos luxury properties on an interactive map of the city's prime neighborhoods." },
+      { title: "Map view — AVR Homes Nigeria Property Search" },
+      { name: "description", content: "Explore verified homes and land across Lagos, Abuja, Port Harcourt and beyond on an interactive map." },
+      { property: "og:title", content: "Map view — AVR Homes Nigeria Property Search" },
+      { property: "og:description", content: "Explore Nigerian properties on an interactive map." },
       { property: "og:url", content: "https://avrusthomes.com/map" },
     ],
     links: [{ rel: "canonical", href: "https://avrusthomes.com/map" }],
@@ -17,17 +26,26 @@ export const Route = createFileRoute("/map")({
   component: MapView,
 });
 
-// Simple SVG "map" with stylized Lagos layout — no external map dependency.
+// Simple SVG "map" with stylized layout — no external map dependency.
 function MapView() {
+  const search = Route.useSearch();
+  const properties = useMemo(() => allProperties.filter((p) => {
+    if (search.purpose && p.purpose !== search.purpose) return false;
+    if (search.type && p.type !== search.type) return false;
+    if (search.city && p.city !== search.city) return false;
+    return true;
+  }), [search]);
+
   const [hoverId, setHoverId] = useState<string | number | null>(null);
   const bounds = useMemo(() => {
+    if (properties.length === 0) return { minLat: 4, maxLat: 10, minLng: 3, maxLng: 8 };
     const lats = properties.map((p) => p.lat);
     const lngs = properties.map((p) => p.lng);
     return {
       minLat: Math.min(...lats) - 0.1, maxLat: Math.max(...lats) + 0.1,
       minLng: Math.min(...lngs) - 0.1, maxLng: Math.max(...lngs) + 0.1,
     };
-  }, []);
+  }, [properties]);
   const project = (lat: number, lng: number) => {
     const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * 100;
     const y = 100 - ((lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * 100;
