@@ -123,3 +123,13 @@ route('DELETE', '/api/saved-searches/{id}', ['SavedSearchController', 'destroy']
 route('POST', '/api/admin/migrations/run', ['MigrationController', 'run']);
 route('POST', '/api/admin/migrations/run/{name}', ['MigrationController', 'run']);
 route('GET', '/api/admin/migrations/status', ['MigrationController', 'status']);
+
+// Blog / CMS routes
+route('GET', '/api/blog', ['BlogController', 'index']);
+route('GET', '/api/blog/featured', ['BlogController', 'featured']);
+route('GET', '/api/blog/categories', ['BlogController', 'categories']);
+route('GET', '/api/blog/{slug}', ['BlogController', 'show']);
+route('GET', '/api/agent/blog', ['BlogController', 'agentIndex']);
+route('POST', '/api/agent/blog', ['BlogController', 'store']);
+route('PUT', '/api/agent/blog/{id}', ['BlogController', 'update']);
+route('DELETE', '/api/agent/blog/{id}', ['BlogController', 'destroy']);

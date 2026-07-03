@@ -19,10 +19,12 @@ import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as DiasporaRouteImport } from './routes/diaspora'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BuyRouteImport } from './routes/buy'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiAiSearchRouteImport } from './routes/api/ai-search'
 import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
@@ -34,6 +36,7 @@ import { Route as AgentDashboardReferralsRouteImport } from './routes/agent.dash
 import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashboard.profile'
 import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
 import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
+import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
 import { Route as AgentDashboardListingsIdEditRouteImport } from './routes/agent.dashboard.listings.$id.edit'
 
@@ -87,6 +90,11 @@ const BuyRoute = BuyRouteImport.update({
   path: '/buy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsRoute = AgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
@@ -106,6 +114,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => PropertiesRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const ApiAiSearchRoute = ApiAiSearchRouteImport.update({
   id: '/api/ai-search',
@@ -164,6 +177,11 @@ const AgentDashboardLeadsRoute = AgentDashboardLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AgentDashboardRoute,
 } as any)
+const AgentDashboardBlogRoute = AgentDashboardBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
 const AgentDashboardListingsCreateRoute =
   AgentDashboardListingsCreateRouteImport.update({
     id: '/create',
@@ -181,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agents': typeof AgentsRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/buy': typeof BuyRoute
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
@@ -196,7 +215,9 @@ export interface FileRoutesByFullPath {
   '/agent/register': typeof AgentRegisterRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -210,6 +231,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agents': typeof AgentsRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/buy': typeof BuyRoute
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
@@ -225,7 +247,9 @@ export interface FileRoutesByTo {
   '/agent/register': typeof AgentRegisterRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -240,6 +264,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agents': typeof AgentsRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/buy': typeof BuyRoute
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
@@ -255,7 +280,9 @@ export interface FileRoutesById {
   '/agent/register': typeof AgentRegisterRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -271,6 +298,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agents'
+    | '/blog'
     | '/buy'
     | '/contact'
     | '/diaspora'
@@ -286,7 +314,9 @@ export interface FileRouteTypes {
     | '/agent/register'
     | '/agents/$slug'
     | '/api/ai-search'
+    | '/blog/$slug'
     | '/properties/$id'
+    | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -300,6 +330,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agents'
+    | '/blog'
     | '/buy'
     | '/contact'
     | '/diaspora'
@@ -315,7 +346,9 @@ export interface FileRouteTypes {
     | '/agent/register'
     | '/agents/$slug'
     | '/api/ai-search'
+    | '/blog/$slug'
     | '/properties/$id'
+    | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -329,6 +362,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agents'
+    | '/blog'
     | '/buy'
     | '/contact'
     | '/diaspora'
@@ -344,7 +378,9 @@ export interface FileRouteTypes {
     | '/agent/register'
     | '/agents/$slug'
     | '/api/ai-search'
+    | '/blog/$slug'
     | '/properties/$id'
+    | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -359,6 +395,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AgentsRoute: typeof AgentsRouteWithChildren
+  BlogRoute: typeof BlogRouteWithChildren
   BuyRoute: typeof BuyRoute
   ContactRoute: typeof ContactRoute
   DiasporaRoute: typeof DiasporaRoute
@@ -447,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents': {
       id: '/agents'
       path: '/agents'
@@ -474,6 +518,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/properties/$id'
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof PropertiesRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/api/ai-search': {
       id: '/api/ai-search'
@@ -552,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardLeadsRouteImport
       parentRoute: typeof AgentDashboardRoute
     }
+    '/agent/dashboard/blog': {
+      id: '/agent/dashboard/blog'
+      path: '/blog'
+      fullPath: '/agent/dashboard/blog'
+      preLoaderRoute: typeof AgentDashboardBlogRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
     '/agent/dashboard/listings/create': {
       id: '/agent/dashboard/listings/create'
       path: '/create'
@@ -579,6 +637,16 @@ const AgentsRouteChildren: AgentsRouteChildren = {
 
 const AgentsRouteWithChildren =
   AgentsRoute._addFileChildren(AgentsRouteChildren)
+
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface PropertiesRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
@@ -609,6 +677,7 @@ const AgentDashboardListingsRouteWithChildren =
   )
 
 interface AgentDashboardRouteChildren {
+  AgentDashboardBlogRoute: typeof AgentDashboardBlogRoute
   AgentDashboardLeadsRoute: typeof AgentDashboardLeadsRoute
   AgentDashboardListingsRoute: typeof AgentDashboardListingsRouteWithChildren
   AgentDashboardProfileRoute: typeof AgentDashboardProfileRoute
@@ -618,6 +687,7 @@ interface AgentDashboardRouteChildren {
 }
 
 const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
+  AgentDashboardBlogRoute: AgentDashboardBlogRoute,
   AgentDashboardLeadsRoute: AgentDashboardLeadsRoute,
   AgentDashboardListingsRoute: AgentDashboardListingsRouteWithChildren,
   AgentDashboardProfileRoute: AgentDashboardProfileRoute,
@@ -634,6 +704,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AgentsRoute: AgentsRouteWithChildren,
+  BlogRoute: BlogRouteWithChildren,
   BuyRoute: BuyRoute,
   ContactRoute: ContactRoute,
   DiasporaRoute: DiasporaRoute,
@@ -652,3 +723,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

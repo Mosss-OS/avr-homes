@@ -1,5 +1,5 @@
 export type Purpose = "buy" | "rent";
-export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio";
+export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
 export type Currency = "NGN" | "USD" | "GBP";
 
 export interface PropertyData {

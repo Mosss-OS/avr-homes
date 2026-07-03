@@ -9,7 +9,7 @@ import prop5 from "@/assets/prop-5.jpg";
 import prop6 from "@/assets/prop-6.jpg";
 
 export type Purpose = "buy" | "rent";
-export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land";
+export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
 export type Currency = "NGN" | "USD" | "GBP";
 
 /**
@@ -287,6 +287,7 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "penthouse", label: "Penthouse" },
   { value: "studio", label: "Studio" },
   { value: "land", label: "Land" },
+  { value: "commercial", label: "Commercial" },
 ];
 
 const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };

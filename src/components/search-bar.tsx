@@ -30,9 +30,9 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
             }`}>{p}</button>
         ))}
       </div>
-      <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr_1fr_auto]">
+      <div className="mt-2 grid grid-cols-1 gap-2 sm:gap-2 md:grid-cols-[1.5fr_1fr_1fr_auto]">
         <label className="flex items-center gap-2 rounded-xl border border-border bg-background px-3">
-          <Search className="h-4 w-4 text-muted-foreground" />
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             value={q} onChange={(e) => setQ(e.target.value)}
             placeholder="Search by area, property type or budget…"
@@ -40,17 +40,17 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
           />
         </label>
         <select value={city} onChange={(e) => setCity(e.target.value)}
-          className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none">
+          className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none">
           <option value="">All cities</option>
           {cities.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={type} onChange={(e) => setType(e.target.value)}
-          className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none">
+          className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none">
           <option value="">Any type</option>
           {propertyTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
         <button type="submit"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90 md:w-auto">
           <Search className="h-4 w-4" /> Search
         </button>
       </div>
