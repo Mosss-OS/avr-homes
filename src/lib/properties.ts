@@ -8,7 +8,7 @@ import prop5 from "@/assets/prop-5.jpg";
 import prop6 from "@/assets/prop-6.jpg";
 
 export type Purpose = "buy" | "rent";
-export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio";
+export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land";
 export type Currency = "NGN" | "USD" | "GBP";
 
 /**
@@ -168,6 +168,96 @@ export const properties: Property[] = [
     amenities: ["Private pool", "Smart home", "BQ", "Solar inverter", "CCTV"],
     agentId: "a-2", verified: true, postedDaysAgo: 14,
   },
+  // ---- Land listings across Nigeria ----
+  {
+    id: "l-201",
+    title: "1,000sqm Dry Land — Lekki Phase 1", type: "land", purpose: "buy", price: 350000000,
+    beds: 0, baths: 0, area: 1000,
+    city: "Lagos", community: "Lekki Phase 1", address: "Freedom Way, Lekki Phase 1",
+    lat: 6.4370, lng: 3.4700,
+    image: prop3, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop3],
+    description: "Prime residential plot with C of O in Lekki Phase 1 — dry, fenced, and ready to build.",
+    amenities: ["C of O", "Fenced", "Dry land", "Motorable road"],
+    agentId: "a-1", verified: true, postedDaysAgo: 3,
+  },
+  {
+    id: "l-202",
+    title: "5,000sqm Estate Land — Guzape, Abuja", type: "land", purpose: "buy", price: 850000000,
+    beds: 0, baths: 0, area: 5000,
+    city: "Abuja", community: "Guzape District", address: "Guzape Hills, Abuja",
+    lat: 9.0579, lng: 7.5089,
+    image: prop6, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop6],
+    description: "Hillside plot in Abuja's most exclusive district with panoramic city views. R of O available.",
+    amenities: ["R of O", "Serviced estate", "Tarred road", "Perimeter fencing"],
+    agentId: "a-2", featured: true, verified: true, postedDaysAgo: 6,
+  },
+  {
+    id: "l-203",
+    title: "800sqm Waterfront Plot — Old GRA, Port Harcourt", type: "land", purpose: "buy", price: 180000000,
+    beds: 0, baths: 0, area: 800,
+    city: "Port Harcourt", community: "Old GRA", address: "Aba Road, Old GRA, Port Harcourt",
+    lat: 4.8156, lng: 7.0498,
+    image: prop2, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop2],
+    description: "Rare waterfront residential plot in Old GRA with governor's consent.",
+    amenities: ["Governor's Consent", "Waterfront", "Fenced"],
+    agentId: "a-3", verified: true, postedDaysAgo: 10,
+  },
+  {
+    id: "l-204",
+    title: "2 Plots — Summit Estate, Asaba", type: "land", purpose: "buy", price: 45000000,
+    beds: 0, baths: 0, area: 1200,
+    city: "Asaba", community: "Summit Estate", address: "Summit Road, Asaba, Delta",
+    lat: 6.2059, lng: 6.7275,
+    image: prop4, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop4],
+    description: "Twin plots in a fast-growing serviced estate close to Asaba International Airport.",
+    amenities: ["C of O", "Estate infrastructure", "Gated community"],
+    agentId: "a-1", postedDaysAgo: 14,
+  },
+  {
+    id: "l-205",
+    title: "1,500sqm Land — New Owerri, Imo", type: "land", purpose: "buy", price: 38000000,
+    beds: 0, baths: 0, area: 1500,
+    city: "Owerri", community: "New Owerri", address: "World Bank Housing Area, New Owerri",
+    lat: 5.4840, lng: 7.0350,
+    image: prop5, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop5],
+    description: "Serene residential plot in New Owerri with excellent access roads and dry topography.",
+    amenities: ["Registered survey", "Dry land", "Serviced area"],
+    agentId: "a-2", postedDaysAgo: 8,
+  },
+  {
+    id: "l-206",
+    title: "1,000sqm Land — Awka Capital City Layout", type: "land", purpose: "buy", price: 32000000,
+    beds: 0, baths: 0, area: 1000,
+    city: "Awka", community: "Capital City Layout", address: "Enugu-Onitsha Expressway, Awka",
+    lat: 6.2107, lng: 7.0722,
+    image: prop1, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop1],
+    description: "Government-approved layout plot in Anambra's state capital — perfect for family home or investment.",
+    amenities: ["Governor's Consent", "Estate layout", "Motorable access"],
+    agentId: "a-3", postedDaysAgo: 5,
+  },
+  // ---- Additional homes across Nigeria ----
+  {
+    id: "p-301",
+    title: "4-Bed Duplex — Maitama, Abuja", type: "villa", purpose: "buy", price: 620000000,
+    beds: 4, baths: 5, area: 340,
+    city: "Abuja", community: "Maitama", address: "IBB Way, Maitama District",
+    lat: 9.0898, lng: 7.4951,
+    image: prop2, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop2, prop6],
+    description: "Elegant contemporary duplex in Abuja's premier neighborhood — five minutes to the Villa.",
+    amenities: ["BQ", "Solar backup", "CCTV", "Fitted kitchen"],
+    agentId: "a-2", verified: true, featured: true, postedDaysAgo: 4,
+  },
+  {
+    id: "p-302",
+    title: "3-Bed Serviced Apartment — GRA Phase 2, Port Harcourt", type: "apartment", purpose: "rent", price: 12000000,
+    beds: 3, baths: 3, area: 140,
+    city: "Port Harcourt", community: "GRA Phase 2", address: "Woji Road, GRA Phase 2",
+    lat: 4.8320, lng: 7.0410,
+    image: prop1, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop1, prop5],
+    description: "Fully serviced apartment with 24/7 power, concierge, and pool access.",
+    amenities: ["24/7 power", "Pool", "Gym", "Concierge"],
+    agentId: "a-3", verified: true, postedDaysAgo: 2,
+  },
 ];
 
 export interface Agent {
@@ -187,13 +277,15 @@ export const agents: Agent[] = [
   { id: "a-3", name: "Zainab Mohammed", agency: "AVR Homes", phone: "+234 813 555 1212", email: "zainab@avrhomes.ng", languages: ["English", "Hausa"], listings: 36, avatarHue: 220 },
 ];
 
-export const cities = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Benin City"];
+export const cities = ["Lagos", "Abuja", "Port Harcourt", "Asaba", "Owerri", "Awka", "Ibadan", "Benin City"];
+export const nigerianStates = ["Lagos", "Abuja", "Port Harcourt", "Asaba", "Owerri", "Awka"];
 export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "apartment", label: "Apartment" },
   { value: "villa", label: "Villa" },
   { value: "townhouse", label: "Townhouse" },
   { value: "penthouse", label: "Penthouse" },
   { value: "studio", label: "Studio" },
+  { value: "land", label: "Land" },
 ];
 
 // Indicative FX (NGN-based). Update centrally when needed.
