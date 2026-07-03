@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
+import { BrowseSection } from "@/components/browse-section";
+import { AiSearchWidget } from "@/components/ai-search-widget";
 import { fetchProperties, properties } from "@/lib/properties";
 import { useEffect, useState } from "react";
 import type { Property } from "@/lib/properties";
@@ -66,24 +68,25 @@ function HomePage() {
           background: "radial-gradient(800px 400px at 20% 20%, rgba(201,168,76,0.25), transparent 60%), radial-gradient(600px 400px at 90% 80%, rgba(255,255,255,0.06), transparent 60%)"
         }} />
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="max-w-3xl text-white">
+          <div className="mx-auto max-w-4xl text-center text-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Lagos Luxury, Verified.
+              <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Verified Nigerian Property Marketplace
             </span>
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-6xl">
-              Where Lagos Luxury <span style={{ color: "#C9A84C" }}>Lives</span>
+            <h1 className="mt-6 font-display font-semibold leading-[1.02] text-4xl sm:text-6xl md:text-7xl lg:text-8xl">
+              Homes, Lands & Property
+              <span className="block mt-2" style={{ color: "#C9A84C" }}>Across Nigeria</span>
             </h1>
-            <p className="mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
-              Discover verified luxury properties across Lekki, Victoria Island, Ikoyi, Eko Atlantic and Banana Island — built for serious buyers, professional realtors, and diaspora investors.
+            <p className="mx-auto mt-6 max-w-2xl text-base text-white/85 sm:text-lg md:text-xl lg:text-2xl">
+              Discover verified homes and land for sale or rent across Lagos, Abuja, Port Harcourt, Delta, Imo and Anambra — built for serious buyers, professional realtors and diaspora investors.
             </p>
           </div>
-          <div className="mt-8 max-w-4xl"><SearchBar /></div>
-          <div className="mt-5">
+          <div className="mx-auto mt-10 max-w-4xl"><SearchBar /></div>
+          <div className="mt-6 flex justify-center">
             <a
               href="https://tally.so/r/RGrA0p"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02] sm:text-base"
               style={{ background: "#C9A84C", color: "#0A1628" }}
             >
               Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-4 w-4" />
@@ -92,6 +95,11 @@ function HomePage() {
 
         </div>
       </section>
+
+      {/* Browse sections — homes for sale, homes for rent, land */}
+      <BrowseSection category="buy" />
+      <BrowseSection category="rent" dark />
+      <BrowseSection category="land" />
 
       {/* Honest banner (replaces fake stats) */}
       <section className="border-y border-border bg-secondary/40">
