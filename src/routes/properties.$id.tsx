@@ -302,7 +302,7 @@ function Detail() {
                 <div className="flex items-center gap-3">
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full font-display text-lg font-semibold text-primary-foreground"
                     style={{ background: `oklch(0.5 0.1 ${agent.avatarHue})` }}>
-                    {agent.name.split(" ").map((n) => n[0]).join("")}
+                    {agent.name.split(" ").map((n: string) => n[0]).join("")}
                   </div>
                   <div className="min-w-0">
                     <div className="truncate font-semibold">{agent.name}</div>
