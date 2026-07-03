@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users,
-  Menu, X, LogOut, ChevronRight,
+  Menu, X, LogOut, ChevronRight, FileText,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { icon: CreditCard, label: "Subscriptions", to: "/agent/dashboard/subscriptions" },
   { icon: UserCircle, label: "Profile", to: "/agent/dashboard/profile" },
   { icon: ShieldCheck, label: "Verification", to: "/agent/dashboard/verification" },
+  { icon: FileText, label: "Blog", to: "/agent/dashboard/blog" },
   { icon: HelpCircle, label: "Help & Support", to: "#" },
 ];
 

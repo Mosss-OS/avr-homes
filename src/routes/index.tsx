@@ -68,28 +68,28 @@ function HomePage() {
           background: "radial-gradient(800px 400px at 20% 20%, rgba(201,168,76,0.25), transparent 60%), radial-gradient(600px 400px at 90% 80%, rgba(255,255,255,0.06), transparent 60%)"
         }} />
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="mx-auto max-w-4xl text-center text-white">
+          <div className="mx-auto max-w-4xl text-left text-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Verified Nigerian Property Marketplace
             </span>
-            <h1 className="mt-6 font-display font-semibold leading-[1.02] text-4xl sm:text-6xl md:text-7xl lg:text-8xl">
+            <h1 className="mt-4 font-display font-semibold leading-[1.05] text-3xl sm:text-5xl md:text-7xl lg:text-8xl">
               Homes, Lands & Property
-              <span className="block mt-2" style={{ color: "#C9A84C" }}>Across Nigeria</span>
+              <span className="block mt-1 sm:mt-2" style={{ color: "#C9A84C" }}>Across Nigeria</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base text-white/85 sm:text-lg md:text-xl lg:text-2xl">
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-white/85 sm:text-base md:text-lg lg:text-xl">
               Discover verified homes and land for sale or rent across Lagos, Abuja, Port Harcourt, Delta, Imo and Anambra — built for serious buyers, professional realtors and diaspora investors.
             </p>
           </div>
-          <div className="mx-auto mt-10 max-w-4xl"><SearchBar /></div>
-          <div className="mt-6 flex justify-center">
+          <div className="mx-auto mt-8 max-w-4xl"><SearchBar /></div>
+          <div className="mt-5 flex justify-center">
             <a
               href="https://tally.so/r/RGrA0p"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02] sm:text-base"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold transition hover:scale-[1.02] sm:px-6 sm:py-3 sm:text-sm"
               style={{ background: "#C9A84C", color: "#0A1628" }}
             >
-              Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-4 w-4" />
+              Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </a>
           </div>
 
@@ -118,7 +118,7 @@ function HomePage() {
       </section>
 
       {/* Featured */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-16">
         <div className="flex items-end justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Featured</p>
@@ -153,7 +153,7 @@ function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-secondary/40 py-16">
+      <section className="bg-secondary/40 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>What people say</p>
           <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Trusted by Lagos's property community</h2>
@@ -176,7 +176,7 @@ function HomePage() {
 
       {/* Agent recruitment */}
       <section id="for-agents" className="scroll-mt-20" style={{ background: "#0A1628" }}>
-        <div className="mx-auto max-w-7xl px-4 py-20 text-white sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 py-12 text-white sm:px-6 lg:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>For Agents, Realtors & Early Access Members</p>
             <h2 className="mt-2 font-display text-3xl font-semibold sm:text-5xl">Join the Nigerian Realtor Community</h2>
