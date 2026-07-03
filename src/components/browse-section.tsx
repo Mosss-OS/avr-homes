@@ -56,13 +56,13 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
 
   return (
     <section className={dark ? "bg-secondary/40" : ""}>
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-16">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-2xl">
             <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>
               {meta.kicker}
             </p>
-            <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">{meta.title}</h2>
+            <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl lg:text-4xl">{meta.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground sm:text-base">{meta.blurb}</p>
           </div>
           <Link

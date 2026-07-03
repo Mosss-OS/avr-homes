@@ -44,6 +44,7 @@ const MEGA_MENU: MegaGroup[] = [
     icon: BookOpen,
     items: [
       { label: "Market Insights", to: "/insights", icon: BarChart3, desc: "Lagos real estate trends" },
+      { label: "Blog", to: "/blog", icon: BookOpen, desc: "Guides, tips & market analysis" },
       { label: "Diaspora Investors", to: "/diaspora", icon: Globe, desc: "Invest from abroad" },
       { label: "About Us", to: "/about", icon: Info, desc: "Our story & mission" },
       { label: "Contact", to: "/contact", icon: Phone, desc: "Get in touch" },
@@ -54,7 +55,7 @@ const MEGA_MENU: MegaGroup[] = [
     icon: Sparkles,
     items: [
       { label: "Saved Properties", to: "/saved", icon: Heart, desc: "Your saved listings" },
-      { label: "Educational Guides", href: "#", icon: GraduationCap, desc: "Buying & selling guides" },
+      { label: "Blog", to: "/blog", icon: BookOpen, desc: "Guides, tips & market analysis" },
       { label: "Investor Programs", to: "/diaspora", icon: DollarSign, desc: "Fractional investment" },
       { label: "Newsletter", href: "#", icon: Send, desc: "Monthly market updates" },
     ],
@@ -350,6 +351,7 @@ export function SiteFooter() {
             <li><Link to="/map" className="hover:text-foreground">Map view</Link></li>
             <li><Link to="/agents" className="hover:text-foreground">Agents</Link></li>
             <li><Link to="/insights" className="hover:text-foreground">Market Insights</Link></li>
+            <li><Link to="/blog" className="hover:text-foreground">Blog</Link></li>
             <li><Link to="/about" className="hover:text-foreground">About</Link></li>
             <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
             <li><Link to="/agent/register" className="hover:text-foreground">Become an Agent</Link></li>
