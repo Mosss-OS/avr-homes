@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as RentRouteImport } from './routes/rent'
 import { Route as PropertiesRouteImport } from './routes/properties'
+import { Route as MarketInsightsRouteImport } from './routes/market-insights'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as LandRouteImport } from './routes/land'
 import { Route as InsightsRouteImport } from './routes/insights'
@@ -28,6 +29,8 @@ import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as AgentLoginRouteImport } from './routes/agent.login'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
 import { Route as AgentDashboardVerificationRouteImport } from './routes/agent.dashboard.verification'
+import { Route as AgentDashboardSubscriptionsRouteImport } from './routes/agent.dashboard.subscriptions'
+import { Route as AgentDashboardReferralsRouteImport } from './routes/agent.dashboard.referrals'
 import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashboard.profile'
 import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
 import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
@@ -47,6 +50,11 @@ const RentRoute = RentRouteImport.update({
 const PropertiesRoute = PropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketInsightsRoute = MarketInsightsRouteImport.update({
+  id: '/market-insights',
+  path: '/market-insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapRoute = MapRouteImport.update({
@@ -130,6 +138,17 @@ const AgentDashboardVerificationRoute =
     path: '/verification',
     getParentRoute: () => AgentDashboardRoute,
   } as any)
+const AgentDashboardSubscriptionsRoute =
+  AgentDashboardSubscriptionsRouteImport.update({
+    id: '/subscriptions',
+    path: '/subscriptions',
+    getParentRoute: () => AgentDashboardRoute,
+  } as any)
+const AgentDashboardReferralsRoute = AgentDashboardReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
 const AgentDashboardProfileRoute = AgentDashboardProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -168,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/insights': typeof InsightsRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
+  '/market-insights': typeof MarketInsightsRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
@@ -180,6 +200,8 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
+  '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
@@ -194,6 +216,7 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
+  '/market-insights': typeof MarketInsightsRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
@@ -206,6 +229,8 @@ export interface FileRoutesByTo {
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
+  '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
@@ -221,6 +246,7 @@ export interface FileRoutesById {
   '/insights': typeof InsightsRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
+  '/market-insights': typeof MarketInsightsRoute
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
@@ -233,6 +259,8 @@ export interface FileRoutesById {
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
+  '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
+  '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
@@ -249,6 +277,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/land'
     | '/map'
+    | '/market-insights'
     | '/properties'
     | '/rent'
     | '/saved'
@@ -261,6 +290,8 @@ export interface FileRouteTypes {
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
+    | '/agent/dashboard/referrals'
+    | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
@@ -275,6 +306,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/land'
     | '/map'
+    | '/market-insights'
     | '/properties'
     | '/rent'
     | '/saved'
@@ -287,6 +319,8 @@ export interface FileRouteTypes {
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
+    | '/agent/dashboard/referrals'
+    | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
@@ -301,6 +335,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/land'
     | '/map'
+    | '/market-insights'
     | '/properties'
     | '/rent'
     | '/saved'
@@ -313,6 +348,8 @@ export interface FileRouteTypes {
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
+    | '/agent/dashboard/referrals'
+    | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
@@ -328,6 +365,7 @@ export interface RootRouteChildren {
   InsightsRoute: typeof InsightsRoute
   LandRoute: typeof LandRoute
   MapRoute: typeof MapRoute
+  MarketInsightsRoute: typeof MarketInsightsRoute
   PropertiesRoute: typeof PropertiesRouteWithChildren
   RentRoute: typeof RentRoute
   SavedRoute: typeof SavedRoute
@@ -358,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/properties'
       fullPath: '/properties'
       preLoaderRoute: typeof PropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-insights': {
+      id: '/market-insights'
+      path: '/market-insights'
+      fullPath: '/market-insights'
+      preLoaderRoute: typeof MarketInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/map': {
@@ -472,6 +517,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardVerificationRouteImport
       parentRoute: typeof AgentDashboardRoute
     }
+    '/agent/dashboard/subscriptions': {
+      id: '/agent/dashboard/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/agent/dashboard/subscriptions'
+      preLoaderRoute: typeof AgentDashboardSubscriptionsRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
+    '/agent/dashboard/referrals': {
+      id: '/agent/dashboard/referrals'
+      path: '/referrals'
+      fullPath: '/agent/dashboard/referrals'
+      preLoaderRoute: typeof AgentDashboardReferralsRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
     '/agent/dashboard/profile': {
       id: '/agent/dashboard/profile'
       path: '/profile'
@@ -553,6 +612,8 @@ interface AgentDashboardRouteChildren {
   AgentDashboardLeadsRoute: typeof AgentDashboardLeadsRoute
   AgentDashboardListingsRoute: typeof AgentDashboardListingsRouteWithChildren
   AgentDashboardProfileRoute: typeof AgentDashboardProfileRoute
+  AgentDashboardReferralsRoute: typeof AgentDashboardReferralsRoute
+  AgentDashboardSubscriptionsRoute: typeof AgentDashboardSubscriptionsRoute
   AgentDashboardVerificationRoute: typeof AgentDashboardVerificationRoute
 }
 
@@ -560,6 +621,8 @@ const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
   AgentDashboardLeadsRoute: AgentDashboardLeadsRoute,
   AgentDashboardListingsRoute: AgentDashboardListingsRouteWithChildren,
   AgentDashboardProfileRoute: AgentDashboardProfileRoute,
+  AgentDashboardReferralsRoute: AgentDashboardReferralsRoute,
+  AgentDashboardSubscriptionsRoute: AgentDashboardSubscriptionsRoute,
   AgentDashboardVerificationRoute: AgentDashboardVerificationRoute,
 }
 
@@ -577,6 +640,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsightsRoute: InsightsRoute,
   LandRoute: LandRoute,
   MapRoute: MapRoute,
+  MarketInsightsRoute: MarketInsightsRoute,
   PropertiesRoute: PropertiesRouteWithChildren,
   RentRoute: RentRoute,
   SavedRoute: SavedRoute,

@@ -14,6 +14,8 @@ class Cors
       'https://avrusthomes.com',
       'https://www.avrusthomes.com',
       'https://avr-homes.vercel.app',
+      'https://avr-homes-nof3pglpa-mosss-os-projects.vercel.app',
+      'https://avr-homes-i34kreqoz-mosss-os-projects.vercel.app',
     ];
 
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
