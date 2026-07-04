@@ -15,7 +15,7 @@ import { addSavedSearch } from "@/lib/saved";
 import { BookmarkPlus, SlidersHorizontal } from "lucide-react";
 
 const schema = z.object({
-  purpose: fallback(z.enum(["buy", "rent"]), "buy").default("buy"),
+  purpose: fallback(z.enum(["buy", "rent", "shortlet"]), "buy").default("buy"),
   q: fallback(z.string(), "").optional(),
   city: fallback(z.string(), "").optional(),
   type: fallback(z.string(), "").optional(),
@@ -113,7 +113,7 @@ function List() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {search.purpose === "rent" ? "For rent" : "For sale"}
+            {{ buy: "For sale", rent: "For rent", shortlet: "Short-let" }[search.purpose]}
           </p>
           <h1 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">
             {results.length} {results.length === 1 ? "property" : "properties"}
@@ -163,7 +163,7 @@ function Filters({ current }: { current: z.infer<typeof schema> }) {
       </div>
       <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible">
         <Pill label="Purpose">
-          {(["buy", "rent"] as Purpose[]).map((p) => (
+          {(["buy", "rent", "shortlet"] as Purpose[]).map((p) => (
             <Link
               key={p}
               to="/properties"

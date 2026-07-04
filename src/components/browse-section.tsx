@@ -4,7 +4,7 @@ import { PropertyCard } from "@/components/property-card";
 import { MiniMap } from "@/components/mini-map";
 import { nigerianStates, properties as allProperties, type Property } from "@/lib/properties";
 
-export type BrowseCategory = "buy" | "rent" | "land";
+export type BrowseCategory = "buy" | "rent" | "land" | "shortlet";
 
 const META: Record<BrowseCategory, { title: string; kicker: string; blurb: string; ctaLabel: string; to: string }> = {
   buy: {
@@ -21,6 +21,13 @@ const META: Record<BrowseCategory, { title: string; kicker: string; blurb: strin
     ctaLabel: "Browse homes for rent",
     to: "/rent",
   },
+  shortlet: {
+    title: "Short-Let & Furnished",
+    kicker: "Short-Let",
+    blurb: "Luxury furnished apartments and villas available for nightly stays — perfect for business trips and holidays.",
+    ctaLabel: "Browse short-lets",
+    to: "/shortlet",
+  },
   land: {
     title: "Land for Sale",
     kicker: "Land",
@@ -32,6 +39,7 @@ const META: Record<BrowseCategory, { title: string; kicker: string; blurb: strin
 
 function filterByCategory(list: Property[], cat: BrowseCategory): Property[] {
   if (cat === "land") return list.filter((p) => p.type === "land");
+  if (cat === "shortlet") return list.filter((p) => p.purpose === "shortlet");
   if (cat === "buy") return list.filter((p) => p.purpose === "buy" && p.type !== "land");
   return list.filter((p) => p.purpose === "rent" && p.type !== "land");
 }

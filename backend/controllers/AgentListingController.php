@@ -174,7 +174,7 @@ class AgentListingController
       ->required('type', 'Type')
       ->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio'], 'Type')
       ->required('purpose', 'Purpose')
-      ->inArray('purpose', ['buy', 'rent'], 'Purpose')
+      ->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose')
       ->required('price', 'Price')
       ->numeric('price', 'Price')
       ->required('city', 'City')
@@ -183,6 +183,13 @@ class AgentListingController
       ->numeric('lat', 'Latitude')
       ->required('lng', 'Longitude')
       ->numeric('lng', 'Longitude');
+
+    if (isset($input['nightly_price'])) {
+      $validator->numeric('nightly_price', 'Nightly price');
+    }
+    if (isset($input['min_stay'])) {
+      $validator->numeric('min_stay', 'Minimum stay');
+    }
 
     if ($validator->fails()) {
       Response::error('Validation failed', 422, $validator->getErrors());
@@ -196,9 +203,9 @@ class AgentListingController
     $slug = self::generateSlug($data['title'], $db);
 
     $stmt = $db->prepare(
-      "INSERT INTO properties (title, slug, description, type, purpose, price, beds, baths,
+      "INSERT INTO properties (title, slug, description, type, purpose, price, nightly_price, min_stay, max_stay, beds, baths,
        area, city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url, amenities, agent_id, featured, is_verified, is_active, posted_days_ago, created_at, updated_at)
-       VALUES (:title, :slug, :description, :type, :purpose, :price, :beds, :baths,
+       VALUES (:title, :slug, :description, :type, :purpose, :price, :nightly_price, :min_stay, :max_stay, :beds, :baths,
        :area, :city, :community, :address, :lat, :lng, :image, :video_url, :virtual_tour_url, :floor_plan_url, :amenities, :agent_id, :featured, :is_verified, :is_active, 0, NOW(), NOW())"
     );
 
@@ -209,6 +216,9 @@ class AgentListingController
       ':type'        => $data['type'],
       ':purpose'     => $data['purpose'],
       ':price'       => (int)$data['price'],
+      ':nightly_price' => isset($data['nightly_price']) ? (int)$data['nightly_price'] : null,
+      ':min_stay'      => (int)($data['min_stay'] ?? 1),
+      ':max_stay'      => isset($data['max_stay']) ? (int)$data['max_stay'] : null,
       ':beds'        => (int)($data['beds'] ?? 0),
       ':baths'       => (int)($data['baths'] ?? 0),
       ':area'        => (int)($data['area'] ?? 0),
@@ -282,7 +292,7 @@ class AgentListingController
       $validator->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio'], 'Type');
     }
     if (isset($input['purpose'])) {
-      $validator->inArray('purpose', ['buy', 'rent'], 'Purpose');
+      $validator->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose');
     }
     if (isset($input['price'])) {
       $validator->numeric('price', 'Price');
@@ -301,7 +311,7 @@ class AgentListingController
     $fields = [];
     $updateParams = [];
 
-    $allowed = ['title', 'description', 'type', 'purpose', 'price', 'beds', 'baths',
+    $allowed = ['title', 'description', 'type', 'purpose', 'price', 'nightly_price', 'min_stay', 'max_stay', 'beds', 'baths',
       'area', 'city', 'community', 'address', 'lat', 'lng', 'image', 'video_url',
       'virtual_tour_url', 'floor_plan_url', 'amenities', 'featured'];
 

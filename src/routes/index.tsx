@@ -98,6 +98,7 @@ function HomePage() {
       {/* Browse sections — homes for sale, homes for rent, land */}
       <BrowseSection category="buy" />
       <BrowseSection category="rent" dark />
+      <BrowseSection category="shortlet" />
       <BrowseSection category="land" />
 
       {/* Honest banner (replaces fake stats) */}

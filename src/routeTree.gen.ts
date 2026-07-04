@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ShortletRouteImport } from './routes/shortlet'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as RentRouteImport } from './routes/rent'
 import { Route as PropertiesRouteImport } from './routes/properties'
@@ -40,6 +41,11 @@ import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
 import { Route as AgentDashboardListingsIdEditRouteImport } from './routes/agent.dashboard.listings.$id.edit'
 
+const ShortletRoute = ShortletRouteImport.update({
+  id: '/shortlet',
+  path: '/shortlet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SavedRoute = SavedRouteImport.update({
   id: '/saved',
   path: '/saved',
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
+  '/shortlet': typeof ShortletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
+  '/shortlet': typeof ShortletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/properties': typeof PropertiesRouteWithChildren
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
+  '/shortlet': typeof ShortletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/properties'
     | '/rent'
     | '/saved'
+    | '/shortlet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/properties'
     | '/rent'
     | '/saved'
+    | '/shortlet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/properties'
     | '/rent'
     | '/saved'
+    | '/shortlet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -406,6 +418,7 @@ export interface RootRouteChildren {
   PropertiesRoute: typeof PropertiesRouteWithChildren
   RentRoute: typeof RentRoute
   SavedRoute: typeof SavedRoute
+  ShortletRoute: typeof ShortletRoute
   AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
   AgentLoginRoute: typeof AgentLoginRoute
   AgentRegisterRoute: typeof AgentRegisterRoute
@@ -414,6 +427,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/shortlet': {
+      id: '/shortlet'
+      path: '/shortlet'
+      fullPath: '/shortlet'
+      preLoaderRoute: typeof ShortletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saved': {
       id: '/saved'
       path: '/saved'
@@ -715,6 +735,7 @@ const rootRouteChildren: RootRouteChildren = {
   PropertiesRoute: PropertiesRouteWithChildren,
   RentRoute: RentRoute,
   SavedRoute: SavedRoute,
+  ShortletRoute: ShortletRoute,
   AgentDashboardRoute: AgentDashboardRouteWithChildren,
   AgentLoginRoute: AgentLoginRoute,
   AgentRegisterRoute: AgentRegisterRoute,

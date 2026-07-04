@@ -64,7 +64,7 @@ class PropertyController
       ->required('type', 'Type')
       ->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio'], 'Type')
       ->required('purpose', 'Purpose')
-      ->inArray('purpose', ['buy', 'rent'], 'Purpose')
+      ->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose')
       ->required('price', 'Price')
       ->numeric('price', 'Price')
       ->required('city', 'City')
@@ -119,7 +119,7 @@ class PropertyController
       $validator->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio'], 'Type');
     }
     if (isset($input['purpose'])) {
-      $validator->inArray('purpose', ['buy', 'rent'], 'Purpose');
+      $validator->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose');
     }
     if (isset($input['price'])) {
       $validator->numeric('price', 'Price');

@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { cities, propertyTypes, type Purpose } from "@/lib/properties";
+import { cities, propertyTypes, purposes, type Purpose } from "@/lib/properties";
 
 export function SearchBar({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
   return (
     <form onSubmit={submit} className={`w-full rounded-2xl bg-background/95 p-2 shadow-[var(--shadow-elevated)] backdrop-blur ${compact ? "" : "md:p-3"}`}>
       <div className="flex gap-1 px-2 pt-1">
-        {(["buy", "rent"] as Purpose[]).map((p) => (
+        {purposes.map((p) => (
           <button key={p} type="button" onClick={() => setPurpose(p)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
               purpose === p ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-secondary"

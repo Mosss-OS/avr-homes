@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon } from "lucide-react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { formatAED, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
+import { formatAED, formatNightlyPrice, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
 import type { Property } from "@/lib/properties";
@@ -216,8 +216,13 @@ function Detail() {
           </div>
 
           <div className="mt-6 flex flex-wrap items-baseline gap-3">
-            <div className="font-display text-3xl font-semibold text-primary sm:text-4xl">{formatAED(p.price)}</div>
+            {p.purpose === "shortlet" && p.nightly_price ? (
+              <div className="font-display text-3xl font-semibold text-primary sm:text-4xl">{formatNightlyPrice(p.nightly_price)}</div>
+            ) : (
+              <div className="font-display text-3xl font-semibold text-primary sm:text-4xl">{formatAED(p.price)}</div>
+            )}
             {p.purpose === "rent" && <span className="text-sm text-muted-foreground">/year</span>}
+            {p.purpose === "shortlet" && p.min_stay && <span className="text-sm text-muted-foreground">min {p.min_stay} night{p.min_stay > 1 ? "s" : ""}</span>}
             <span className="text-xs text-muted-foreground">· {formatAED(Math.round(p.price / p.area))}/sqm</span>
           </div>
 
@@ -241,6 +246,9 @@ function Detail() {
               <Detail2 icon={<MapPin className="h-4 w-4" />} label="Community" value={p.community} />
               <Detail2 icon={<Maximize2 className="h-4 w-4" />} label="Plot area" value={`${p.area.toLocaleString()} sqm`} />
               <Detail2 icon={<BedDouble className="h-4 w-4" />} label="Furnishing" value={p.amenities.includes("Furnished") ? "Furnished" : "Unfurnished"} />
+              {p.purpose === "shortlet" && (
+                <Detail2 icon={<Calendar className="h-4 w-4" />} label="Min stay" value={`${p.min_stay || 1} night${(p.min_stay || 1) > 1 ? "s" : ""}${p.max_stay ? ` — max ${p.max_stay} nights` : ""}`} />
+              )}
             </dl>
           </section>
 
@@ -325,9 +333,163 @@ function Detail() {
               </>
             )}
           </div>
-          <InquiryForm propertyId={Number(p.id)} propertyTitle={p.title} />
-        </aside>
+              {p.purpose === "shortlet" ? (
+                <ShortletBooking property={p} />
+              ) : (
+                <InquiryForm propertyId={Number(p.id)} propertyTitle={p.title} />
+              )}
+          </aside>
       </div>
+    </div>
+  );
+}
+
+function ShortletBooking({ property }: { property: Property }) {
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(1);
+  const [bookingData, setBookingData] = useState<{ total_price: number; nights: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  async function checkAvailability() {
+    if (!checkIn || !checkOut) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/shortlet/${String(property.id)}/availability?check_in=${checkIn}&check_out=${checkOut}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        if (data.data.is_available) {
+          setBookingData({ total_price: data.data.total_price, nights: data.data.nights });
+        } else {
+          setError("Property is not available for the selected dates.");
+          setBookingData(null);
+        }
+      } else {
+        setError(data.message || "Availability check failed");
+        setBookingData(null);
+      }
+    } catch {
+      // Fallback: calculate locally
+      const start = new Date(checkIn);
+      const end = new Date(checkOut);
+      const nights = Math.max(0, Math.round((end.getTime() - start.getTime()) / 86400000));
+      if (nights < (property.min_stay || 1)) {
+        setError(`Minimum stay is ${property.min_stay || 1} night(s)`);
+        setBookingData(null);
+        setLoading(false);
+        return;
+      }
+      const nightly = property.nightly_price || property.price;
+      setBookingData({ total_price: nightly * nights, nights });
+    }
+    setLoading(false);
+  }
+
+  async function handleBook(e: React.FormEvent) {
+    e.preventDefault();
+    if (!bookingData) return;
+    setLoading(true);
+    setError("");
+    const form = new FormData(e.currentTarget);
+    try {
+      const res = await fetch(`/api/shortlet/${String(property.id)}/book`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guest_name: form.get("name"),
+          guest_email: form.get("email"),
+          guest_phone: form.get("phone"),
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        setSuccess(true);
+      } else {
+        setError(data.message || "Booking failed");
+      }
+    } catch {
+      setError("Booking submission failed. Please try again.");
+    }
+    setLoading(false);
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+      <h3 className="font-display text-lg font-semibold">Book this stay</h3>
+      {success ? (
+        <div className="mt-3 rounded-lg bg-primary/10 p-3 text-sm text-primary">
+          Booking request submitted! The host will confirm shortly.
+        </div>
+      ) : (
+        <form onSubmit={handleBook} className="mt-3 grid gap-3">
+          {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Check-in</span>
+            <input type="date" value={checkIn} min={today} required
+              onChange={(e) => { setCheckIn(e.target.value); setBookingData(null); }}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Check-out</span>
+            <input type="date" value={checkOut} min={checkIn || today} required
+              onChange={(e) => { setCheckOut(e.target.value); setBookingData(null); }}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">Guests</span>
+            <select value={guests} onChange={(e) => setGuests(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option key={n} value={n}>{n} guest{n > 1 ? "s" : ""}</option>)}
+            </select>
+          </label>
+
+          {checkIn && checkOut && !bookingData && !error && (
+            <button type="button" onClick={checkAvailability} disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50">
+              {loading ? "Checking..." : "Check availability"}
+            </button>
+          )}
+
+          {bookingData && (
+            <>
+              <div className="rounded-lg bg-secondary/60 p-3 text-sm">
+                <div className="flex justify-between">
+                  <span>Nightly rate</span>
+                  <span className="font-semibold">{formatNightlyPrice(property.nightly_price || property.price)}</span>
+                </div>
+                <div className="mt-1 flex justify-between">
+                  <span>{bookingData.nights} night{bookingData.nights > 1 ? "s" : ""}</span>
+                  <span className="font-semibold">{formatAED(bookingData.total_price)}</span>
+                </div>
+                <div className="mt-2 border-t border-border pt-2 flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>{formatAED(bookingData.total_price)}</span>
+                </div>
+              </div>
+
+              <input required name="name" placeholder="Your full name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+              <input required type="email" name="email" placeholder="Email address" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+              <input required type="tel" name="phone" placeholder="Phone number" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+
+              <button type="submit" disabled={loading}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50">
+                {loading ? "Booking..." : "Request to book"}
+              </button>
+            </>
+          )}
+        </form>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import prop4 from "@/assets/prop-4.jpg";
 import prop5 from "@/assets/prop-5.jpg";
 import prop6 from "@/assets/prop-6.jpg";
 
-export type Purpose = "buy" | "rent";
+export type Purpose = "buy" | "rent" | "shortlet";
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
 export type Currency = "NGN" | "USD" | "GBP";
 
@@ -22,6 +22,9 @@ export interface Property {
   type: PropertyType;
   purpose: Purpose;
   price: number;
+  nightly_price?: number | null;
+  min_stay?: number;
+  max_stay?: number | null;
   beds: number;
   baths: number;
   area: number;
@@ -64,6 +67,9 @@ export function propertyFromApi(p: PropertyData): Property {
     gallery: p.images?.map((i) => i.url) || [],
     agent_id: p.agent_id ?? null,
     posted_days_ago: p.posted_days_ago,
+    nightly_price: p.nightly_price ?? null,
+    min_stay: p.min_stay ?? 1,
+    max_stay: p.max_stay ?? null,
     lat: Number(p.lat),
     lng: Number(p.lng),
   };
@@ -248,6 +254,55 @@ export const properties: Property[] = [
     amenities: ["BQ", "Solar backup", "CCTV", "Fitted kitchen"],
     agentId: "a-2", verified: true, featured: true, postedDaysAgo: 4,
   },
+  // ---- Short-let / furnished rentals ----
+  {
+    id: "s-401",
+    title: "Luxury 1BR Serviced Apartment — Eko Atlantic",
+    type: "apartment", purpose: "shortlet", price: 350000, nightly_price: 350000, min_stay: 2, max_stay: 30,
+    beds: 1, baths: 1, area: 65,
+    city: "Lagos", community: "Eko Atlantic", address: "Eko Pearl Towers, Eko Atlantic City",
+    lat: 6.4204, lng: 3.4106,
+    image: prop4, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop4, prop1, prop2],
+    description: "Fully furnished luxury apartment in Eko Atlantic with ocean views, concierge, and access to resort amenities.",
+    amenities: ["Pool", "Gym", "Concierge", "Smart TV", "WiFi", "Fully equipped kitchen"],
+    agentId: "a-1", featured: true, verified: true, postedDaysAgo: 1,
+  },
+  {
+    id: "s-402",
+    title: "Executive 2BR — Victoria Island, Lagos",
+    type: "apartment", purpose: "shortlet", price: 280000, nightly_price: 280000, min_stay: 1, max_stay: 14,
+    beds: 2, baths: 2, area: 100,
+    city: "Lagos", community: "Victoria Island", address: "Ozumba Mbadiwe Avenue, VI",
+    lat: 6.4281, lng: 3.4219,
+    image: prop5, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop5, prop1],
+    description: "Executive 2-bedroom in the heart of Victoria Island — walking distance to restaurants, banks, and the lagoon.",
+    amenities: ["WiFi", "Backup power", "Pool", "Gym", "Fully furnished"],
+    agentId: "a-3", verified: true, postedDaysAgo: 2,
+  },
+  {
+    id: "s-403",
+    title: "Penthouse Studio — Civic Towers, Lekki",
+    type: "studio", purpose: "shortlet", price: 180000, nightly_price: 180000, min_stay: 1, max_stay: 7,
+    beds: 0, baths: 1, area: 40,
+    city: "Lagos", community: "Lekki Phase 1", address: "Civic Towers, Lekki Phase 1",
+    lat: 6.4399, lng: 3.4716,
+    image: prop1, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop1, prop5],
+    description: "High-floor studio with panoramic skyline views, perfect for business travellers and short stays.",
+    amenities: ["Pool", "Gym", "24/7 security", "WiFi", "Smart TV"],
+    agentId: "a-2", postedDaysAgo: 0,
+  },
+  {
+    id: "s-404",
+    title: "3BR Villa — Banana Island Short-Let",
+    type: "villa", purpose: "shortlet", price: 750000, nightly_price: 750000, min_stay: 3, max_stay: 21,
+    beds: 3, baths: 4, area: 280,
+    city: "Lagos", community: "Banana Island", address: "Block A, Banana Island, Ikoyi",
+    lat: 6.4456, lng: 3.4459,
+    image: prop2, video_url: null, virtual_tour_url: null, floor_plan_url: null, gallery: [prop2, prop6, prop1],
+    description: "Exclusive 3-bedroom villa on Banana Island with private pool, jetty access, and full butler service.",
+    amenities: ["Private pool", "Jetty access", "Butler service", "BQ", "Home cinema"],
+    agentId: "a-1", featured: true, verified: true, postedDaysAgo: 5,
+  },
   {
     id: "p-302",
     title: "3-Bed Serviced Apartment — GRA Phase 2, Port Harcourt", type: "apartment", purpose: "rent", price: 12000000,
@@ -290,6 +345,12 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "commercial", label: "Commercial" },
 ];
 
+export const purposes: { value: Purpose; label: string }[] = [
+  { value: "buy", label: "Buy" },
+  { value: "rent", label: "Rent" },
+  { value: "shortlet", label: "Short-Let" },
+];
+
 const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
 export function formatPrice(n: number, currency: Currency = "NGN"): string {
@@ -299,6 +360,10 @@ export function formatPrice(n: number, currency: Currency = "NGN"): string {
   if (v >= 1_000_000) return `${sym}${(v / 1_000_000).toFixed(v % 1_000_000 === 0 ? 0 : 2)}M`;
   if (v >= 1_000) return `${sym}${(v / 1_000).toFixed(0)}K`;
   return `${sym}${Math.round(v)}`;
+}
+
+export function formatNightlyPrice(n: number, currency: Currency = "NGN"): string {
+  return `${formatPrice(n, currency)}/night`;
 }
 
 // Back-compat alias used in older imports.

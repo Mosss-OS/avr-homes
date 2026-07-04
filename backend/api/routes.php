@@ -104,6 +104,12 @@ route('GET', '/api/market/reports', ['MarketDataController', 'reportsList']);
 route('GET', '/api/market/reports/{period}', ['MarketDataController', 'report']);
 route('POST', '/api/market/reports', ['MarketDataController', 'publishReport']);
 
+// Short-let / Airbnb routes
+route('GET', '/api/shortlet/{id}/availability', ['ShortLetController', 'availability']);
+route('POST', '/api/shortlet/{id}/book', ['ShortLetController', 'book']);
+route('GET', '/api/agent/shortlet/{id}/bookings', ['ShortLetController', 'bookings']);
+route('PUT', '/api/agent/shortlet/bookings/{id}/status', ['ShortLetController', 'updateBookingStatus']);
+
 // Upload routes
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
