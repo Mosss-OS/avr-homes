@@ -98,6 +98,9 @@ class Property
       $property['id'] = (int)$property['id'];
       $property['agent_id'] = $property['agent_id'] ? (int)$property['agent_id'] : null;
       $property['price'] = (int)$property['price'];
+      $property['nightly_price'] = $property['nightly_price'] ? (int)$property['nightly_price'] : null;
+      $property['min_stay'] = (int)$property['min_stay'];
+      $property['max_stay'] = $property['max_stay'] ? (int)$property['max_stay'] : null;
       $property['beds'] = (int)$property['beds'];
       $property['baths'] = (int)$property['baths'];
       $property['area'] = (int)$property['area'];
@@ -139,6 +142,9 @@ class Property
     $property['id'] = (int)$property['id'];
     $property['agent_id'] = $property['agent_id'] ? (int)$property['agent_id'] : null;
     $property['price'] = (int)$property['price'];
+    $property['nightly_price'] = $property['nightly_price'] ? (int)$property['nightly_price'] : null;
+    $property['min_stay'] = (int)$property['min_stay'];
+    $property['max_stay'] = $property['max_stay'] ? (int)$property['max_stay'] : null;
     $property['beds'] = (int)$property['beds'];
     $property['baths'] = (int)$property['baths'];
     $property['area'] = (int)$property['area'];
@@ -159,9 +165,9 @@ class Property
     $slug = self::generateSlug($data['title']);
 
     $stmt = $db->prepare(
-      "INSERT INTO properties (title, slug, description, type, purpose, price, beds, baths, 
+      "INSERT INTO properties (title, slug, description, type, purpose, price, nightly_price, min_stay, max_stay, beds, baths, 
        area, city, community, address, lat, lng, amenities, agent_id, featured, is_verified, posted_days_ago)
-       VALUES (:title, :slug, :description, :type, :purpose, :price, :beds, :baths, 
+       VALUES (:title, :slug, :description, :type, :purpose, :price, :nightly_price, :min_stay, :max_stay, :beds, :baths, 
        :area, :city, :community, :address, :lat, :lng, :amenities, :agent_id, :featured, :is_verified, 0)"
     );
 
@@ -172,6 +178,9 @@ class Property
       ':type'        => $data['type'],
       ':purpose'     => $data['purpose'],
       ':price'       => (int)$data['price'],
+      ':nightly_price' => isset($data['nightly_price']) ? (int)$data['nightly_price'] : null,
+      ':min_stay'      => (int)($data['min_stay'] ?? 1),
+      ':max_stay'      => isset($data['max_stay']) ? (int)$data['max_stay'] : null,
       ':beds'        => (int)($data['beds'] ?? 0),
       ':baths'       => (int)($data['baths'] ?? 0),
       ':area'        => (int)($data['area'] ?? 0),
@@ -196,7 +205,7 @@ class Property
     $fields = [];
     $params = [':id' => $id];
 
-    $allowed = ['title', 'description', 'type', 'purpose', 'price', 'beds', 'baths',
+    $allowed = ['title', 'description', 'type', 'purpose', 'price', 'nightly_price', 'min_stay', 'max_stay', 'beds', 'baths',
       'area', 'city', 'community', 'address', 'lat', 'lng', 'image',
       'agent_id', 'featured', 'is_verified'];
 
