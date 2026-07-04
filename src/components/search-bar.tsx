@@ -24,10 +24,10 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
     <form onSubmit={submit} className={`w-full rounded-2xl bg-background/95 p-2 shadow-[var(--shadow-elevated)] backdrop-blur ${compact ? "" : "md:p-3"}`}>
       <div className="flex gap-1 px-2 pt-1">
         {purposes.map((p) => (
-          <button key={p} type="button" onClick={() => setPurpose(p)}
+          <button key={p.value} type="button" onClick={() => setPurpose(p.value)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
-              purpose === p ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-secondary"
-            }`}>{p}</button>
+              purpose === p.value ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-secondary"
+            }`}>{p.label}</button>
         ))}
       </div>
       <div className="mt-2 grid grid-cols-1 gap-2 sm:gap-2 md:grid-cols-[1.5fr_1fr_1fr_auto]">
