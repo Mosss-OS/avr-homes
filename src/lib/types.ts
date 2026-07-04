@@ -1,4 +1,4 @@
-export type Purpose = "buy" | "rent";
+export type Purpose = "buy" | "rent" | "shortlet";
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
 export type Currency = "NGN" | "USD" | "GBP";
 
@@ -9,6 +9,9 @@ export interface PropertyData {
   type: PropertyType;
   purpose: Purpose;
   price: number;
+  nightly_price: number | null;
+  min_stay: number;
+  max_stay: number | null;
   beds: number;
   baths: number;
   area: number;
