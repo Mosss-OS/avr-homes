@@ -73,7 +73,7 @@ function HomePage() {
               <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Verified Nigerian Property Marketplace
             </span>
             <h1 className="mt-5 font-display font-semibold leading-[0.95] text-3xl sm:text-4xl md:text-6xl lg:text-8xl">
-              Homes, Lands &nbsp;&nbsp;<span style={{ fontStyle: "italic", color: "#C9A84C", fontFamily: '"Fraunces", serif' }}>&</span>&nbsp;&nbsp; Property Across Nigeria
+              Homes, Lands &nbsp;&nbsp;<span style={{ fontStyle: "italic", color: "#C9A84C", fontFamily: "'Playfair Display', 'Georgia', serif" }}>&</span>&nbsp;&nbsp; Property Across Nigeria
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-sm text-white/85 sm:text-base md:text-lg lg:text-xl">
               Discover verified homes and land for sale or rent across Lagos, Abuja, Port Harcourt, Delta, Imo and Anambra — built for serious buyers, professional realtors and diaspora investors.
