@@ -10,17 +10,22 @@ class AdminController
     AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
-    $totalProperties   = (int)$db->query("SELECT COUNT(*) FROM properties")->fetchColumn();
-    $activeProperties  = (int)$db->query("SELECT COUNT(*) FROM properties WHERE is_active = 1")->fetchColumn();
-    $totalAgents       = (int)$db->query("SELECT COUNT(*) FROM agents")->fetchColumn();
-    $verifiedAgents    = (int)$db->query("SELECT COUNT(*) FROM agents WHERE is_verified = 1")->fetchColumn();
-    $totalUsers        = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    $pendingVerifs     = (int)$db->query("SELECT COUNT(*) FROM property_verifications WHERE status = 'pending'")->fetchColumn();
-    $totalBookings     = (int)$db->query("SELECT COUNT(*) FROM property_bookings")->fetchColumn();
-    $pendingBookings   = (int)$db->query("SELECT COUNT(*) FROM property_bookings WHERE status = 'pending'")->fetchColumn();
-    $totalInquiries    = (int)$db->query("SELECT COUNT(*) FROM inquiries")->fetchColumn();
-    $unreadInquiries   = (int)$db->query("SELECT COUNT(*) FROM inquiries WHERE is_read = 0")->fetchColumn();
-    $totalBlogPosts    = (int)$db->query("SELECT COUNT(*) FROM blog_posts")->fetchColumn();
+    $safeCount = function (string $sql) use ($db): int {
+      try { return (int)$db->query($sql)->fetchColumn(); }
+      catch (\Throwable) { return 0; }
+    };
+
+    $totalProperties   = $safeCount("SELECT COUNT(*) FROM properties");
+    $activeProperties  = $safeCount("SELECT COUNT(*) FROM properties WHERE is_active = 1");
+    $totalAgents       = $safeCount("SELECT COUNT(*) FROM agents");
+    $verifiedAgents    = $safeCount("SELECT COUNT(*) FROM agents WHERE is_verified = 1");
+    $totalUsers        = $safeCount("SELECT COUNT(*) FROM users");
+    $pendingVerifs     = $safeCount("SELECT COUNT(*) FROM property_verifications WHERE status = 'pending'");
+    $totalBookings     = $safeCount("SELECT COUNT(*) FROM property_bookings");
+    $pendingBookings   = $safeCount("SELECT COUNT(*) FROM property_bookings WHERE status = 'pending'");
+    $totalInquiries    = $safeCount("SELECT COUNT(*) FROM inquiries");
+    $unreadInquiries   = $safeCount("SELECT COUNT(*) FROM inquiries WHERE is_read = 0");
+    $totalBlogPosts    = $safeCount("SELECT COUNT(*) FROM blog_posts");
 
     Response::success([
       'properties'       => ['total' => $totalProperties, 'active' => $activeProperties],
