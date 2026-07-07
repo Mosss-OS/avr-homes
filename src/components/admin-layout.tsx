@@ -34,7 +34,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-[#0A1628] text-white transition-all duration-200 lg:static ${
+      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-[#0A1628] text-white transition-all duration-200 lg:sticky lg:top-0 lg:h-screen ${
         collapsed ? "w-16" : "w-64"
       } ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
@@ -83,7 +83,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 lg:h-screen lg:overflow-y-auto">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
