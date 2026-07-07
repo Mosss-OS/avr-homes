@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "@tanstack/react-router";
 import { Search, CheckCircle2, XCircle, Trash2, Loader2, ChevronLeft, ChevronRight, Ban, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/admin/agents")({
@@ -18,6 +17,8 @@ interface AgentRow {
 function AdminAgents() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname !== "/admin/agents") return <Outlet />;
   const [rows, setRows] = useState<AgentRow[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
