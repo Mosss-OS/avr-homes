@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
@@ -60,8 +59,7 @@ function AdminBookings() {
     } catch {}
   }
 
-  return (
-    <AdminLayout>
+  return (<>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold">Bookings</h1>
@@ -143,6 +141,5 @@ function AdminBookings() {
           </button>
         </div>
       )}
-    </AdminLayout>
-  );
+  </>);
 }

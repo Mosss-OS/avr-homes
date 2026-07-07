@@ -1,5 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
@@ -45,8 +44,7 @@ function AdminBlog() {
     return null;
   }
 
-  return (
-    <AdminLayout>
+  return (<>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold">Blog Posts</h1>
@@ -108,6 +106,5 @@ function AdminBlog() {
           </button>
         </div>
       )}
-    </AdminLayout>
-  );
+  </>);
 }

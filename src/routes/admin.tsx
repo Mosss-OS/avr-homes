@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -9,8 +9,36 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
-  component: AdminDashboard,
+  component: AdminRouteLayout,
 });
+
+function AdminRouteLayout() {
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isLoginPage = pathname === "/admin/login";
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading) setAuthChecked(true);
+  }, [isLoading]);
+
+  if (!authChecked) return null;
+
+  if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+    if (!isLoginPage) {
+      navigate({ to: "/admin/login" });
+      return null;
+    }
+    return <Outlet />;
+  }
+
+  return (
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  );
+}
 
 interface Stats {
   properties: { total: number; active: number };
@@ -24,7 +52,6 @@ interface Stats {
 
 function AdminDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,11 +61,6 @@ function AdminDashboard() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
-    navigate({ to: "/admin/login" });
-    return null;
-  }
 
   const cards = [
     { icon: Home, label: "Properties", value: stats?.properties.active ?? 0, sub: `${stats?.properties.total ?? 0} total`, color: "text-blue-600", bg: "bg-blue-100" },
@@ -51,9 +73,9 @@ function AdminDashboard() {
   ];
 
   return (
-    <AdminLayout>
+    <>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold">Welcome back, {user.name}</h1>
+        <h1 className="font-display text-2xl font-semibold">Welcome back, {user?.name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">Here's what's happening on the platform.</p>
       </div>
 
@@ -97,16 +119,16 @@ function AdminDashboard() {
           <div className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between rounded-lg bg-secondary/60 px-3 py-2">
               <span className="text-muted-foreground">Your Role</span>
-              <span className="font-medium capitalize">{user.role}</span>
+              <span className="font-medium capitalize">{user?.role}</span>
             </div>
             <div className="flex justify-between rounded-lg bg-secondary/60 px-3 py-2">
               <span className="text-muted-foreground">Logged in as</span>
-              <span className="font-medium">{user.email}</span>
+              <span className="font-medium">{user?.email}</span>
             </div>
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }
 
