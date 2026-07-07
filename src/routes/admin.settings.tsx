@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -16,10 +17,10 @@ function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     api.get<Record<string, string>>("/api/settings")
       .then((r) => setSettings(r.data))
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load settings"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -33,8 +34,11 @@ function AdminSettings() {
     try {
       await api.post("/api/settings", settings);
       setSaved(true);
+      toast.success("Settings saved successfully");
       setTimeout(() => setSaved(false), 2000);
-    } catch {}
+    } catch {
+      toast.error("Failed to save settings");
+    }
     setSaving(false);
   }
 

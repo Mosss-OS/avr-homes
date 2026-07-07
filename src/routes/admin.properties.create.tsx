@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -98,9 +99,12 @@ function AdminCreateProperty() {
         else fd.append(key, String(val));
       });
       await api.post("/api/admin/properties", fd);
+      toast.success("Property created successfully");
       navigate({ to: "/admin/properties" });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to create property");
+      const msg = err instanceof ApiError ? err.message : "Failed to create property";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
