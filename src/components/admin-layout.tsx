@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Users, ShieldCheck, CalendarCheck, Activity, Settings,
-  Menu, X, LogOut, ChevronRight, FileText, Building2,
+  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -24,6 +24,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "AD";
 
@@ -33,28 +34,37 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-[#0A1628] text-white transition-transform duration-200 lg:static lg:translate-x-0 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r bg-[#0A1628] text-white transition-all duration-200 lg:static ${
+        collapsed ? "w-16" : "w-64"
+      } ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}>
-        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#C9A84C] text-xs font-bold text-[#0A1628]">A</div>
-          <span className="font-display text-sm font-semibold">AVR Admin</span>
+        <div className={`flex h-16 items-center border-b border-white/10 ${collapsed ? "justify-center px-0" : "gap-3 px-5"}`}>
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#C9A84C] text-xs font-bold text-[#0A1628]">A</div>
+          {!collapsed && <span className="font-display text-sm font-semibold">AVR Admin</span>}
         </div>
 
         <div className="flex-1 overflow-y-auto p-3">
-          <nav className="space-y-1">
+          <nav className="flex flex-col gap-1">
             {NAV_ITEMS.map(({ icon: Icon, label, to }) => {
               const active = pathname === to;
               return (
                 <Link key={to} to={to as any} onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  className={`flex items-center rounded-lg text-sm font-medium transition-colors ${
+                    collapsed ? "justify-center px-2 py-3" : "gap-3 px-3 py-2.5"
+                  } ${
                     active
                       ? "bg-[#C9A84C]/20 text-[#C9A84C]"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                  }`}>
-                  <Icon className="h-4 w-4" />
-                  {label}
-                  {active && <ChevronRight className="ml-auto h-4 w-4" />}
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                  title={collapsed ? label : undefined}>
+                  <Icon className="h-5 w-5 shrink-0" />
+                  {!collapsed && (
+                    <>
+                      {label}
+                      {active && <ChevronRight className="ml-auto h-4 w-4" />}
+                    </>
+                  )}
                 </Link>
               );
             })}
@@ -63,18 +73,26 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
         <div className="border-t border-white/10 p-3">
           <button onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-colors">
-            <LogOut className="h-4 w-4" />
-            Sign out
+            className={`flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors bg-red-600 hover:bg-red-700 ${
+              collapsed ? "justify-center px-2" : "gap-3"
+            }`}
+            title={collapsed ? "Sign out" : undefined}>
+            <LogOut className="h-5 w-5 shrink-0" />
+            {!collapsed && "Sign out"}
           </button>
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
-            <Menu className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
+              <Menu className="h-5 w-5" />
+            </button>
+            <button onClick={() => setCollapsed(!collapsed)} className="hidden lg:flex text-muted-foreground hover:text-foreground transition-colors">
+              {collapsed ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+            </button>
+          </div>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
             <div className="text-right text-sm">
