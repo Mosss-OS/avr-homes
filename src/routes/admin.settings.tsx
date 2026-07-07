@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
@@ -54,8 +53,7 @@ function AdminSettings() {
     { key: "social_youtube", label: "YouTube URL", type: "text" },
   ];
 
-  return (
-    <AdminLayout>
+  return (<>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold">Settings</h1>
@@ -82,6 +80,5 @@ function AdminSettings() {
           ))}
         </div>
       )}
-    </AdminLayout>
-  );
+  </>);
 }

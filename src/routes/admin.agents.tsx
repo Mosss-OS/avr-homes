@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
@@ -69,8 +68,7 @@ function AdminAgents() {
     } catch {}
   }
 
-  return (
-    <AdminLayout>
+  return (<>
       <div className="mb-6">
         <h1 className="font-display text-2xl font-semibold">Agents</h1>
         <p className="text-sm text-muted-foreground">{total} registered agents</p>
@@ -153,6 +151,5 @@ function AdminAgents() {
           </button>
         </div>
       )}
-    </AdminLayout>
-  );
+  </>);
 }
