@@ -1,0 +1,120 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AdminLayout } from "@/components/admin-layout";
+import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api-client";
+import { useEffect, useState } from "react";
+import {
+  Home, Users, ShieldCheck, CalendarCheck, MessageSquare, FileText, Building2,
+  TrendingUp, Loader2,
+} from "lucide-react";
+
+export const Route = createFileRoute("/admin")({
+  component: AdminDashboard,
+});
+
+interface Stats {
+  properties: { total: number; active: number };
+  agents: { total: number; verified: number };
+  users: { total: number };
+  verifications: { pending: number };
+  bookings: { total: number; pending: number };
+  inquiries: { total: number; unread: number };
+  blog_posts: { total: number };
+}
+
+function AdminDashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<Stats>("/api/admin/stats")
+      .then((r) => setStats(r.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
+    navigate({ to: "/admin/login" });
+    return null;
+  }
+
+  const cards = [
+    { icon: Home, label: "Properties", value: stats?.properties.active ?? 0, sub: `${stats?.properties.total ?? 0} total`, color: "text-blue-600", bg: "bg-blue-100" },
+    { icon: Building2, label: "Agents", value: stats?.agents.total ?? 0, sub: `${stats?.agents.verified ?? 0} verified`, color: "text-emerald-600", bg: "bg-emerald-100" },
+    { icon: Users, label: "Users", value: stats?.users.total ?? 0, sub: "registered users", color: "text-violet-600", bg: "bg-violet-100" },
+    { icon: ShieldCheck, label: "Verifications", value: stats?.verifications.pending ?? 0, sub: "pending review", color: "text-amber-600", bg: "bg-amber-100" },
+    { icon: CalendarCheck, label: "Bookings", value: stats?.bookings.total ?? 0, sub: `${stats?.bookings.pending ?? 0} pending`, color: "text-rose-600", bg: "bg-rose-100" },
+    { icon: MessageSquare, label: "Inquiries", value: stats?.inquiries.total ?? 0, sub: `${stats?.inquiries.unread ?? 0} unread`, color: "text-cyan-600", bg: "bg-cyan-100" },
+    { icon: FileText, label: "Blog Posts", value: stats?.blog_posts.total ?? 0, sub: "published", color: "text-orange-600", bg: "bg-orange-100" },
+  ];
+
+  return (
+    <AdminLayout>
+      <div className="mb-6">
+        <h1 className="font-display text-2xl font-semibold">Welcome back, {user.name}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Here's what's happening on the platform.</p>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {cards.map(({ icon: Icon, label, value, sub, color, bg }) => (
+            <div key={label} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div className="flex items-center gap-3">
+                <div className={`grid h-10 w-10 place-items-center rounded-xl ${bg} ${color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{value}</div>
+                  <div className="text-xs text-muted-foreground">{label}</div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">{sub}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="font-display text-lg font-semibold">Quick Actions</h2>
+          <div className="mt-4 grid gap-2">
+            <QuickLink to="/admin/properties" label="Manage Properties" />
+            <QuickLink to="/admin/verifications" label="Review Verification Requests" />
+            <QuickLink to="/admin/agents" label="Manage Agents" />
+            <QuickLink to="/admin/bookings" label="View Bookings" />
+            <QuickLink to="/admin/activity" label="View Activity Log" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="font-display text-lg font-semibold">System</h2>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between rounded-lg bg-secondary/60 px-3 py-2">
+              <span className="text-muted-foreground">Your Role</span>
+              <span className="font-medium capitalize">{user.role}</span>
+            </div>
+            <div className="flex justify-between rounded-lg bg-secondary/60 px-3 py-2">
+              <span className="text-muted-foreground">Logged in as</span>
+              <span className="font-medium">{user.email}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}
+
+function QuickLink({ to, label }: { to: string; label: string }) {
+  return (
+    <a href={to} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary transition">
+      {label}
+      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+    </a>
+  );
+}
