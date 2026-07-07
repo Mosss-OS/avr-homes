@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Search, CheckCircle2, XCircle, Trash2, Star, EyeOff, Eye,
-  Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Plus,
+  Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Plus, Pencil,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/properties")({
@@ -166,6 +166,9 @@ function AdminProperties() {
                           <Eye className="h-4 w-4" />
                         </button>
                       )}
+                      <Link to={`/admin/properties/${r.id}/edit`} title="Edit" className="text-muted-foreground hover:text-blue-500">
+                        <Pencil className="h-4 w-4" />
+                      </Link>
                       <button onClick={() => deleteProp(r.id)} title="Delete" className="text-muted-foreground hover:text-red-500">
                         <Trash2 className="h-4 w-4" />
                       </button>

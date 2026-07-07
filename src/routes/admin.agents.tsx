@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
-import { Search, CheckCircle2, XCircle, Trash2, Loader2, ChevronLeft, ChevronRight, Ban } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Search, CheckCircle2, XCircle, Trash2, Loader2, ChevronLeft, ChevronRight, Ban, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/admin/agents")({
   component: AdminAgents,
@@ -125,6 +126,9 @@ function AdminAgents() {
                         className={`${r.is_active ? "text-muted-foreground hover:text-red-500" : "text-muted-foreground hover:text-emerald-500"}`}>
                         <Ban className="h-4 w-4" />
                       </button>
+                      <Link to={`/admin/agents/${r.id}/edit`} title="Edit" className="text-muted-foreground hover:text-blue-500">
+                        <Pencil className="h-4 w-4" />
+                      </Link>
                       <button onClick={() => deleteAgent(r.id)} title="Delete" className="text-muted-foreground hover:text-red-500">
                         <Trash2 className="h-4 w-4" />
                       </button>

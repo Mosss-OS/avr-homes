@@ -50,6 +50,9 @@ import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboar
 import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
 import { Route as AdminPropertiesCreateRouteImport } from './routes/admin.properties.create'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
+import { Route as AdminUsersIdEditRouteImport } from './routes/admin.users.$id.edit'
+import { Route as AdminPropertiesIdEditRouteImport } from './routes/admin.properties.$id.edit'
+import { Route as AdminAgentsIdEditRouteImport } from './routes/admin.agents.$id.edit'
 import { Route as AgentDashboardListingsIdEditRouteImport } from './routes/agent.dashboard.listings.$id.edit'
 
 const ShortletRoute = ShortletRouteImport.update({
@@ -260,6 +263,21 @@ const AgentDashboardListingsCreateRoute =
     path: '/create',
     getParentRoute: () => AgentDashboardListingsRoute,
   } as any)
+const AdminUsersIdEditRoute = AdminUsersIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => AdminUsersRoute,
+} as any)
+const AdminPropertiesIdEditRoute = AdminPropertiesIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => AdminPropertiesRoute,
+} as any)
+const AdminAgentsIdEditRoute = AdminAgentsIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => AdminAgentsRoute,
+} as any)
 const AgentDashboardListingsIdEditRoute =
   AgentDashboardListingsIdEditRouteImport.update({
     id: '/$id/edit',
@@ -285,13 +303,13 @@ export interface FileRoutesByFullPath {
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
-  '/admin/agents': typeof AdminAgentsRoute
+  '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
@@ -308,6 +326,9 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
+  '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
 }
@@ -329,13 +350,13 @@ export interface FileRoutesByTo {
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
-  '/admin/agents': typeof AdminAgentsRoute
+  '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
@@ -352,6 +373,9 @@ export interface FileRoutesByTo {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
+  '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
 }
@@ -374,13 +398,13 @@ export interface FileRoutesById {
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
-  '/admin/agents': typeof AdminAgentsRoute
+  '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
@@ -397,6 +421,9 @@ export interface FileRoutesById {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
+  '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
   '/agent/dashboard/listings/$id/edit': typeof AgentDashboardListingsIdEditRoute
 }
@@ -443,6 +470,9 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/admin/agents/$id/edit'
+    | '/admin/properties/$id/edit'
+    | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -487,6 +517,9 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/admin/agents/$id/edit'
+    | '/admin/properties/$id/edit'
+    | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
   id:
@@ -531,6 +564,9 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/admin/agents/$id/edit'
+    | '/admin/properties/$id/edit'
+    | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
     | '/agent/dashboard/listings/$id/edit'
   fileRoutesById: FileRoutesById
@@ -847,6 +883,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardListingsCreateRouteImport
       parentRoute: typeof AgentDashboardListingsRoute
     }
+    '/admin/users/$id/edit': {
+      id: '/admin/users/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/admin/users/$id/edit'
+      preLoaderRoute: typeof AdminUsersIdEditRouteImport
+      parentRoute: typeof AdminUsersRoute
+    }
+    '/admin/properties/$id/edit': {
+      id: '/admin/properties/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/admin/properties/$id/edit'
+      preLoaderRoute: typeof AdminPropertiesIdEditRouteImport
+      parentRoute: typeof AdminPropertiesRoute
+    }
+    '/admin/agents/$id/edit': {
+      id: '/admin/agents/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/admin/agents/$id/edit'
+      preLoaderRoute: typeof AdminAgentsIdEditRouteImport
+      parentRoute: typeof AdminAgentsRoute
+    }
     '/agent/dashboard/listings/$id/edit': {
       id: '/agent/dashboard/listings/$id/edit'
       path: '/$id/edit'
@@ -857,39 +914,65 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminAgentsRouteChildren {
+  AdminAgentsIdEditRoute: typeof AdminAgentsIdEditRoute
+}
+
+const AdminAgentsRouteChildren: AdminAgentsRouteChildren = {
+  AdminAgentsIdEditRoute: AdminAgentsIdEditRoute,
+}
+
+const AdminAgentsRouteWithChildren = AdminAgentsRoute._addFileChildren(
+  AdminAgentsRouteChildren,
+)
+
 interface AdminPropertiesRouteChildren {
   AdminPropertiesCreateRoute: typeof AdminPropertiesCreateRoute
+  AdminPropertiesIdEditRoute: typeof AdminPropertiesIdEditRoute
 }
 
 const AdminPropertiesRouteChildren: AdminPropertiesRouteChildren = {
   AdminPropertiesCreateRoute: AdminPropertiesCreateRoute,
+  AdminPropertiesIdEditRoute: AdminPropertiesIdEditRoute,
 }
 
 const AdminPropertiesRouteWithChildren = AdminPropertiesRoute._addFileChildren(
   AdminPropertiesRouteChildren,
 )
 
+interface AdminUsersRouteChildren {
+  AdminUsersIdEditRoute: typeof AdminUsersIdEditRoute
+}
+
+const AdminUsersRouteChildren: AdminUsersRouteChildren = {
+  AdminUsersIdEditRoute: AdminUsersIdEditRoute,
+}
+
+const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
+  AdminUsersRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminActivityRoute: typeof AdminActivityRoute
-  AdminAgentsRoute: typeof AdminAgentsRoute
+  AdminAgentsRoute: typeof AdminAgentsRouteWithChildren
   AdminBlogRoute: typeof AdminBlogRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminUsersRoute: typeof AdminUsersRoute
+  AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminVerificationsRoute: typeof AdminVerificationsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminActivityRoute: AdminActivityRoute,
-  AdminAgentsRoute: AdminAgentsRoute,
+  AdminAgentsRoute: AdminAgentsRouteWithChildren,
   AdminBlogRoute: AdminBlogRoute,
   AdminBookingsRoute: AdminBookingsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
-  AdminUsersRoute: AdminUsersRoute,
+  AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminVerificationsRoute: AdminVerificationsRoute,
 }
 

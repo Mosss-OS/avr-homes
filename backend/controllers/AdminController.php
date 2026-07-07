@@ -217,6 +217,65 @@ class AdminController
     Response::success(null, 'Property deleted');
   }
 
+  public static function getProperty(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid property ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT * FROM properties WHERE id = ?');
+    $stmt->execute([$id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) Response::error('Property not found', 404);
+
+    $row['amenities'] = json_decode($row['amenities'] ?? '[]', true);
+    $row['featured'] = (bool)$row['featured'];
+    $row['is_verified'] = (bool)$row['is_verified'];
+    $row['is_active'] = (int)$row['is_active'];
+
+    Response::success(['property' => $row]);
+  }
+
+  public static function updateProperty(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid property ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) Response::error('No data provided', 400);
+
+    $db = Database::getConnection();
+
+    $fields = [];
+    $binds = [];
+    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','video_url','virtual_tour_url','floor_plan_url'] as $f) {
+      if (array_key_exists($f, $input)) {
+        $fields[] = "$f = ?";
+        $binds[] = $input[$f];
+      }
+    }
+    if (array_key_exists('amenities', $input)) {
+      $fields[] = "amenities = ?";
+      $binds[] = json_encode($input['amenities']);
+    }
+    if (array_key_exists('status', $input)) {
+      $fields[] = "is_active = ?";
+      $binds[] = $input['status'] === 'published' ? 1 : ($input['status'] === 'archived' ? 2 : 0);
+    }
+
+    if (empty($fields)) Response::error('No fields to update', 400);
+
+    $fields[] = "updated_at = NOW()";
+    $binds[] = $id;
+
+    $sql = "UPDATE properties SET " . implode(', ', $fields) . " WHERE id = ?";
+    $db->prepare($sql)->execute($binds);
+
+    Response::success(['id' => $id], 'Property updated');
+  }
+
   // ─── Agents ─────────────────────────────────────────────────────────
   public static function agents(array $params): void
   {
@@ -322,6 +381,62 @@ class AdminController
     Response::success(null, 'Agent deleted');
   }
 
+  public static function getAgent(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid agent ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT a.*, u.email as user_email FROM agents a LEFT JOIN users u ON a.user_id = u.id WHERE a.id = ?');
+    $stmt->execute([$id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) Response::error('Agent not found', 404);
+
+    $row['id'] = (int)$row['id'];
+    $row['is_verified'] = (bool)$row['is_verified'];
+    $row['languages'] = json_decode($row['languages'] ?? '[]', true);
+    $row['property_types'] = json_decode($row['property_types'] ?? '[]', true);
+    $row['specialization'] = json_decode($row['specialization'] ?? '[]', true);
+
+    Response::success(['agent' => $row]);
+  }
+
+  public static function updateAgent(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid agent ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) Response::error('No data provided', 400);
+
+    $db = Database::getConnection();
+    $fields = [];
+    $binds = [];
+
+    foreach (['name','email','phone','agency','bio','whatsapp','experience','state','city','avg_monthly_listings','avg_deal_size','referral_source','social_instagram','social_facebook','social_linkedin','social_tiktok','social_youtube'] as $f) {
+      if (array_key_exists($f, $input)) {
+        $fields[] = "$f = ?";
+        $binds[] = $input[$f];
+      }
+    }
+    foreach (['property_types','specialization','languages','support_needed'] as $f) {
+      if (array_key_exists($f, $input)) {
+        $fields[] = "$f = ?";
+        $binds[] = json_encode($input[$f]);
+      }
+    }
+
+    if (empty($fields)) Response::error('No fields to update', 400);
+
+    $binds[] = $id;
+    $sql = "UPDATE agents SET " . implode(', ', $fields) . " WHERE id = ?";
+    $db->prepare($sql)->execute($binds);
+
+    Response::success(['id' => $id], 'Agent updated');
+  }
+
   // ─── Users ───────────────────────────────────────────────────────────
   public static function users(array $params): void
   {
@@ -377,6 +492,57 @@ class AdminController
     $stmt->execute([$role, $id]);
 
     Response::success(['id' => $id, 'role' => $role], 'User role updated');
+  }
+
+  public static function getUser(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid user ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT id, name, email, role, is_active, email_verified_at, created_at, updated_at FROM users WHERE id = ?');
+    $stmt->execute([$id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) Response::error('User not found', 404);
+
+    $row['id'] = (int)$row['id'];
+    $row['is_active'] = (bool)$row['is_active'];
+
+    Response::success(['user' => $row]);
+  }
+
+  public static function updateUser(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid user ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) Response::error('No data provided', 400);
+
+    $db = Database::getConnection();
+    $fields = [];
+    $binds = [];
+
+    foreach (['name', 'email'] as $f) {
+      if (array_key_exists($f, $input)) {
+        $fields[] = "$f = ?";
+        $binds[] = $input[$f];
+      }
+    }
+    if (array_key_exists('is_active', $input)) {
+      $fields[] = "is_active = ?";
+      $binds[] = $input['is_active'] ? 1 : 0;
+    }
+
+    if (empty($fields)) Response::error('No fields to update', 400);
+
+    $binds[] = $id;
+    $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?";
+    $db->prepare($sql)->execute($binds);
+
+    Response::success(['id' => $id], 'User updated');
   }
 
   // ─── Bookings ────────────────────────────────────────────────────────
