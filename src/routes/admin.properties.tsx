@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Search, CheckCircle2, XCircle, Trash2, Star, EyeOff, Eye,
-  Loader2, ChevronLeft, ChevronRight, MoreHorizontal,
+  Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Plus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/properties")({
@@ -87,6 +88,9 @@ function AdminProperties() {
           <h1 className="font-display text-2xl font-semibold">Properties</h1>
           <p className="text-sm text-muted-foreground">{total} total</p>
         </div>
+        <Link to="/agent/dashboard/listings/create" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <Plus className="h-4 w-4" /> New Property
+        </Link>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-3">

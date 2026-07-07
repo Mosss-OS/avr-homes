@@ -17,6 +17,7 @@ function AdminRouteLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isLoginPage = pathname === "/admin/login";
+  const isRootAdmin = pathname === "/admin";
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ function AdminRouteLayout() {
 
   return (
     <AdminLayout>
-      <Outlet />
+      {isRootAdmin ? <AdminDashboard /> : <Outlet />}
     </AdminLayout>
   );
 }
