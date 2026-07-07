@@ -115,7 +115,9 @@ route('GET', '/api/admin/stats', ['AdminController', 'stats']);
 
 // Admin property management
 route('GET', '/api/admin/properties', ['AdminController', 'properties']);
+route('GET', '/api/admin/properties/{id}', ['AdminController', 'getProperty']);
 route('POST', '/api/admin/properties', ['AdminController', 'createProperty']);
+route('PUT', '/api/admin/properties/{id}', ['AdminController', 'updateProperty']);
 route('PUT', '/api/admin/properties/{id}/status', ['AdminController', 'updatePropertyStatus']);
 route('PUT', '/api/admin/properties/{id}/feature', ['AdminController', 'toggleFeature']);
 route('PUT', '/api/admin/properties/{id}/verify', ['AdminController', 'verifyProperty']);
@@ -123,12 +125,16 @@ route('DELETE', '/api/admin/properties/{id}', ['AdminController', 'deletePropert
 
 // Admin agent management
 route('GET', '/api/admin/agents', ['AdminController', 'agents']);
+route('GET', '/api/admin/agents/{id}', ['AdminController', 'getAgent']);
+route('PUT', '/api/admin/agents/{id}', ['AdminController', 'updateAgent']);
 route('PUT', '/api/admin/agents/{id}/status', ['AdminController', 'updateAgentStatus']);
 route('PUT', '/api/admin/agents/{id}/verify', ['AdminController', 'toggleAgentVerify']);
 route('DELETE', '/api/admin/agents/{id}', ['AdminController', 'deleteAgent']);
 
 // Admin user management
 route('GET', '/api/admin/users', ['AdminController', 'users']);
+route('GET', '/api/admin/users/{id}', ['AdminController', 'getUser']);
+route('PUT', '/api/admin/users/{id}', ['AdminController', 'updateUser']);
 route('PUT', '/api/admin/users/{id}/role', ['AdminController', 'updateUserRole']);
 
 // Admin booking management
