@@ -1,8 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
-import { Search, Loader2, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Shield, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/admin/users")({
   component: AdminUsers,
@@ -77,6 +77,7 @@ function AdminUsers() {
                 <th className="px-4 py-3 font-medium">Role</th>
                 <th className="px-4 py-3 font-medium text-center">Active</th>
                 <th className="px-4 py-3 font-medium">Joined</th>
+                <th className="px-4 py-3 font-medium text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -96,10 +97,15 @@ function AdminUsers() {
                     <span className={`inline-flex h-2 w-2 rounded-full ${r.is_active ? "bg-emerald-500" : "bg-red-500"}`} />
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-center">
+                    <Link to={`/admin/users/${r.id}/edit`} title="Edit" className="text-muted-foreground hover:text-blue-500">
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </td>
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">No users found</td></tr>
               )}
             </tbody>
           </table>
