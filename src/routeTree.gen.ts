@@ -48,6 +48,7 @@ import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashbo
 import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
 import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
 import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
+import { Route as AdminPropertiesCreateRouteImport } from './routes/admin.properties.create'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
 import { Route as AgentDashboardListingsIdEditRouteImport } from './routes/agent.dashboard.listings.$id.edit'
 
@@ -248,6 +249,11 @@ const AgentDashboardBlogRoute = AgentDashboardBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => AgentDashboardRoute,
 } as any)
+const AdminPropertiesCreateRoute = AdminPropertiesCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AdminPropertiesRoute,
+} as any)
 const AgentDashboardListingsCreateRoute =
   AgentDashboardListingsCreateRouteImport.update({
     id: '/create',
@@ -283,7 +289,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -326,7 +333,7 @@ export interface FileRoutesByTo {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -370,7 +378,7 @@ export interface FileRoutesById {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/properties': typeof AdminPropertiesRoute
+  '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -381,6 +389,7 @@ export interface FileRoutesById {
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/api/ai-search'
     | '/blog/$slug'
     | '/properties/$id'
+    | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/api/ai-search'
     | '/blog/$slug'
     | '/properties/$id'
+    | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/api/ai-search'
     | '/blog/$slug'
     | '/properties/$id'
+    | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
@@ -821,6 +833,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardBlogRouteImport
       parentRoute: typeof AgentDashboardRoute
     }
+    '/admin/properties/create': {
+      id: '/admin/properties/create'
+      path: '/create'
+      fullPath: '/admin/properties/create'
+      preLoaderRoute: typeof AdminPropertiesCreateRouteImport
+      parentRoute: typeof AdminPropertiesRoute
+    }
     '/agent/dashboard/listings/create': {
       id: '/agent/dashboard/listings/create'
       path: '/create'
@@ -838,13 +857,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminPropertiesRouteChildren {
+  AdminPropertiesCreateRoute: typeof AdminPropertiesCreateRoute
+}
+
+const AdminPropertiesRouteChildren: AdminPropertiesRouteChildren = {
+  AdminPropertiesCreateRoute: AdminPropertiesCreateRoute,
+}
+
+const AdminPropertiesRouteWithChildren = AdminPropertiesRoute._addFileChildren(
+  AdminPropertiesRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminActivityRoute: typeof AdminActivityRoute
   AdminAgentsRoute: typeof AdminAgentsRoute
   AdminBlogRoute: typeof AdminBlogRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  AdminPropertiesRoute: typeof AdminPropertiesRoute
+  AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
@@ -856,7 +887,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBlogRoute: AdminBlogRoute,
   AdminBookingsRoute: AdminBookingsRoute,
   AdminLoginRoute: AdminLoginRoute,
-  AdminPropertiesRoute: AdminPropertiesRoute,
+  AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
