@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -41,7 +42,9 @@ function AdminBookings() {
       setRows(res.data.data);
       setTotal(res.data.total);
       setTotalPages(res.data.total_pages);
-    } catch {}
+    } catch {
+      toast.error("Failed to load bookings");
+    }
     setLoading(false);
   }, [page, statusFilter]);
 
@@ -56,7 +59,10 @@ function AdminBookings() {
     try {
       await api.put(`/api/admin/bookings/${id}/status`, { status });
       fetchData();
-    } catch {}
+      toast.success(`Booking ${status} successfully`);
+    } catch {
+      toast.error("Failed to update booking status");
+    }
   }
 
   return (<>

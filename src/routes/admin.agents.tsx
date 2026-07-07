@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -52,14 +53,20 @@ function AdminAgents() {
     try {
       await api.put(`/api/admin/agents/${id}/status`, { is_active: !row.is_active });
       fetchData();
-    } catch {}
+      toast.success(`Agent ${row.is_active ? "suspended" : "activated"} successfully`);
+    } catch {
+      toast.error("Failed to update agent status");
+    }
   }
 
   async function toggleVerify(id: number) {
     try {
       await api.put(`/api/admin/agents/${id}/verify`, {});
       fetchData();
-    } catch {}
+      toast.success("Agent verification toggled");
+    } catch {
+      toast.error("Failed to toggle verification");
+    }
   }
 
   async function deleteAgent(id: number) {
@@ -67,7 +74,10 @@ function AdminAgents() {
     try {
       await api.delete(`/api/admin/agents/${id}`);
       fetchData();
-    } catch {}
+      toast.success("Agent deleted");
+    } catch {
+      toast.error("Failed to delete agent");
+    }
   }
 
   return (<>

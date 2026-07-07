@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ function AdminEditAgent() {
         });
       } catch (err) {
         setFetchError(err instanceof ApiError ? err.message : "Failed to load agent");
+        toast.error("Failed to load agent");
       }
       setLoading(false);
     }
@@ -88,9 +90,11 @@ function AdminEditAgent() {
     setError("");
     try {
       await api.put(`/api/admin/agents/${id}`, form);
+      toast.success("Agent updated successfully");
       navigate({ to: "/admin/agents" });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to update agent");
+      toast.error("Failed to update agent");
     }
     setSaving(false);
   }

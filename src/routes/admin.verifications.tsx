@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -34,7 +35,9 @@ function AdminVerifications() {
       setRows(res.data.data);
       setTotal(res.data.total);
       setTotalPages(res.data.total_pages);
-    } catch {}
+    } catch {
+      toast.error("Failed to load verifications");
+    }
     setLoading(false);
   }, [page, filter]);
 
@@ -46,13 +49,25 @@ function AdminVerifications() {
   }
 
   async function approve(id: number) {
-    try { await api.put(`/api/admin/verifications/${id}/approve`, {}); fetchData(); } catch {}
+    try {
+      await api.put(`/api/admin/verifications/${id}/approve`, {});
+      fetchData();
+      toast.success("Verification approved");
+    } catch {
+      toast.error("Failed to approve verification");
+    }
   }
 
   async function reject(id: number) {
     const reason = prompt("Rejection reason:");
     if (!reason) return;
-    try { await api.put(`/api/admin/verifications/${id}/reject`, { rejection_reason: reason }); fetchData(); } catch {}
+    try {
+      await api.put(`/api/admin/verifications/${id}/reject`, { rejection_reason: reason });
+      fetchData();
+      toast.success("Verification rejected");
+    } catch {
+      toast.error("Failed to reject verification");
+    }
   }
 
   return (<>

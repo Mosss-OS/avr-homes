@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -49,7 +50,10 @@ function AdminUsers() {
     try {
       await api.put(`/api/admin/users/${id}/role`, { role });
       fetchData();
-    } catch {}
+      toast.success(`User role changed to ${role}`);
+    } catch {
+      toast.error("Failed to change user role");
+    }
   }
 
   return (<>

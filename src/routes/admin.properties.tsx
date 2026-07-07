@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -59,21 +60,30 @@ function AdminProperties() {
     try {
       await api.put(`/api/admin/properties/${id}/status`, { status });
       fetchData();
-    } catch {}
+      toast.success(`Property ${status === "published" ? "published" : status === "draft" ? "unpublished" : "archived"} successfully`);
+    } catch {
+      toast.error("Failed to update property status");
+    }
   }
 
   async function toggleFeature(id: number) {
     try {
       await api.put(`/api/admin/properties/${id}/feature`, {});
       fetchData();
-    } catch {}
+      toast.success("Property featured status toggled");
+    } catch {
+      toast.error("Failed to toggle featured status");
+    }
   }
 
   async function toggleVerify(id: number) {
     try {
       await api.put(`/api/admin/properties/${id}/verify`, {});
       fetchData();
-    } catch {}
+      toast.success("Property verification toggled");
+    } catch {
+      toast.error("Failed to toggle verification");
+    }
   }
 
   async function deleteProp(id: number) {
@@ -81,7 +91,10 @@ function AdminProperties() {
     try {
       await api.delete(`/api/admin/properties/${id}`);
       fetchData();
-    } catch {}
+      toast.success("Property deleted");
+    } catch {
+      toast.error("Failed to delete property");
+    }
   }
 
   return (<>
