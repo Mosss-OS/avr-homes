@@ -7,7 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { fetchSettings } from "@/lib/settings";
 
 import appCss from "../styles.css?url";
@@ -144,18 +145,27 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdminRoute = pathname.startsWith("/admin");
   useEffect(() => { fetchSettings(); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1"><Outlet /></main>
-          <Toaster />
-          <SiteFooter />
-          <WhatsAppButton />
-          <AiSearchWidget />
-        </div>
+        {isAdminRoute ? (
+          <>
+            <Outlet />
+            <Toaster />
+          </>
+        ) : (
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1"><Outlet /></main>
+            <Toaster />
+            <SiteFooter />
+            <WhatsAppButton />
+            <AiSearchWidget />
+          </div>
+        )}
       </AuthProvider>
     </QueryClientProvider>
   );
