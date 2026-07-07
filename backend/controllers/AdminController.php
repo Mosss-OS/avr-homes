@@ -89,6 +89,55 @@ class AdminController
     ]);
   }
 
+  public static function createProperty(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $input = $_POST;
+    $validator = new Validator($input);
+    $validator
+      ->required('title', 'Title')
+      ->required('description', 'Description')
+      ->required('price', 'Price');
+
+    if ($validator->fails()) {
+      Response::error('Validation failed', 422, $validator->getErrors());
+    }
+
+    $data = $validator->validated();
+    $db = Database::getConnection();
+
+    $imageUrl = null;
+    if (!empty($_FILES['image']['tmp_name'])) {
+      $uploads = __DIR__ . '/../public/uploads/properties';
+      if (!is_dir($uploads)) mkdir($uploads, 0755, true);
+      $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+      $filename = 'prop_' . uniqid() . '.' . $ext;
+      if (move_uploaded_file($_FILES['image']['tmp_name'], "$uploads/$filename")) {
+        $imageUrl = '/uploads/properties/' . $filename;
+      }
+    }
+
+    $amenities = !empty($input['amenities']) ? json_encode(json_decode($input['amenities'], true) ?: []) : '[]';
+
+    $stmt = $db->prepare('
+      INSERT INTO properties (title, description, type, purpose, price, beds, baths, area, amenities,
+        city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    ');
+    $stmt->execute([
+      $data['title'], $data['description'], $input['type'] ?? 'apartment', $input['purpose'] ?? 'buy',
+      (int)$data['price'], (int)($input['beds'] ?? 0), (int)($input['baths'] ?? 0), (float)($input['area'] ?? 0),
+      $amenities, $input['city'] ?? '', $input['community'] ?? '', $input['address'] ?? '',
+      (float)($input['lat'] ?? 0), (float)($input['lng'] ?? 0), $imageUrl,
+      $input['video_url'] ?? '', $input['virtual_tour_url'] ?? '', $input['floor_plan_url'] ?? '',
+      ($input['status'] ?? 'published') === 'published' ? 1 : 0,
+    ]);
+
+    $newId = (int)$db->lastInsertId();
+    Response::success(['id' => $newId], 'Property created successfully', 201);
+  }
+
   public static function updatePropertyStatus(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
