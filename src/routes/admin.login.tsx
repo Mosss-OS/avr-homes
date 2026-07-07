@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api-client";
@@ -32,9 +33,12 @@ function AdminLoginPage() {
     setLoading(true);
     try {
       await adminLogin(email, password);
+      toast.success("Welcome back, admin!");
       navigate({ to: "/admin" });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      const msg = err instanceof ApiError ? err.message : "Login failed";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

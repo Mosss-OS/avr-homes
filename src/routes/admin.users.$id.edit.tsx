@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ function AdminEditUser() {
         });
       } catch (err) {
         setFetchError(err instanceof ApiError ? err.message : "Failed to load user");
+        toast.error("Failed to load user");
       }
       setLoading(false);
     }
@@ -66,8 +68,10 @@ function AdminEditUser() {
         is_active: form.is_active,
       });
       setSuccess("User updated successfully");
+      toast.success("User updated successfully");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to update user");
+      toast.error("Failed to update user");
     }
     setSaving(false);
   }

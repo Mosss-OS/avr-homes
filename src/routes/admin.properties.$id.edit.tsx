@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ function AdminEditProperty() {
         });
       } catch (err) {
         setFetchError(err instanceof ApiError ? err.message : "Failed to load property");
+        toast.error("Failed to load property");
       }
       setLoading(false);
     }
@@ -108,9 +110,11 @@ function AdminEditProperty() {
       const status = form.is_active === 1 ? "published" : form.is_active === 2 ? "archived" : "draft";
       (payload as any).status = status;
       await api.put(`/api/admin/properties/${id}`, payload);
+      toast.success("Property updated successfully");
       navigate({ to: "/admin/properties" });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to update property");
+      toast.error("Failed to update property");
     }
     setSaving(false);
   }
