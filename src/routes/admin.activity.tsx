@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
@@ -42,8 +41,7 @@ function AdminActivity() {
     return null;
   }
 
-  return (
-    <AdminLayout>
+  return (<>
       <div className="mb-6">
         <h1 className="font-display text-2xl font-semibold">Activity Log</h1>
         <p className="text-sm text-muted-foreground">{total} events recorded</p>
@@ -99,6 +97,5 @@ function AdminActivity() {
           </button>
         </div>
       )}
-    </AdminLayout>
-  );
+  </>);
 }
