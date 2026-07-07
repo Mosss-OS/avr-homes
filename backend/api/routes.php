@@ -115,6 +115,7 @@ route('GET', '/api/admin/stats', ['AdminController', 'stats']);
 
 // Admin property management
 route('GET', '/api/admin/properties', ['AdminController', 'properties']);
+route('POST', '/api/admin/properties', ['AdminController', 'createProperty']);
 route('PUT', '/api/admin/properties/{id}/status', ['AdminController', 'updatePropertyStatus']);
 route('PUT', '/api/admin/properties/{id}/feature', ['AdminController', 'toggleFeature']);
 route('PUT', '/api/admin/properties/{id}/verify', ['AdminController', 'verifyProperty']);

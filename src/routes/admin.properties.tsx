@@ -88,7 +88,7 @@ function AdminProperties() {
           <h1 className="font-display text-2xl font-semibold">Properties</h1>
           <p className="text-sm text-muted-foreground">{total} total</p>
         </div>
-        <Link to="/agent/dashboard/listings/create" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+        <Link to="/admin/properties/create" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
           <Plus className="h-4 w-4" /> New Property
         </Link>
       </div>
