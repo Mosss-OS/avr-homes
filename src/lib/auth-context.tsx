@@ -7,9 +7,11 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  adminLogin: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   isAgent: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -43,6 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.data.user);
   }, []);
 
+  const adminLogin = useCallback(async (email: string, password: string) => {
+    const res = await api.post<AuthResponse>("/api/auth/login", { email, password });
+    localStorage.setItem("auth_token", res.data.token);
+    localStorage.setItem("refresh_token", res.data.refresh_token);
+    setToken(res.data.token);
+    setUser(res.data.user);
+  }, []);
+
   const register = useCallback(async (payload: RegisterPayload) => {
     const res = await api.post<AuthResponse>("/api/auth/agent/register", payload);
     localStorage.setItem("auth_token", res.data.token);
@@ -63,9 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAgent = user?.role === "agent";
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, isAgent }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, adminLogin, register, logout, isAgent, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

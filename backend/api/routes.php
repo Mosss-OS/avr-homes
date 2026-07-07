@@ -110,6 +110,36 @@ route('POST', '/api/shortlet/{id}/book', ['ShortLetController', 'book']);
 route('GET', '/api/agent/shortlet/{id}/bookings', ['ShortLetController', 'bookings']);
 route('PUT', '/api/agent/shortlet/bookings/{id}/status', ['ShortLetController', 'updateBookingStatus']);
 
+// Admin dashboard routes
+route('GET', '/api/admin/stats', ['AdminController', 'stats']);
+
+// Admin property management
+route('GET', '/api/admin/properties', ['AdminController', 'properties']);
+route('PUT', '/api/admin/properties/{id}/status', ['AdminController', 'updatePropertyStatus']);
+route('PUT', '/api/admin/properties/{id}/feature', ['AdminController', 'toggleFeature']);
+route('PUT', '/api/admin/properties/{id}/verify', ['AdminController', 'verifyProperty']);
+route('DELETE', '/api/admin/properties/{id}', ['AdminController', 'deleteProperty']);
+
+// Admin agent management
+route('GET', '/api/admin/agents', ['AdminController', 'agents']);
+route('PUT', '/api/admin/agents/{id}/status', ['AdminController', 'updateAgentStatus']);
+route('PUT', '/api/admin/agents/{id}/verify', ['AdminController', 'toggleAgentVerify']);
+route('DELETE', '/api/admin/agents/{id}', ['AdminController', 'deleteAgent']);
+
+// Admin user management
+route('GET', '/api/admin/users', ['AdminController', 'users']);
+route('PUT', '/api/admin/users/{id}/role', ['AdminController', 'updateUserRole']);
+
+// Admin booking management
+route('GET', '/api/admin/bookings', ['AdminController', 'bookings']);
+route('PUT', '/api/admin/bookings/{id}/status', ['AdminController', 'updateBookingStatus']);
+
+// Admin activity log
+route('GET', '/api/admin/activity', ['AdminController', 'activity']);
+
+// Admin blog management
+route('GET', '/api/admin/blog', ['AdminController', 'blogPosts']);
+
 // Upload routes
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
