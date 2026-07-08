@@ -774,29 +774,83 @@ class AdminController
 
     $page    = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 30)));
+    $actionFilter = $_GET['action'] ?? '';
+    $entityFilter = $_GET['entity_type'] ?? '';
+    $userId = (int)($_GET['user_id'] ?? 0);
 
     $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($actionFilter) { $conditions[] = 'l.action LIKE ?'; $binds[] = "%{$actionFilter}%"; }
+    if ($entityFilter) { $conditions[] = 'l.entity_type = ?'; $binds[] = $entityFilter; }
+    if ($userId) { $conditions[] = 'l.user_id = ?'; $binds[] = $userId; }
+
+    $where = implode(' AND ', $conditions);
+
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM activity_logs l WHERE {$where}");
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
     $offset = ($page - 1) * $perPage;
-
-    $total = (int)$db->query("SELECT COUNT(*) FROM activity_logs")->fetchColumn();
-
     $stmt = $db->prepare(
       "SELECT l.*, u.name as user_name, u.email as user_email
        FROM activity_logs l
        LEFT JOIN users u ON l.user_id = u.id
+       WHERE {$where}
        ORDER BY l.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
     );
-    $stmt->execute();
+    $stmt->execute($binds);
     $rows = $stmt->fetchAll();
 
     foreach ($rows as &$r) {
       $r['user_id'] = $r['user_id'] ? (int)$r['user_id'] : null;
+      $r['id'] = (int)$r['id'];
+      $r['entity_id'] = $r['entity_id'] ? (int)$r['entity_id'] : null;
     }
 
     Response::success([
       'data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage,
       'total_pages' => (int)ceil($total / $perPage),
     ]);
+  }
+
+  /**
+   * Export activity log as CSV.
+   */
+  public static function exportActivity(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $actionFilter = $_GET['action'] ?? '';
+    $entityFilter = $_GET['entity_type'] ?? '';
+    $userId = (int)($_GET['user_id'] ?? 0);
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($actionFilter) { $conditions[] = 'l.action LIKE ?'; $binds[] = "%{$actionFilter}%"; }
+    if ($entityFilter) { $conditions[] = 'l.entity_type = ?'; $binds[] = $entityFilter; }
+    if ($userId) { $conditions[] = 'l.user_id = ?'; $binds[] = $userId; }
+
+    $where = implode(' AND ', $conditions);
+    $stmt = $db->prepare(
+      "SELECT l.id, l.action, l.entity_type, l.entity_id, l.details, l.ip_address, l.created_at, u.name as user_name, u.email as user_email
+       FROM activity_logs l LEFT JOIN users u ON l.user_id = u.id WHERE {$where} ORDER BY l.created_at DESC LIMIT 10000"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="activity_export_' . date('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['ID', 'Action', 'Entity Type', 'Entity ID', 'Details', 'User', 'Email', 'IP', 'Date']);
+    foreach ($rows as $r) {
+      fputcsv($out, [$r['id'], $r['action'], $r['entity_type'], $r['entity_id'], $r['details'], $r['user_name'], $r['user_email'], $r['ip_address'], $r['created_at']]);
+    }
+    fclose($out);
+    exit;
   }
 
   // ─── Blog ────────────────────────────────────────────────────────────
