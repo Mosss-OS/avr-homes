@@ -40,6 +40,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
+import { Route as AdminMaintenanceRouteImport } from './routes/admin.maintenance'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
 import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
@@ -221,6 +222,11 @@ const AdminModerationRoute = AdminModerationRouteImport.update({
   path: '/moderation',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMaintenanceRoute = AdminMaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
@@ -497,6 +505,7 @@ export interface FileRoutesById {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/maintenance'
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/maintenance'
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
@@ -673,6 +684,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/maintenance'
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
@@ -945,6 +957,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminModerationRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/maintenance': {
+      id: '/admin/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AdminMaintenanceRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -1174,6 +1193,7 @@ interface AdminRouteChildren {
   AdminGalleryRoute: typeof AdminGalleryRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminMaintenanceRoute: typeof AdminMaintenanceRoute
   AdminModerationRoute: typeof AdminModerationRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminReferralsRoute: typeof AdminReferralsRoute
@@ -1197,6 +1217,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminGalleryRoute: AdminGalleryRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminMaintenanceRoute: AdminMaintenanceRoute,
   AdminModerationRoute: AdminModerationRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminReferralsRoute: AdminReferralsRoute,
