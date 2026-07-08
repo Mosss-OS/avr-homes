@@ -44,6 +44,13 @@ class AdminController
     $totalContacts     = $safeCount("SELECT COUNT(*) FROM contact_messages");
     $unreadContacts    = $safeCount("SELECT COUNT(*) FROM contact_messages WHERE is_read = 0");
     $totalBlogPosts    = $safeCount("SELECT COUNT(*) FROM blog_posts");
+    $activeSubscriptions = $safeCount("SELECT COUNT(DISTINCT s.agent_id) FROM agent_subscriptions s WHERE s.status = 'active'");
+    $revenueMRR          = $safeCount("SELECT COALESCE(SUM(
+      CASE s.tier
+        WHEN 'bronze' THEN 5000 WHEN 'silver' THEN 15000
+        WHEN 'gold' THEN 50000 WHEN 'platinum' THEN 150000
+        ELSE 0
+      END), 0) FROM agent_subscriptions s WHERE s.status = 'active'");
 
     Response::success([
       'properties'       => ['total' => $totalProperties, 'active' => $activeProperties],
@@ -54,6 +61,7 @@ class AdminController
       'inquiries'        => ['total' => $totalInquiries, 'unread' => $unreadInquiries],
       'contact_messages' => ['total' => $totalContacts, 'unread' => $unreadContacts],
       'blog_posts'       => ['total' => $totalBlogPosts],
+      'subscriptions'    => ['active' => $activeSubscriptions, 'mrr' => $revenueMRR],
     ]);
   }
 
