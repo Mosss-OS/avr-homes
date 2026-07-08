@@ -126,9 +126,18 @@ route('GET', '/api/market/reports', ['MarketDataController', 'reportsList']);
 route('GET', '/api/market/reports/{period}', ['MarketDataController', 'report']);
 route('POST', '/api/market/reports', ['MarketDataController', 'publishReport']);
 
-/* ── Short-let / Airbnb routes ────────────────────────────── */
+/* ── Short-let routes (public) ────────────────────────────── */
 route('GET', '/api/shortlet/{id}/availability', ['ShortLetController', 'availability']);
 route('POST', '/api/shortlet/{id}/book', ['ShortLetController', 'book']);
+
+/* ── Admin short-let management ──────────────────────────── */
+route('GET', '/api/admin/shortlet/stats', ['ShortLetController', 'adminDashboardStats']);
+route('GET', '/api/admin/shortlet/{id}/availability', ['ShortLetController', 'adminAvailability']);
+route('PUT', '/api/admin/shortlet/availability', ['ShortLetController', 'adminUpdateAvailability']);
+route('PUT', '/api/admin/shortlet/availability/batch', ['ShortLetController', 'adminBatchAvailability']);
+route('GET', '/api/admin/shortlet/{id}/bookings', ['ShortLetController', 'adminPropertyBookings']);
+
+/* ── Agent short-let routes ───────────────────────────────── */
 route('GET', '/api/agent/shortlet/{id}/bookings', ['ShortLetController', 'bookings']);
 route('PUT', '/api/agent/shortlet/bookings/{id}/status', ['ShortLetController', 'updateBookingStatus']);
 
