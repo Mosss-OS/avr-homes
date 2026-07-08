@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -33,6 +33,10 @@ interface DashboardStats {
 function AgentDashboardPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  if (pathname !== "/agent/dashboard") return <Outlet />;
+
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState("");
 
