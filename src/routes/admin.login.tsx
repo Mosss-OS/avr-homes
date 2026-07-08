@@ -65,20 +65,24 @@ function AdminLoginPage() {
           <div className="space-y-2">
             <Label htmlFor="email" className="text-white/80">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
               <Input id="email" type="email" placeholder="admin@avrhomes.ng" value={email}
                 onChange={(e) => setEmail(e.target.value)} required
-                className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/30" />
+                className="border-white/10 bg-[#132237] pl-10 text-white placeholder:text-white/40
+                  [box-shadow:0_0_0_1000px_#132237_inset] [-webkit-text-fill-color:white]
+                  autofill:!bg-[#132237] focus:outline-none focus:ring-1 focus:ring-[#C9A84C]/30" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-white/80">Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
               <Input id="password" type={showPassword ? "text" : "password"} placeholder="Enter password"
                 value={password} onChange={(e) => setPassword(e.target.value)} required
-                className="border-white/10 bg-white/5 pl-10 pr-10 text-white placeholder:text-white/30" />
+                className="border-white/10 bg-[#132237] pl-10 pr-10 text-white placeholder:text-white/40
+                  [box-shadow:0_0_0_1000px_#132237_inset] [-webkit-text-fill-color:white]
+                  autofill:!bg-[#132237] focus:outline-none focus:ring-1 focus:ring-[#C9A84C]/30" />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-[#C9A84C]/70 hover:text-[#C9A84C]">
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
