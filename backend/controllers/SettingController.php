@@ -2,8 +2,29 @@
 
 declare(strict_types=1);
 
+/**
+ * Settings management endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing application settings.
+ *
+ * Provides read (public) and update (admin-only) access to
+ * key-value configuration settings stored in the database.
+ *
+ * @package AVRHomes\Controllers
+ */
 class SettingController
 {
+  /**
+   * Retrieve all application settings as key-value pairs.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function index(array $params): void
   {
     $db = Database::getConnection();
@@ -18,6 +39,16 @@ class SettingController
     Response::success($settings, 'Settings retrieved successfully');
   }
 
+  /**
+   * Update application settings (admin only).
+   *
+   * Accepts a JSON object of key-value pairs and upserts them
+   * into the settings table.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function update(array $params): void
   {
     AuthMiddleware::authenticateAdmin();

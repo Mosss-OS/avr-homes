@@ -2,10 +2,22 @@
 
 declare(strict_types=1);
 
+/**
+ * BlogController
+ *
+ * Handles public blog post listing, single post retrieval, categories,
+ * featured posts, and agent/admin CRUD operations for blog posts.
+ */
 class BlogController
 {
   // ---- Public routes ----
 
+  /**
+   * List published blog posts with pagination, category/tag/search filtering.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $page = max(1, (int)($_GET['page'] ?? 1));
@@ -69,6 +81,12 @@ class BlogController
     ], 'Blog posts retrieved');
   }
 
+  /**
+   * Get a single published blog post by slug with related posts.
+   *
+   * @param array $params Must contain 'slug'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $slug = $params['slug'] ?? null;
@@ -121,6 +139,12 @@ class BlogController
     ], 'Blog post retrieved');
   }
 
+  /**
+   * List all blog categories with their published post count.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function categories(array $params): void
   {
     $db = Database::getConnection();
@@ -139,6 +163,12 @@ class BlogController
     Response::success($categories, 'Categories retrieved');
   }
 
+  /**
+   * List featured blog posts (max 6).
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function featured(array $params): void
   {
     $db = Database::getConnection();
@@ -157,6 +187,12 @@ class BlogController
 
   // ---- Agent/Admin routes ----
 
+  /**
+   * List blog posts for authenticated agents/admins with pagination and status filter.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function agentIndex(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -211,6 +247,12 @@ class BlogController
     ], 'Agent blog posts retrieved');
   }
 
+  /**
+   * Create a new blog post.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function store(array $params): void
   {
     AuthMiddleware::authenticateAgent();
@@ -278,6 +320,12 @@ class BlogController
     ], 'Blog post created', 201);
   }
 
+  /**
+   * Update a blog post.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function update(array $params): void
   {
     AuthMiddleware::authenticateAgent();
@@ -338,6 +386,12 @@ class BlogController
     Response::success(['id' => $id], 'Blog post updated');
   }
 
+  /**
+   * Delete a blog post.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     AuthMiddleware::authenticateAgent();
@@ -356,6 +410,12 @@ class BlogController
 
   // ---- Helpers ----
 
+  /**
+   * Generate a URL-friendly slug from a title string.
+   *
+   * @param string $title The post title.
+   * @return string The generated slug.
+   */
   private static function generateSlug(string $title): string
   {
     $slug = strtolower(trim($title));

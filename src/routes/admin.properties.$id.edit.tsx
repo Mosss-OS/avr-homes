@@ -1,3 +1,7 @@
+/**
+ * Admin edit-property route. Loads an existing property by ID and presents
+ * a single-page form for all editable fields.
+ */
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
@@ -28,6 +32,7 @@ const STATUS_OPTIONS = [
   ["published", "Published"], ["draft", "Draft"], ["archived", "Archived"],
 ];
 
+/** Shape of the property data returned by the API and used in the edit form. */
 interface PropertyData {
   title: string; description: string; type: string; purpose: string; price: number;
   beds: number; baths: number; area: number; amenities: string[];
@@ -36,6 +41,7 @@ interface PropertyData {
   is_active: number; featured: boolean; is_verified: boolean;
 }
 
+/** Single-page property editor. Loads existing data, allows editing all fields, and saves via PUT. */
 function AdminEditProperty() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -55,6 +61,7 @@ function AdminEditProperty() {
     is_active: 1, featured: false, is_verified: false,
   });
 
+  /* Load property data on mount / id change */
   useEffect(() => {
     async function load() {
       try {
@@ -85,10 +92,12 @@ function AdminEditProperty() {
     return null;
   }
 
+  /** Update a single form field. */
   function update<K extends keyof PropertyData>(field: K, value: PropertyData[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  /** Add or remove an amenity from the selected list. */
   function toggleAmenity(a: string) {
     setForm((prev) => ({
       ...prev,
@@ -98,6 +107,7 @@ function AdminEditProperty() {
     }));
   }
 
+  /** Save changes — strips non-editable fields (featured, verified, is_active) before sending. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);

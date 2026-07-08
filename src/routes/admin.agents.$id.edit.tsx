@@ -1,3 +1,7 @@
+/**
+ * Admin edit-agent route. Loads an existing agent by ID and presents
+ * a form grouped into Basic Info, Contact & Location, Performance, and Social Media.
+ */
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
@@ -14,6 +18,7 @@ export const Route = createFileRoute("/admin/agents/$id/edit")({
   component: AdminEditAgent,
 });
 
+/** Shape of the agent data returned by the API and used in the edit form. */
 interface AgentData {
   name: string; email: string; phone: string; agency: string; bio: string;
   whatsapp: string; experience: string; state: string; city: string;
@@ -23,6 +28,7 @@ interface AgentData {
   property_types: string[]; specialization: string[]; languages: string[]; support_needed: string[];
 }
 
+/** Single-page agent editor. Loads existing data and saves via PUT. */
 function AdminEditAgent() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +49,7 @@ function AdminEditAgent() {
     property_types: [], specialization: [], languages: [], support_needed: [],
   });
 
+  /* Load agent data on mount / id change */
   useEffect(() => {
     async function load() {
       try {
@@ -80,10 +87,12 @@ function AdminEditAgent() {
     return null;
   }
 
+  /** Update a single form field. */
   function update<K extends keyof AgentData>(field: K, value: AgentData[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  /** Save agent changes via PUT and navigate back to the agents list. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);

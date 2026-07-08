@@ -1,3 +1,8 @@
+/**
+ * Admin panel layout with collapsible sidebar navigation,
+ * user info header, and sign-out action.
+ */
+
 import { useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -19,6 +24,7 @@ const NAV_ITEMS = [
   { icon: Settings, label: "Settings", to: "/admin/settings" },
 ];
 
+/** Full-screen admin shell wrapping page content with sidebar and top header. */
 export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const router = useRouter();

@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * Database connection manager using a singleton PDO instance.
+ *
+ * Reads connection parameters from environment variables and supports
+ * both TCP and Unix-socket MySQL connections.
+ *
+ * @package AvrHomes
+ */
+
 declare(strict_types=1);
 
+/**
+ * Singleton-style PDO connection factory.
+ */
 class Database
 {
   private static ?PDO $instance = null;
 
+  /**
+   * Return the shared PDO connection, creating it on first call.
+   *
+   * @return PDO Active database connection.
+   */
   public static function getConnection(): PDO
   {
     if (self::$instance === null) {

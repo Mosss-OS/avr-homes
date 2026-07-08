@@ -1,3 +1,16 @@
+/**
+ * Renders a user-friendly HTML error page for SSR / catastrophic failures.
+ *
+ * The page includes a "Try again" button and a "Go home" link so that users
+ * can recover without seeing a raw error message.
+ *
+ * @module error-page
+ */
+
+/**
+ * Returns a complete HTML document string with an error message and
+ * recovery actions.
+ */
 export function renderErrorPage(): string {
   return `<!doctype html>
 <html lang="en">

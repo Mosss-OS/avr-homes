@@ -1,11 +1,18 @@
+/**
+ * Homepage browse-by-category section showing a heading, state chips,
+ * three property cards, and a linked mini-map.
+ */
+
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, MapPin } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
 import { MiniMap } from "@/components/mini-map";
 import { nigerianStates, properties as allProperties, type Property } from "@/lib/properties";
 
+/** The four browsing categories displayed on the homepage. */
 export type BrowseCategory = "buy" | "rent" | "land" | "shortlet";
 
+/** Per-category copy and route config. */
 const META: Record<BrowseCategory, { title: string; kicker: string; blurb: string; ctaLabel: string; to: string }> = {
   buy: {
     title: "Homes for Sale",
@@ -37,6 +44,7 @@ const META: Record<BrowseCategory, { title: string; kicker: string; blurb: strin
   },
 };
 
+/** Filter the full property list to items matching the given category. */
 function filterByCategory(list: Property[], cat: BrowseCategory): Property[] {
   if (cat === "land") return list.filter((p) => p.type === "land");
   if (cat === "shortlet") return list.filter((p) => p.purpose === "shortlet");
@@ -44,11 +52,13 @@ function filterByCategory(list: Property[], cat: BrowseCategory): Property[] {
   return list.filter((p) => p.purpose === "rent" && p.type !== "land");
 }
 
+/** Build a search param object for the per-state city links. */
 function stateSearch(cat: BrowseCategory, city: string) {
   if (cat === "land") return { type: "land", city } as never;
   return { purpose: cat, city } as never;
 }
 
+/** Build a search param object for the full-map link. */
 function mapSearch(cat: BrowseCategory, city?: string) {
   const s: Record<string, string> = {};
   if (cat === "land") s.type = "land";
@@ -57,6 +67,7 @@ function mapSearch(cat: BrowseCategory, city?: string) {
   return s as never;
 }
 
+/** Homepage section that previews properties for a given browse category. */
 export function BrowseSection({ category, dark = false }: { category: BrowseCategory; dark?: boolean }) {
   const meta = META[category];
   const items = filterByCategory(allProperties, category);

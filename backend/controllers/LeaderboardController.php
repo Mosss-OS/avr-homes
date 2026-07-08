@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Provides agent leaderboard data for weekly, monthly, and quarterly periods.
+ * Scores are calculated from leads, listings, and deal values.
+ */
 class LeaderboardController
 {
+  /**
+   * Get the weekly leaderboard (top 10 agents by leads and listings this week).
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function weekly(array $params): void
   {
     $db = Database::getConnection();
@@ -48,6 +58,12 @@ class LeaderboardController
     ], 'Weekly leaderboard retrieved');
   }
 
+  /**
+   * Get the monthly leaderboard (top 10 agents by deal value and leads this month).
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function monthly(array $params): void
   {
     $db = Database::getConnection();
@@ -95,6 +111,12 @@ class LeaderboardController
     ], 'Monthly leaderboard retrieved');
   }
 
+  /**
+   * Get the quarterly leaderboard (top 10 agents by deal value this quarter).
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function quarterly(array $params): void
   {
     $db = Database::getConnection();
@@ -134,6 +156,12 @@ class LeaderboardController
     ], 'Quarterly leaderboard retrieved');
   }
 
+  /**
+   * Trigger a manual refresh of cached leaderboard data.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function refresh(array $params): void
   {
     AuthMiddleware::authenticateAdmin();

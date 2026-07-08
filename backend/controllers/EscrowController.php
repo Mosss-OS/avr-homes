@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Manages escrow contracts including creation, listing, release, and refund.
+ * Supports property escrow with platform fee calculations and transaction tracking.
+ */
 class EscrowController
 {
+  /**
+   * List escrow contracts with optional status and property_id filters.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $page = max(1, (int)($_GET['page'] ?? 1));
@@ -67,6 +77,12 @@ class EscrowController
     ], 'Escrow contracts retrieved');
   }
 
+  /**
+   * Show a single escrow contract by ID with related buyer/seller info.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $contractId = (int)($params['id'] ?? 0);
@@ -103,6 +119,12 @@ class EscrowController
     Response::success($contract, 'Escrow contract retrieved');
   }
 
+  /**
+   * Create a new escrow contract with fee calculations and initial deposit transaction.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function store(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -198,6 +220,13 @@ class EscrowController
     }
   }
 
+  /**
+   * Release escrow funds to the seller, creating a payment routing record.
+   * Only applicable to active contracts.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function release(array $params): void
   {
     $contractId = (int)($params['id'] ?? 0);
@@ -264,6 +293,12 @@ class EscrowController
     }
   }
 
+  /**
+   * Refund an active escrow contract, returning funds to the buyer.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function refund(array $params): void
   {
     $contractId = (int)($params['id'] ?? 0);

@@ -1,3 +1,7 @@
+/**
+ * Admin edit-user route. Loads an existing user by ID and allows editing
+ * name, email, and active status. Role is displayed as read-only.
+ */
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
@@ -13,10 +17,12 @@ export const Route = createFileRoute("/admin/users/$id/edit")({
   component: AdminEditUser,
 });
 
+/** Shape of the user data returned by the API and used in the edit form. */
 interface UserData {
   name: string; email: string; role: string; is_active: boolean;
 }
 
+/** Single-page user editor. Loads existing data and saves name/email/active status via PUT. */
 function AdminEditUser() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +39,7 @@ function AdminEditUser() {
     name: "", email: "", role: "user", is_active: true,
   });
 
+  /* Load user data on mount / id change */
   useEffect(() => {
     async function load() {
       try {
@@ -56,6 +63,7 @@ function AdminEditUser() {
     return null;
   }
 
+  /** Save user changes via PUT. Role is intentionally excluded from the payload. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);

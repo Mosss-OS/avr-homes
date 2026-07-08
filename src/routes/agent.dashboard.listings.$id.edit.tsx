@@ -1,3 +1,8 @@
+/**
+ * Edit listing route — loads an existing property by ID and provides
+ * a multi-step form to update its fields (basic info, details, location, review).
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -16,6 +21,7 @@ export const Route = createFileRoute("/agent/dashboard/listings/$id/edit")({
 const STEPS = ["Basic Info", "Details", "Location", "Review"];
 const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
 
+/** Form state for editing an existing listing. */
 interface EditForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
@@ -23,6 +29,7 @@ interface EditForm {
   video_url: string; virtual_tour_url: string; floor_plan_url: string;
 }
 
+/** Edit listing page component — loads listing data and renders a multi-step edit form. */
 function EditListingPage() {
   const { id } = useParams({ from: "/agent/dashboard/listings/$id/edit" });
   const navigate = useNavigate();
@@ -66,10 +73,12 @@ function EditListingPage() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
+  /** Update a single form field. */
   function update<K extends keyof EditForm>(field: K, value: EditForm[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  /** Toggle an amenity on/off in the edit form. */
   function toggleAmenity(a: string) {
     setForm((prev) => ({
       ...prev,
@@ -77,6 +86,7 @@ function EditListingPage() {
     }));
   }
 
+  /** Save changes to the API, then navigate back to the listings index. */
   async function handleSave() {
     setSaving(true);
     setError("");

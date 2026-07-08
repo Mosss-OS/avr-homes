@@ -1,3 +1,7 @@
+/**
+ * Browse route for land for sale (/land).
+ * Wraps BrowseSection with category="land" and sets purpose-specific SEO meta.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { BrowseSection } from "@/components/browse-section";
 

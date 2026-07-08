@@ -2,8 +2,29 @@
 
 declare(strict_types=1);
 
+/**
+ * Property verification endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing property verification workflows.
+ *
+ * Handles document upload, verification status retrieval, admin listing,
+ * approval, and rejection of verification requests.
+ *
+ * @package AVRHomes\Controllers
+ */
 class PropertyVerificationController
 {
+  /**
+   * Resolve the active agent ID for a given user.
+   *
+   * @param int $userId The authenticated user's ID.
+   *
+   * @return int The matching agent ID.
+   */
   private static function getAgentId(int $userId): int
   {
     $db = Database::getConnection();
@@ -16,6 +37,14 @@ class PropertyVerificationController
     return (int)$agent['id'];
   }
 
+  /**
+   * Retrieve a property owned by the specified agent.
+   *
+   * @param int $propertyId The property ID.
+   * @param int $agentId    The agent's ID.
+   *
+   * @return array The property record.
+   */
   private static function getProperty(int $propertyId, int $agentId): array
   {
     $db = Database::getConnection();
@@ -28,6 +57,16 @@ class PropertyVerificationController
     return $property;
   }
 
+  /**
+   * Upload a verification document for a property.
+   *
+   * Accepts file uploads (jpg, png, webp, pdf) and links them to
+   * a verification request, creating one if none exists.
+   *
+   * @param array $params Route parameters containing 'id' (property ID).
+   *
+   * @return void
+   */
   public static function uploadDocument(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -125,6 +164,13 @@ class PropertyVerificationController
     ], 'Document uploaded successfully', 201);
   }
 
+  /**
+   * Get the verification status and documents for a property.
+   *
+   * @param array $params Route parameters containing 'id' (property ID).
+   *
+   * @return void
+   */
   public static function getVerificationStatus(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -182,6 +228,15 @@ class PropertyVerificationController
     ], 'Verification status retrieved');
   }
 
+  /**
+   * List all verification requests (admin).
+   *
+   * Supports pagination and optional status filtering.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function adminIndex(array $params): void
   {
     AuthMiddleware::authenticate('admin');
@@ -253,6 +308,15 @@ class PropertyVerificationController
     ], 'Verifications retrieved');
   }
 
+  /**
+   * Approve a pending verification request (admin).
+   *
+   * Sets the property as verified with a one-year expiry and logs the action.
+   *
+   * @param array $params Route parameters containing 'id' (verification ID).
+   *
+   * @return void
+   */
   public static function adminApprove(array $params): void
   {
     $user = AuthMiddleware::authenticate('admin');
@@ -315,6 +379,15 @@ class PropertyVerificationController
     }
   }
 
+  /**
+   * Reject a pending verification request (admin).
+   *
+   * Requires a rejection reason. Logs the action.
+   *
+   * @param array $params Route parameters containing 'id' (verification ID).
+   *
+   * @return void
+   */
   public static function adminReject(array $params): void
   {
     $user = AuthMiddleware::authenticate('admin');

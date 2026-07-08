@@ -1,7 +1,29 @@
 <?php
 
+/**
+ * Agent wallet endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing agent wallets and transactions.
+ *
+ * Handles wallet retrieval, transaction history, and withdrawal requests.
+ *
+ * @package AVRHomes\Controllers
+ */
 class WalletController
 {
+  /**
+   * Retrieve the authenticated agent's wallet.
+   *
+   * Creates a new wallet with zero balance if none exists.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function show(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -40,6 +62,15 @@ class WalletController
     Response::success($wallet, 'Wallet retrieved');
   }
 
+  /**
+   * List wallet transactions for the authenticated agent.
+   *
+   * Supports pagination. Returns empty data if no wallet exists.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function transactions(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -88,6 +119,16 @@ class WalletController
     ], 'Wallet transactions retrieved');
   }
 
+  /**
+   * Submit a withdrawal request.
+   *
+   * Validates amount, bank details, and sufficient balance. Creates a
+   * pending transaction and reserves the amount from the wallet.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function requestWithdrawal(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();

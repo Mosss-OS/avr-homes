@@ -1,3 +1,8 @@
+/**
+ * Create listing route — multi-step form wizard that collects basic info,
+ * details, location, media, and a final review before saving as draft or publishing.
+ */
+
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -22,6 +27,7 @@ const PROPERTY_TYPES = [
 ];
 const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
 
+/** Form state for creating a new property listing. */
 interface ListingForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
@@ -29,6 +35,7 @@ interface ListingForm {
   image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string; status: string;
 }
 
+/** Create listing page component — multi-step form for adding a new property. */
 function CreateListingPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -44,11 +51,13 @@ function CreateListingPage() {
     image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "", status: "draft",
   });
 
+  /** Update a single form field and clear its validation error. */
   function update<K extends keyof ListingForm>(field: K, value: ListingForm[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setFieldErrors((prev) => ({ ...prev, [field]: "" }));
   }
 
+  /** Toggle an amenity on/off in the form state. */
   function toggleAmenity(a: string) {
     setForm((prev) => ({
       ...prev,
@@ -58,6 +67,7 @@ function CreateListingPage() {
     }));
   }
 
+  /** Handle file selection for the main property image and show a preview. */
   function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
@@ -66,6 +76,7 @@ function CreateListingPage() {
     }
   }
 
+  /** Validate the current step's required fields. Returns true if valid. */
   function validateStep(): boolean {
     const errors: Record<string, string> = {};
     if (step === 0) {
@@ -81,6 +92,7 @@ function CreateListingPage() {
     return Object.keys(errors).length === 0;
   }
 
+  /** Submit the listing: save as draft or publish, then navigate to the listings page. */
   async function handleSubmit(publish: boolean) {
     setLoading(true);
     setError("");
@@ -116,6 +128,7 @@ function CreateListingPage() {
     }
   }
 
+  /** Advance to the next step after validating the current one. */
   function nextStep() {
     if (validateStep()) setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }

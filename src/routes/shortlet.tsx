@@ -1,3 +1,7 @@
+/**
+ * Browse route for short-let / furnished stays (/shortlet).
+ * Wraps BrowseSection with category="shortlet" and sets purpose-specific SEO meta.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { BrowseSection } from "@/components/browse-section";
 

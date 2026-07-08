@@ -2,8 +2,20 @@
 
 declare(strict_types=1);
 
+/**
+ * Runs and tracks database migration files stored in the migrations directory.
+ * Provides status reporting on executed and pending migrations.
+ */
 class MigrationController
 {
+  /**
+   * Execute pending migrations. If a specific migration name is given,
+   * only that migration will run. Reports success or failure per file.
+   * Requires admin authentication.
+   *
+   * @param array $params Route parameters optionally containing 'name'.
+   * @return void
+   */
   public static function run(array $params): void
   {
     AuthMiddleware::authenticate('admin');
@@ -76,6 +88,13 @@ class MigrationController
     ], 'Migrations executed');
   }
 
+  /**
+   * Show the status of all migrations, listing executed and pending files.
+   * Requires admin authentication.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function status(array $params): void
   {
     AuthMiddleware::authenticate('admin');
@@ -98,6 +117,13 @@ class MigrationController
     ]);
   }
 
+  /**
+   * Determine which migration files have not yet been executed.
+   *
+   * @param PDO   $db    Database connection instance.
+   * @param array $files List of migration file paths.
+   * @return array List of pending migration filenames.
+   */
   private static function getPending(PDO $db, array $files): array
   {
     $stmt = $db->query("SELECT migration FROM migrations ORDER BY migration");

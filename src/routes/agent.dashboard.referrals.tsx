@@ -1,3 +1,8 @@
+/**
+ * Agent referral program route — displays referral stats, link generation,
+ * wallet balance, transaction history, and leaderboard rankings.
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -13,6 +18,7 @@ export const Route = createFileRoute("/agent/dashboard/referrals")({
   component: ReferralsPage,
 });
 
+/** A single referral record with its status and reward info. */
 interface Referral {
   id: number;
   referral_code: string;
@@ -26,6 +32,7 @@ interface Referral {
   referred_at: string | null;
 }
 
+/** Agent wallet balance and aggregated earning/withdrawal totals. */
 interface Wallet {
   id: number;
   balance: number;
@@ -33,6 +40,7 @@ interface Wallet {
   total_withdrawn: number;
 }
 
+/** A single wallet transaction (credit or debit). */
 interface Transaction {
   id: number;
   type: string;
@@ -43,6 +51,7 @@ interface Transaction {
   created_at: string;
 }
 
+/** Aggregated referral statistics for the dashboard overview tab. */
 interface ReferralStats {
   total_referrals: number;
   signed_up: number;
@@ -53,6 +62,7 @@ interface ReferralStats {
   pending_rewards: number;
 }
 
+/** Referrals page component — tabbed view of overview, referrals, wallet, and leaderboard. */
 function ReferralsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -69,6 +79,7 @@ function ReferralsPage() {
     loadAllData();
   }, [user, authLoading]);
 
+  /** Fetch all referral data (referrals, wallet, transactions, stats) in parallel. */
   async function loadAllData() {
     try {
       setLoading(true);
@@ -89,6 +100,7 @@ function ReferralsPage() {
     }
   }
 
+  /** Generate a new referral code and prepend it to the referrals list. */
   async function generateReferralCode() {
     try {
       const res = await api.post<{ referral_code: string }>("/api/agent/referrals/generate");
@@ -109,6 +121,7 @@ function ReferralsPage() {
     }
   }
 
+  /** Copy the full referral link to the clipboard and show a temporary "Copied!" state. */
   async function copyReferralLink(code: string) {
     const link = `${window.location.origin}/register?ref=${code}`;
     await navigator.clipboard.writeText(link);
@@ -116,6 +129,7 @@ function ReferralsPage() {
     setTimeout(() => setCopySuccess(false), 2000);
   }
 
+  /** Prompt for bank details and submit a withdrawal request to the API. */
   async function requestWithdrawal() {
     const amount = prompt("Enter withdrawal amount (minimum ₦1,000):");
     if (!amount) return;
@@ -439,6 +453,7 @@ function ReferralsPage() {
   );
 }
 
+/** A small stat card with an icon, label, and formatted value. */
 function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | number; color: string }) {
   const colors = {
     blue: "bg-blue-500/10 text-blue-600 border-blue-200",
@@ -461,6 +476,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentTy
   );
 }
 
+/** A card showing a reward tier with title, amount, and description. */
 function RewardCard({ icon: Icon, title, amount, description }: { icon: React.ComponentType<{ className?: string }>; title: string; amount: string; description: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
@@ -478,6 +494,7 @@ function RewardCard({ icon: Icon, title, amount, description }: { icon: React.Co
   );
 }
 
+/** A leaderboard card that fetches and displays the top agents for a given period. */
 function LeaderboardCard({ period }: { period: 'weekly' | 'monthly' | 'quarterly' }) {
   const [leaders, setLeaders] = useState<{ id: number; name: string; slug: string | null; photo_url: string | null; agency: string; city: string; listings: number; score: number }[]>([]);
   const [loading, setLoading] = useState(true);

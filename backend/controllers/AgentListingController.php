@@ -2,8 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * AgentListingController
+ *
+ * Handles CRUD operations for agent-owned property listings, including
+ * listing management, status updates, statistics, and subscription-based
+ * listing limits.
+ */
 class AgentListingController
 {
+  /**
+   * Get the authenticated agent's ID from the users table.
+   *
+   * @param int $userId The authenticated user's ID.
+   * @return int The agent's ID.
+   */
   private static function getAgentId(int $userId): int
   {
     $db = Database::getConnection();
@@ -16,6 +29,12 @@ class AgentListingController
     return (int)$agent['id'];
   }
 
+  /**
+   * Check whether the agent has reached their subscription listing limit.
+   *
+   * @param int $userId The authenticated user's ID.
+   * @return void
+   */
   private static function checkListingLimit(int $userId): void
   {
     $db = Database::getConnection();
@@ -47,6 +66,12 @@ class AgentListingController
     }
   }
 
+  /**
+   * List the authenticated agent's listings with pagination and filtering.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -121,6 +146,12 @@ class AgentListingController
     ], 'Listings retrieved successfully');
   }
 
+  /**
+   * Get a single listing owned by the authenticated agent.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -155,6 +186,12 @@ class AgentListingController
     Response::success($property, 'Listing retrieved successfully');
   }
 
+  /**
+   * Create a new property listing for the authenticated agent.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function store(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -259,6 +296,12 @@ class AgentListingController
     Response::success($property, 'Listing created successfully', 201);
   }
 
+  /**
+   * Update a property listing owned by the authenticated agent.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function update(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -376,6 +419,12 @@ class AgentListingController
     Response::success($property, 'Listing updated successfully');
   }
 
+  /**
+   * Delete a property listing owned by the authenticated agent.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -403,6 +452,12 @@ class AgentListingController
     Response::success(null, 'Listing deleted successfully');
   }
 
+  /**
+   * Update the status of a listing (draft / published / archived).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateStatus(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -447,6 +502,12 @@ class AgentListingController
     Response::success(['id' => $id, 'status' => $input['status']], "Listing {$input['status']} successfully");
   }
 
+  /**
+   * Get listing statistics for the authenticated agent.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function stats(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -483,6 +544,14 @@ class AgentListingController
     ], 'Stats retrieved successfully');
   }
 
+  /**
+   * Generate a unique URL slug from a title string.
+   *
+   * @param string $title The listing title.
+   * @param PDO $db The database connection.
+   * @param int|null $excludeId Optional listing ID to exclude from uniqueness check.
+   * @return string The generated unique slug.
+   */
   private static function generateSlug(string $title, PDO $db, ?int $excludeId = null): string
   {
     $slug = strtolower(trim($title));

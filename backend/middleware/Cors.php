@@ -1,9 +1,24 @@
 <?php
 
+/**
+ * CORS (Cross-Origin Resource Sharing) handler.
+ *
+ * Sets permissive but origin-whitelisted CORS headers and
+ * short-circuits pre-flight OPTIONS requests.
+ *
+ * @package AvrHomes
+ */
+
 declare(strict_types=1);
 
+/**
+ * CORS header management.
+ */
 class Cors
 {
+  /**
+   * Set CORS headers for the current request and exit on OPTIONS.
+   */
   public static function handle(): void
   {
     $allowedOrigins = [

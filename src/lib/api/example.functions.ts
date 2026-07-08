@@ -1,3 +1,15 @@
+/**
+ * Example TanStack React Start server functions.
+ *
+ * Server-side handlers invoked from the client via RPC. The `.handler` body
+ * runs server-only — imports used only inside it (like `.server.ts` modules)
+ * are tree-shaken from the client bundle.
+ *
+ * Use this pattern instead of Supabase Edge Functions for server logic.
+ *
+ * @module example.functions
+ */
+
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -11,6 +23,14 @@ import { getServerConfig } from "../config.server";
 // them in a .server.ts file. Use this pattern instead of Supabase Edge
 // Functions for server logic.
 
+/**
+ * Returns a personalised greeting together with the current server
+ * environment mode. Validates `name` via Zod (min 1 character).
+ *
+ * @example
+ *   const result = await getGreeting({ data: { name: "Ada" } })
+ *   // → { greeting: "Hello, Ada!", mode: "development" }
+ */
 export const getGreeting = createServerFn({ method: "POST" })
   .inputValidator(z.object({ name: z.string().min(1) }))
   .handler(async ({ data }) => {

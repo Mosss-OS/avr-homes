@@ -1,3 +1,9 @@
+/**
+ * Agent leads & inquiries route — displays paginated lead records with
+ * search, status/date/property filtering, a detail slide-over, and
+ * polling for unread-count notifications.
+ */
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -21,6 +27,7 @@ export const Route = createFileRoute("/agent/dashboard/leads")({
   component: AgentLeadsPage,
 });
 
+/** A single lead/inquiry sent by a user for one of the agent's properties. */
 interface Lead {
   id: number;
   property_id: number | null;
@@ -51,11 +58,13 @@ const STATUS_STYLES: Record<string, string> = {
   closed: "bg-slate-500/10 text-slate-600 border-slate-200",
 };
 
+/** Minimal property reference used in the property-filter dropdown. */
 interface AgentProperty {
   id: number;
   title: string;
 }
 
+/** Leads page component — renders a filterable, paginated table with a detail sheet. */
 function AgentLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
@@ -81,6 +90,7 @@ function AgentLeadsPage() {
       .catch(() => {});
   }, []);
 
+  /** Fetch leads from the API based on current filters and pagination. */
   const fetchLeads = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: String(perPage) });
@@ -102,6 +112,7 @@ function AgentLeadsPage() {
     }
   }, [page, statusFilter, search, dateFrom, dateTo, propertyFilter]);
 
+  /** Poll the unread-count endpoint and show a toast notification if the count increased. */
   const fetchUnread = useCallback(async () => {
     try {
       const res = await api.get<{ unread_count: number }>("/api/agent/leads/unread-count");
@@ -125,6 +136,7 @@ function AgentLeadsPage() {
 
   useEffect(() => { setPage(1); }, [statusFilter, search, dateFrom, dateTo, propertyFilter]);
 
+  /** Open the lead detail sheet and mark it as read if it was unread. */
   async function openDetail(lead: Lead) {
     setSelected(lead);
     setDetailOpen(true);
@@ -137,6 +149,7 @@ function AgentLeadsPage() {
     }
   }
 
+  /** Update the status of a lead and sync local state. */
   async function updateStatus(id: number, status: string) {
     try {
       await api.put(`/api/agent/leads/${id}/status`, { status });
@@ -145,6 +158,7 @@ function AgentLeadsPage() {
     } catch {}
   }
 
+  /** Save internal notes for a lead and sync local state. */
   async function updateNotes(id: number, notes: string) {
     try {
       await api.put(`/api/agent/leads/${id}/notes`, { notes });

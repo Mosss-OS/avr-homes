@@ -1,3 +1,7 @@
+/**
+ * Admin login route. Provides a credential-based sign-in form styled
+ * with a dark branded background. Redirects to /admin on success.
+ */
 import { useState } from "react";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -18,6 +22,7 @@ export const Route = createFileRoute("/admin/login")({
   component: AdminLoginPage,
 });
 
+/** Admin login form with email, password (show/hide toggle), error display, and loading state. */
 function AdminLoginPage() {
   const { adminLogin } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +32,7 @@ function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /** Authenticate with email/password via auth context, then navigate to admin dashboard. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");

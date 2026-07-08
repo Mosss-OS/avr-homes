@@ -2,14 +2,32 @@
 
 declare(strict_types=1);
 
+/**
+ * AgentController
+ *
+ * Handles public agent listing, agent profile retrieval, profile update,
+ * and avatar upload endpoints.
+ */
 class AgentController
 {
+  /**
+   * List all agents.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $agents = Agent::findAll();
     Response::success($agents, 'Agents retrieved successfully');
   }
 
+  /**
+   * Get a single agent by ID.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $id = (int)($params['id'] ?? 0);
@@ -25,6 +43,12 @@ class AgentController
     Response::success($agent, 'Agent retrieved successfully');
   }
 
+  /**
+   * Get a single agent by slug.
+   *
+   * @param array $params Must contain 'slug'.
+   * @return void
+   */
   public static function showBySlug(array $params): void
   {
     $slug = $params['slug'] ?? '';
@@ -40,6 +64,12 @@ class AgentController
     Response::success($agent, 'Agent retrieved successfully');
   }
 
+  /**
+   * Get the authenticated agent's own profile.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function profile(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -71,6 +101,12 @@ class AgentController
     Response::success($agent, 'Profile retrieved successfully');
   }
 
+  /**
+   * Update the authenticated agent's profile.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function updateProfile(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -128,6 +164,12 @@ class AgentController
     Response::success($profile, 'Profile updated successfully');
   }
 
+  /**
+   * Update the authenticated agent's avatar.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function updateAvatar(array $params): void
   {
     $user = AuthMiddleware::authenticate();

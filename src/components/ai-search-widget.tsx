@@ -1,8 +1,14 @@
+/**
+ * Floating chat widget that lets users describe property needs in natural
+ * language and get matching listings via the /api/ai-search endpoint.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Sparkles, X, Send, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/properties";
 
+/** A single listing returned by the AI search endpoint. */
 interface Match {
   id: string | number;
   title: string;
@@ -10,6 +16,7 @@ interface Match {
   city: string;
   community: string;
 }
+/** A chat message rendered inside the widget. */
 interface Message {
   role: "user" | "assistant";
   text: string;
@@ -23,6 +30,7 @@ const SUGGESTIONS = [
   "Cheapest homes in Owerri or Asaba",
 ];
 
+/** Floating AI-powered chat widget for natural-language property search. */
 export function AiSearchWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([

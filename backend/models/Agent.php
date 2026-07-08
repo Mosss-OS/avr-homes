@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * Agent model — data access for agent profiles.
+ *
+ * Provides CRUD operations, slug generation, photo updates, and
+ * includes related property listings in detail responses.
+ *
+ * @package AvrHomes
+ */
+
 declare(strict_types=1);
 
+/**
+ * Data-access layer for the agents table.
+ */
 class Agent
 {
   private const PUBLIC_FIELDS = 'id, slug, photo_url, name, agency, phone, email, whatsapp, languages, listings, avatar_hue, bio, experience, state, city, lasrera_number, niesv_number, avg_monthly_listings, property_types, avg_deal_size, specialization, social_instagram, social_facebook, social_linkedin, social_tiktok, social_youtube, is_verified, created_at';
 
+  /**
+   * Retrieve all active agents ordered by listing count.
+   *
+   * @return array<int,array<string,mixed>> List of agent summaries.
+   */
   public static function findAll(): array
   {
     $db = Database::getConnection();
@@ -26,6 +43,12 @@ class Agent
     return $agents;
   }
 
+  /**
+   * Find an active agent by primary key, including their recent properties.
+   *
+   * @param int $id Agent ID.
+   * @return array|null Agent detail array or null if not found.
+   */
   public static function findById(int $id): ?array
   {
     $db = Database::getConnection();
@@ -44,6 +67,12 @@ class Agent
     return self::formatWithProperties($db, $agent);
   }
 
+  /**
+   * Find an active agent by URL slug, including their recent properties.
+   *
+   * @param string $slug Agent URL slug.
+   * @return array|null Agent detail array or null if not found.
+   */
   public static function findBySlug(string $slug): ?array
   {
     $db = Database::getConnection();
@@ -62,6 +91,12 @@ class Agent
     return self::formatWithProperties($db, $agent);
   }
 
+  /**
+   * Find an active agent by the linked user ID.
+   *
+   * @param int $userId User account ID.
+   * @return array|null Full agent row or null if not found.
+   */
   public static function findByUserId(int $userId): ?array
   {
     $db = Database::getConnection();
@@ -79,6 +114,13 @@ class Agent
     return self::format($agent);
   }
 
+  /**
+   * Update an agent's allowed fields and regenerate slug if the name changed.
+   *
+   * @param int   $id   Agent ID.
+   * @param array $data Associative array of fields to update.
+   * @return bool True on success.
+   */
   public static function update(int $id, array $data): bool
   {
     $db = Database::getConnection();
@@ -119,6 +161,13 @@ class Agent
     return $stmt->execute($bindings);
   }
 
+  /**
+   * Update the agent's photo URL.
+   *
+   * @param int    $id       Agent ID.
+   * @param string $photoUrl New photo URL.
+   * @return bool True on success.
+   */
   public static function updatePhoto(int $id, string $photoUrl): bool
   {
     $db = Database::getConnection();
@@ -126,6 +175,14 @@ class Agent
     return $stmt->execute([$photoUrl, $id]);
   }
 
+  /**
+   * Generate a unique URL slug from an agent name.
+   *
+   * Appends a numeric suffix if the slug already exists.
+   *
+   * @param string $name Agent display name.
+   * @return string Unique slug.
+   */
   public static function generateSlug(string $name): string
   {
     $slug = strtolower(trim($name));
@@ -150,6 +207,13 @@ class Agent
     return $slug;
   }
 
+  /**
+   * Format an agent row and attach their latest properties.
+   *
+   * @param PDO   $db    Database connection.
+   * @param array $agent Raw agent row.
+   * @return array Formatted agent with properties array.
+   */
   private static function formatWithProperties(PDO $db, array $agent): array
   {
     $agent = self::format($agent);
@@ -176,6 +240,12 @@ class Agent
     return $agent;
   }
 
+  /**
+   * Cast agent scalar fields to their proper types and decode JSON columns.
+   *
+   * @param array $agent Raw agent row.
+   * @return array Cast and decoded agent array.
+   */
   private static function format(array $agent): array
   {
     $agent['id'] = (int)$agent['id'];
