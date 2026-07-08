@@ -199,6 +199,7 @@ route('PUT', '/api/admin/bookings/{id}/status', ['AdminController', 'updateBooki
 
 /* ── Admin activity log ───────────────────────────────────── */
 route('GET', '/api/admin/activity', ['AdminController', 'activity']);
+route('GET', '/api/admin/activity/export', ['AdminController', 'exportActivity']);
 
 /* ── Admin inquiry management ─────────────────────────────── */
 route('GET', '/api/admin/inquiries', ['AdminController', 'inquiries']);
