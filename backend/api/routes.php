@@ -167,6 +167,9 @@ route('DELETE', '/api/admin/contact-messages/{id}', ['AdminController', 'deleteC
 
 /* ── Admin blog management ────────────────────────────────── */
 route('GET', '/api/admin/blog', ['AdminController', 'blogPosts']);
+route('POST', '/api/admin/blog', ['BlogController', 'store']);
+route('PUT', '/api/admin/blog/{id}', ['BlogController', 'update']);
+route('DELETE', '/api/admin/blog/{id}', ['BlogController', 'destroy']);
 
 /* ── Upload routes ────────────────────────────────────────── */
 route('POST', '/api/upload', ['UploadController', 'upload']);
