@@ -92,6 +92,12 @@ route('GET', '/api/agent/subscription', ['SubscriptionController', 'index']);
 route('POST', '/api/agent/subscription/upgrade', ['SubscriptionController', 'upgrade']);
 route('POST', '/api/agent/subscription/cancel', ['SubscriptionController', 'cancel']);
 
+/* ── Admin referral management ────────────────────────────── */
+route('GET', '/api/admin/referrals', ['ReferralController', 'adminIndex']);
+route('GET', '/api/admin/referrals/stats', ['ReferralController', 'adminStats']);
+route('PUT', '/api/admin/referrals/{id}/reward', ['ReferralController', 'adminUpdateReward']);
+route('PUT', '/api/admin/referrals/{id}/mark-paid', ['ReferralController', 'adminMarkPaid']);
+
 /* ── Referral routes (agent) ──────────────────────────────── */
 route('GET', '/api/agent/referrals', ['ReferralController', 'index']);
 route('POST', '/api/agent/referrals/generate', ['ReferralController', 'generateCode']);
