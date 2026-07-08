@@ -59,6 +59,9 @@ class AuthMiddleware
   public static function authenticateAgent(): array
   {
     $user = self::authenticate();
+    if ($user['role'] === 'admin' || $user['role'] === 'superadmin') {
+      return $user;
+    }
     if ($user['role'] !== 'agent') {
       $db = Database::getConnection();
       $stmt = $db->prepare('SELECT id FROM agents WHERE user_id = ? AND is_active = 1');
