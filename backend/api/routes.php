@@ -153,6 +153,18 @@ route('PUT', '/api/admin/bookings/{id}/status', ['AdminController', 'updateBooki
 /* ── Admin activity log ───────────────────────────────────── */
 route('GET', '/api/admin/activity', ['AdminController', 'activity']);
 
+/* ── Admin inquiry management ─────────────────────────────── */
+route('GET', '/api/admin/inquiries', ['AdminController', 'inquiries']);
+route('PUT', '/api/admin/inquiries/{id}/read', ['AdminController', 'updateInquiryRead']);
+route('PUT', '/api/admin/inquiries/{id}/status', ['AdminController', 'updateInquiryStatus']);
+route('PUT', '/api/admin/inquiries/{id}/notes', ['AdminController', 'updateInquiryNotes']);
+route('DELETE', '/api/admin/inquiries/{id}', ['AdminController', 'deleteInquiry']);
+
+/* ── Admin contact message management ─────────────────────── */
+route('GET', '/api/admin/contact-messages', ['AdminController', 'contactMessages']);
+route('PUT', '/api/admin/contact-messages/{id}/read', ['AdminController', 'updateContactMessageRead']);
+route('DELETE', '/api/admin/contact-messages/{id}', ['AdminController', 'deleteContactMessage']);
+
 /* ── Admin blog management ────────────────────────────────── */
 route('GET', '/api/admin/blog', ['AdminController', 'blogPosts']);
 
