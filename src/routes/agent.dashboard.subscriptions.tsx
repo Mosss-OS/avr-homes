@@ -141,7 +141,7 @@ gold: { name: "Gold", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200
         platinum: true,
       },
     };
-    return features[key as keyof typeof features]?.[tier as keyof typeof features.free] ?? false;
+    return (features[key as keyof typeof features] as any)?.[tier] ?? false;
   };
 
   if (loading) {
@@ -167,7 +167,9 @@ gold: { name: "Gold", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200
   if (!subscription) return null;
 
   const currentTier = tierDetails[subscription.tier as keyof typeof tierDetails];
-  const nextTier = subscription.tier === "free" ? "bronze" : subscription.tier === "bronze" ? "silver" : subscription.tier === "silver" ? "gold" : null;
+  const nextTierKey = subscription.tier === "free" ? "bronze" : subscription.tier === "bronze" ? "silver" : subscription.tier === "silver" ? "gold" : null;
+  const nextTier = nextTierKey ? tierDetails[nextTierKey] : null;
+  const NextTierIcon = nextTier?.icon;
 
   return (
     <DashboardLayout>
@@ -236,21 +238,21 @@ gold: { name: "Gold", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200
               <div className="rounded-lg border border-border bg-muted/30 p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <nextTier.icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{currentTier.name} → {tierDetails[nextTier].name}</span>
+                    {NextTierIcon && <NextTierIcon className="h-4 w-4 text-muted-foreground" />}
+                    <span className="font-medium">{currentTier.name} → {nextTier.name}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">Next month</span>
                 </div>
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <p>• {getFeature("listings_limit", nextTier)} (vs {getFeature("listings_limit", subscription.tier)})</p>
-                  <p>• {getFeature("featured_slots", nextTier)} (vs {getFeature("featured_slots", subscription.tier)})</p>
-                  <p>• {getFeature("lead_priority", nextTier)} (vs {getFeature("lead_priority", subscription.tier)})</p>
-                  <p>• Analytics: {getFeature("analytics_access", nextTier) ? "Yes" : "No"}</p>
+                  <p>• {getFeature("listings_limit", nextTierKey!)} (vs {getFeature("listings_limit", subscription.tier)})</p>
+                  <p>• {getFeature("featured_slots", nextTierKey!)} (vs {getFeature("featured_slots", subscription.tier)})</p>
+                  <p>• {getFeature("lead_priority", nextTierKey!)} (vs {getFeature("lead_priority", subscription.tier)})</p>
+                  <p>• Analytics: {getFeature("analytics_access", nextTierKey!) ? "Yes" : "No"}</p>
                 </div>
               </div>
 
               <button
-                onClick={() => handleUpgrade(nextTier)}
+                onClick={() => handleUpgrade(nextTierKey!)}
                 disabled={upgrading}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
               >

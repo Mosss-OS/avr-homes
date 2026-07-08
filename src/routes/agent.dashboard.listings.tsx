@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -39,6 +39,7 @@ interface Property {
 /** Listings page component — renders a searchable, filterable table of agent properties. */
 function AgentListingsPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [listings, setListings] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -55,6 +56,8 @@ function AgentListingsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [user, authLoading, search, statusFilter]);
+
+  if (pathname !== "/agent/dashboard/listings") return <Outlet />;
 
   /** Delete a listing after user confirmation, then remove it from local state. */
   async function handleDelete(id: number) {
