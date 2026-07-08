@@ -42,6 +42,7 @@ import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
+import { Route as AdminBookingCalendarRouteImport } from './routes/admin.booking-calendar'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAgentsRouteImport } from './routes/admin.agents'
 import { Route as AdminActivityRouteImport } from './routes/admin.activity'
@@ -224,6 +225,11 @@ const AdminBookingsRoute = AdminBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBookingCalendarRoute = AdminBookingCalendarRouteImport.update({
+  id: '/booking-calendar',
+  path: '/booking-calendar',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBlogRoute = AdminBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
+  '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
+  '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -432,6 +440,7 @@ export interface FileRoutesById {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
+  '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -485,6 +494,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/blog'
+    | '/admin/booking-calendar'
     | '/admin/bookings'
     | '/admin/inquiries'
     | '/admin/login'
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/blog'
+    | '/admin/booking-calendar'
     | '/admin/bookings'
     | '/admin/inquiries'
     | '/admin/login'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/blog'
+    | '/admin/booking-calendar'
     | '/admin/bookings'
     | '/admin/inquiries'
     | '/admin/login'
@@ -875,6 +887,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBookingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/booking-calendar': {
+      id: '/admin/booking-calendar'
+      path: '/booking-calendar'
+      fullPath: '/admin/booking-calendar'
+      preLoaderRoute: typeof AdminBookingCalendarRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog': {
       id: '/admin/blog'
       path: '/blog'
@@ -1032,6 +1051,7 @@ interface AdminRouteChildren {
   AdminActivityRoute: typeof AdminActivityRoute
   AdminAgentsRoute: typeof AdminAgentsRouteWithChildren
   AdminBlogRoute: typeof AdminBlogRoute
+  AdminBookingCalendarRoute: typeof AdminBookingCalendarRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -1048,6 +1068,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminActivityRoute: AdminActivityRoute,
   AdminAgentsRoute: AdminAgentsRouteWithChildren,
   AdminBlogRoute: AdminBlogRoute,
+  AdminBookingCalendarRoute: AdminBookingCalendarRoute,
   AdminBookingsRoute: AdminBookingsRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
