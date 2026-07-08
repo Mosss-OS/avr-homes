@@ -172,6 +172,11 @@ route('PUT', '/api/admin/properties/{id}/status', ['AdminController', 'updatePro
 route('PUT', '/api/admin/properties/{id}/feature', ['AdminController', 'toggleFeature']);
 route('PUT', '/api/admin/properties/{id}/verify', ['AdminController', 'verifyProperty']);
 route('DELETE', '/api/admin/properties/{id}', ['AdminController', 'deleteProperty']);
+route('GET', '/api/admin/properties/{id}/images', ['AdminController', 'propertyImages']);
+route('POST', '/api/admin/properties/upload-gallery', ['AdminController', 'uploadGallery']);
+route('PUT', '/api/admin/properties/images/{id}/primary', ['AdminController', 'setPrimaryImage']);
+route('PUT', '/api/admin/properties/images/reorder', ['AdminController', 'reorderImages']);
+route('DELETE', '/api/admin/properties/images/{id}', ['AdminController', 'deleteImage']);
 
 /* ── Admin agent management ───────────────────────────────── */
 route('GET', '/api/admin/agents', ['AdminController', 'agents']);
