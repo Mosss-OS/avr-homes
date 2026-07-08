@@ -266,8 +266,8 @@ class BlogController
     $validator
       ->required('title', 'Title')
       ->required('content', 'Content')
-      ->max('title', 255, 'Title')
-      ->max('excerpt', 500, 'Excerpt');
+      ->string('title', 'Title', 255)
+      ->string('excerpt', 'Excerpt', 500);
 
     if ($validator->fails()) {
       Response::error('Validation failed', 422, $validator->getErrors());

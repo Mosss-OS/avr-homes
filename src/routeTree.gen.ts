@@ -62,6 +62,7 @@ import { Route as AgentDashboardReferralsRouteImport } from './routes/agent.dash
 import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashboard.profile'
 import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
 import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
+import { Route as AgentDashboardHelpRouteImport } from './routes/agent.dashboard.help'
 import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
 import { Route as AdminPropertiesCreateRouteImport } from './routes/admin.properties.create'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
@@ -337,6 +338,11 @@ const AgentDashboardLeadsRoute = AgentDashboardLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AgentDashboardRoute,
 } as any)
+const AgentDashboardHelpRoute = AgentDashboardHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
 const AgentDashboardBlogRoute = AgentDashboardBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -425,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
+  '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -487,6 +494,7 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
+  '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -550,6 +558,7 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
+  '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
@@ -614,6 +623,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
+    | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -676,6 +686,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
+    | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -738,6 +749,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
+    | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
     | '/agent/dashboard/profile'
@@ -1147,6 +1159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardLeadsRouteImport
       parentRoute: typeof AgentDashboardRoute
     }
+    '/agent/dashboard/help': {
+      id: '/agent/dashboard/help'
+      path: '/help'
+      fullPath: '/agent/dashboard/help'
+      preLoaderRoute: typeof AgentDashboardHelpRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
     '/agent/dashboard/blog': {
       id: '/agent/dashboard/blog'
       path: '/blog'
@@ -1344,6 +1363,7 @@ const AgentDashboardListingsRouteWithChildren =
 
 interface AgentDashboardRouteChildren {
   AgentDashboardBlogRoute: typeof AgentDashboardBlogRoute
+  AgentDashboardHelpRoute: typeof AgentDashboardHelpRoute
   AgentDashboardLeadsRoute: typeof AgentDashboardLeadsRoute
   AgentDashboardListingsRoute: typeof AgentDashboardListingsRouteWithChildren
   AgentDashboardProfileRoute: typeof AgentDashboardProfileRoute
@@ -1354,6 +1374,7 @@ interface AgentDashboardRouteChildren {
 
 const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
   AgentDashboardBlogRoute: AgentDashboardBlogRoute,
+  AgentDashboardHelpRoute: AgentDashboardHelpRoute,
   AgentDashboardLeadsRoute: AgentDashboardLeadsRoute,
   AgentDashboardListingsRoute: AgentDashboardListingsRouteWithChildren,
   AgentDashboardProfileRoute: AgentDashboardProfileRoute,
