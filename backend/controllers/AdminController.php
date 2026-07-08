@@ -1165,6 +1165,57 @@ class AdminController
     ], 'Breakdown retrieved');
   }
 
+  /**
+   * [Admin] Unified moderation queue.
+   * GET /api/admin/moderation
+   */
+  public static function moderation(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $db = Database::getConnection();
+
+    $pendingVerifications = $db->query(
+      "SELECT pv.*, p.title as property_title, a.name as agent_name
+       FROM property_verifications pv
+       LEFT JOIN properties p ON p.id = pv.property_id
+       LEFT JOIN agents a ON a.id = pv.agent_id
+       WHERE pv.status = 'pending'
+       ORDER BY pv.created_at DESC LIMIT 50"
+    )->fetchAll();
+
+    $unpublishedProperties = $db->query(
+      "SELECT id, title, purpose, is_active, created_at FROM properties WHERE is_active = 0 ORDER BY created_at DESC LIMIT 50"
+    )->fetchAll();
+
+    $unverifiedAgents = $db->query(
+      "SELECT a.id, a.name, a.email, a.agency, a.created_at
+       FROM agents a WHERE a.is_verified = 0 AND a.is_active = 1 ORDER BY a.created_at DESC LIMIT 50"
+    )->fetchAll();
+
+    $pendingBlogPosts = $db->query(
+      "SELECT id, title, status, created_at FROM blog_posts WHERE status = 'draft' ORDER BY created_at DESC LIMIT 50"
+    )->fetchAll();
+
+    foreach ($pendingVerifications as &$v) {
+      $v['id'] = (int)$v['id'];
+      $v['property_id'] = (int)$v['property_id'];
+      $v['agent_id'] = (int)$v['agent_id'];
+    }
+
+    foreach (['unpublishedProperties', 'unverifiedAgents', 'pendingBlogPosts'] as $key) {
+      foreach (${$key} as &$item) {
+        if (isset($item['id'])) $item['id'] = (int)$item['id'];
+      }
+    }
+
+    Response::success([
+      'pending_verifications' => $pendingVerifications,
+      'unpublished_properties' => $unpublishedProperties,
+      'unverified_agents' => $unverifiedAgents,
+      'pending_blog_posts' => $pendingBlogPosts,
+    ], 'Moderation queue retrieved');
+  }
+
   /* ── Gallery ──────────────────────────────────────────────── */
 
   /**
