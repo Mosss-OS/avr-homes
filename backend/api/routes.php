@@ -130,6 +130,14 @@ route('POST', '/api/market/reports', ['MarketDataController', 'publishReport']);
 route('GET', '/api/shortlet/{id}/availability', ['ShortLetController', 'availability']);
 route('POST', '/api/shortlet/{id}/book', ['ShortLetController', 'book']);
 
+/* ── Coupon routes ─────────────────────────────────────────── */
+route('GET', '/api/admin/coupons', ['CouponController', 'adminIndex']);
+route('POST', '/api/admin/coupons', ['CouponController', 'adminCreate']);
+route('PUT', '/api/admin/coupons/{id}', ['CouponController', 'adminUpdate']);
+route('DELETE', '/api/admin/coupons/{id}', ['CouponController', 'adminDelete']);
+route('GET', '/api/admin/coupons/{id}/usage', ['CouponController', 'adminUsage']);
+route('POST', '/api/coupons/validate', ['CouponController', 'validate']);
+
 /* ── Admin short-let management ──────────────────────────── */
 route('GET', '/api/admin/shortlet/stats', ['ShortLetController', 'adminDashboardStats']);
 route('GET', '/api/admin/shortlet/{id}/availability', ['ShortLetController', 'adminAvailability']);
