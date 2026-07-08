@@ -1144,4 +1144,151 @@ class AdminController
       'inquiries_by_status' => $inquiriesByStatus,
     ], 'Breakdown retrieved');
   }
+
+  /* ── Gallery ──────────────────────────────────────────────── */
+
+  /**
+   * List images for a property.
+   */
+  public static function propertyImages(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) Response::error('Property ID required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT pi.*, p.image as hero_image FROM property_images pi LEFT JOIN properties p ON p.id = pi.property_id WHERE pi.property_id = ? ORDER BY pi.sort_order ASC, pi.id ASC");
+    $stmt->execute([$id]);
+    $images = $stmt->fetchAll();
+
+    foreach ($images as &$img) {
+      $img['id'] = (int)$img['id'];
+      $img['property_id'] = (int)$img['property_id'];
+      $img['is_primary'] = (bool)$img['is_primary'];
+      $img['sort_order'] = (int)$img['sort_order'];
+      $img['file_size'] = (int)$img['file_size'];
+    }
+
+    Response::success($images, 'Images retrieved');
+  }
+
+  /**
+   * Upload gallery images for a property.
+   */
+  public static function uploadGallery(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $propertyId = (int)($_POST['property_id'] ?? 0);
+    if (!$propertyId) Response::error('Property ID required', 400);
+
+    $db = Database::getConnection();
+
+    // Get current max sort order
+    $stmt = $db->prepare("SELECT COALESCE(MAX(sort_order), 0) FROM property_images WHERE property_id = ?");
+    $stmt->execute([$propertyId]);
+    $sortOrder = (int)$stmt->fetchColumn();
+
+    $uploadsDir = __DIR__ . '/../public/uploads/properties';
+    if (!is_dir($uploadsDir)) mkdir($uploadsDir, 0755, true);
+
+    $uploaded = 0;
+    $insertStmt = $db->prepare("INSERT INTO property_images (property_id, file_path, file_name, file_size, mime_type, sort_order, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+    foreach ($_FILES['files']['tmp_name'] as $i => $tmpName) {
+      if (empty($tmpName) || $_FILES['files']['error'][$i] !== UPLOAD_ERR_OK) continue;
+
+      $ext = pathinfo($_FILES['files']['name'][$i], PATHINFO_EXTENSION);
+      $filename = 'prop_' . $propertyId . '_' . uniqid() . '.' . $ext;
+      $filePath = '/uploads/properties/' . $filename;
+
+      if (move_uploaded_file($tmpName, "$uploadsDir/$filename")) {
+        $sortOrder++;
+        $isPrimary = 0;
+        // Set as primary if no primary exists
+        $check = $db->prepare("SELECT COUNT(*) FROM property_images WHERE property_id = ? AND is_primary = 1");
+        $check->execute([$propertyId]);
+        if ((int)$check->fetchColumn() === 0) $isPrimary = 1;
+
+        $insertStmt->execute([
+          $propertyId, $filePath, $_FILES['files']['name'][$i],
+          filesize("$uploadsDir/$filename"), $_FILES['files']['type'][$i] ?? 'image/jpeg',
+          $sortOrder, $isPrimary,
+        ]);
+        $uploaded++;
+      }
+    }
+
+    Response::success(['uploaded' => $uploaded], "{$uploaded} image(s) uploaded");
+  }
+
+  /**
+   * Set an image as primary.
+   */
+  public static function setPrimaryImage(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) Response::error('Image ID required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT property_id FROM property_images WHERE id = ?");
+    $stmt->execute([$id]);
+    $img = $stmt->fetch();
+    if (!$img) Response::error('Image not found', 404);
+
+    $db->prepare("UPDATE property_images SET is_primary = 0 WHERE property_id = ?")->execute([$img['property_id']]);
+    $db->prepare("UPDATE property_images SET is_primary = 1 WHERE id = ?")->execute([$id]);
+
+    Response::success([], 'Primary image updated');
+  }
+
+  /**
+   * Reorder two images.
+   */
+  public static function reorderImages(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $input = json_decode(file_get_contents('php://input'), true);
+    $imageId = (int)($input['image_id'] ?? 0);
+    $swapId = (int)($input['swap_id'] ?? 0);
+    if (!$imageId || !$swapId) Response::error('image_id and swap_id required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT sort_order FROM property_images WHERE id = ?");
+    $stmt->execute([$imageId]); $order1 = $stmt->fetchColumn();
+    $stmt->execute([$swapId]); $order2 = $stmt->fetchColumn();
+
+    $db->prepare("UPDATE property_images SET sort_order = ? WHERE id = ?")->execute([$order2, $imageId]);
+    $db->prepare("UPDATE property_images SET sort_order = ? WHERE id = ?")->execute([$order1, $swapId]);
+
+    Response::success([], 'Images reordered');
+  }
+
+  /**
+   * Delete an image.
+   */
+  public static function deleteImage(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) Response::error('Image ID required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT * FROM property_images WHERE id = ?");
+    $stmt->execute([$id]);
+    $img = $stmt->fetch();
+    if (!$img) Response::error('Image not found', 404);
+
+    $filePath = __DIR__ . '/../public' . $img['file_path'];
+    if (file_exists($filePath)) unlink($filePath);
+
+    $db->prepare("DELETE FROM property_images WHERE id = ?")->execute([$id]);
+
+    if ($img['is_primary']) {
+      $db->prepare("UPDATE properties SET image = NULL WHERE id = ?")->execute([$img['property_id']]);
+    }
+
+    Response::success([], 'Image deleted');
+  }
 }
