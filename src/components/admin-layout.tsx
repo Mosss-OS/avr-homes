@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Users, ShieldCheck, CalendarCheck, Activity, Settings,
-  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard,
+  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { icon: Users, label: "Users", to: "/admin/users" },
   { icon: CalendarCheck, label: "Bookings", to: "/admin/bookings" },
   { icon: CreditCard, label: "Subscriptions", to: "/admin/subscriptions" },
+  { icon: Wallet, label: "Wallet", to: "/admin/wallet" },
   { icon: ShieldCheck, label: "Verifications", to: "/admin/verifications" },
   { icon: MessageSquare, label: "Inquiries", to: "/admin/inquiries" },
   { icon: FileText, label: "Blog", to: "/admin/blog" },
