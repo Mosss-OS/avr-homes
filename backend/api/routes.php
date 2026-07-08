@@ -162,6 +162,7 @@ route('PUT', '/api/agent/shortlet/bookings/{id}/status', ['ShortLetController', 
 route('GET', '/api/admin/stats', ['AdminController', 'stats']);
 route('GET', '/api/admin/analytics/trends', ['AdminController', 'trends']);
 route('GET', '/api/admin/analytics/breakdown', ['AdminController', 'breakdown']);
+route('GET', '/api/admin/moderation', ['AdminController', 'moderation']);
 
 /* ── Admin property management ────────────────────────────── */
 route('GET', '/api/admin/properties', ['AdminController', 'properties']);

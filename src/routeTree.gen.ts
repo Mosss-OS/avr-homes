@@ -39,6 +39,7 @@ import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscript
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
+import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
 import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
@@ -215,6 +216,11 @@ const AdminPropertiesRoute = AdminPropertiesRouteImport.update({
   path: '/properties',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminModerationRoute = AdminModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -374,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -431,6 +438,7 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -548,6 +557,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/settings'
@@ -605,6 +615,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/settings'
@@ -662,6 +673,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/settings'
@@ -926,6 +938,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPropertiesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/moderation': {
+      id: '/admin/moderation'
+      path: '/moderation'
+      fullPath: '/admin/moderation'
+      preLoaderRoute: typeof AdminModerationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -1155,6 +1174,7 @@ interface AdminRouteChildren {
   AdminGalleryRoute: typeof AdminGalleryRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminModerationRoute: typeof AdminModerationRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -1177,6 +1197,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminGalleryRoute: AdminGalleryRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminModerationRoute: AdminModerationRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
