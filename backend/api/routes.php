@@ -138,6 +138,15 @@ route('DELETE', '/api/admin/coupons/{id}', ['CouponController', 'adminDelete']);
 route('GET', '/api/admin/coupons/{id}/usage', ['CouponController', 'adminUsage']);
 route('POST', '/api/coupons/validate', ['CouponController', 'validate']);
 
+/* ── Email template & broadcast routes ──────────────────── */
+route('GET', '/api/admin/email-templates', ['EmailTemplateController', 'adminTemplates']);
+route('POST', '/api/admin/email-templates', ['EmailTemplateController', 'adminCreateTemplate']);
+route('PUT', '/api/admin/email-templates/{id}', ['EmailTemplateController', 'adminUpdateTemplate']);
+route('DELETE', '/api/admin/email-templates/{id}', ['EmailTemplateController', 'adminDeleteTemplate']);
+route('GET', '/api/admin/email-broadcasts', ['EmailTemplateController', 'adminBroadcasts']);
+route('POST', '/api/admin/email-broadcasts', ['EmailTemplateController', 'adminCreateBroadcast']);
+route('PUT', '/api/admin/email-broadcasts/{id}', ['EmailTemplateController', 'adminUpdateBroadcast']);
+
 /* ── Admin short-let management ──────────────────────────── */
 route('GET', '/api/admin/shortlet/stats', ['ShortLetController', 'adminDashboardStats']);
 route('GET', '/api/admin/shortlet/{id}/availability', ['ShortLetController', 'adminAvailability']);
