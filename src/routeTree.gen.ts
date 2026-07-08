@@ -47,6 +47,7 @@ import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as AdminBookingCalendarRouteImport } from './routes/admin.booking-calendar'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAgentsRouteImport } from './routes/admin.agents'
 import { Route as AdminActivityRouteImport } from './routes/admin.activity'
 import { Route as AgentDashboardVerificationRouteImport } from './routes/agent.dashboard.verification'
@@ -253,6 +254,11 @@ const AdminBlogRoute = AdminBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAgentsRoute = AdminAgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -407,6 +414,7 @@ export interface FileRoutesByTo {
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -463,6 +471,7 @@ export interface FileRoutesById {
   '/shortlet': typeof ShortletRoute
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/shortlet'
     | '/admin/activity'
     | '/admin/agents'
+    | '/admin/analytics'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -575,6 +585,7 @@ export interface FileRouteTypes {
     | '/shortlet'
     | '/admin/activity'
     | '/admin/agents'
+    | '/admin/analytics'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -630,6 +641,7 @@ export interface FileRouteTypes {
     | '/shortlet'
     | '/admin/activity'
     | '/admin/agents'
+    | '/admin/analytics'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -958,6 +970,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/agents': {
       id: '/admin/agents'
       path: '/agents'
@@ -1107,6 +1126,7 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminActivityRoute: typeof AdminActivityRoute
   AdminAgentsRoute: typeof AdminAgentsRouteWithChildren
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminBlogRoute: typeof AdminBlogRoute
   AdminBookingCalendarRoute: typeof AdminBookingCalendarRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
@@ -1127,6 +1147,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminActivityRoute: AdminActivityRoute,
   AdminAgentsRoute: AdminAgentsRouteWithChildren,
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminBlogRoute: AdminBlogRoute,
   AdminBookingCalendarRoute: AdminBookingCalendarRoute,
   AdminBookingsRoute: AdminBookingsRoute,

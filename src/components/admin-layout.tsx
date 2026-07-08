@@ -9,11 +9,12 @@ import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Users, ShieldCheck, CalendarCheck, Activity, Settings,
-  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent,
+  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent, TrendingUp,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Overview", to: "/admin" },
+  { icon: TrendingUp, label: "Analytics", to: "/admin/analytics" },
   { icon: Home, label: "Properties", to: "/admin/properties" },
   { icon: Building2, label: "Agents", to: "/admin/agents" },
   { icon: Users, label: "Users", to: "/admin/users" },
