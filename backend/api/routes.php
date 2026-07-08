@@ -244,6 +244,16 @@ route('POST', '/api/admin/migrations/run', ['MigrationController', 'run']);
 route('POST', '/api/admin/migrations/run/{name}', ['MigrationController', 'run']);
 route('GET', '/api/admin/migrations/status', ['MigrationController', 'status']);
 
+/* ── Admin Import / Export routes ────────────────────────── */
+route('GET', '/api/admin/export/properties', ['ImportExportController', 'exportProperties']);
+route('GET', '/api/admin/export/users', ['ImportExportController', 'exportUsers']);
+route('GET', '/api/admin/export/agents', ['ImportExportController', 'exportAgents']);
+route('GET', '/api/admin/export/bookings', ['ImportExportController', 'exportBookings']);
+route('GET', '/api/admin/export/sample', ['ImportExportController', 'sampleCsv']);
+route('POST', '/api/admin/import/properties', ['ImportExportController', 'importProperties']);
+route('POST', '/api/admin/import/users', ['ImportExportController', 'importUsers']);
+route('POST', '/api/admin/import/agents', ['ImportExportController', 'importAgents']);
+
 /* ── Blog / CMS routes ────────────────────────────────────── */
 route('GET', '/api/blog', ['BlogController', 'index']);
 route('GET', '/api/blog/featured', ['BlogController', 'featured']);

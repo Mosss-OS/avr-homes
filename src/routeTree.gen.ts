@@ -44,6 +44,7 @@ import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminMaintenanceRouteImport } from './routes/admin.maintenance'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
+import { Route as AdminImportExportRouteImport } from './routes/admin.import-export'
 import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
 import { Route as AdminFeesRouteImport } from './routes/admin.fees'
 import { Route as AdminEmailRouteImport } from './routes/admin.email'
@@ -243,6 +244,11 @@ const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
   path: '/inquiries',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportExportRoute = AdminImportExportRouteImport.update({
+  id: '/import-export',
+  path: '/import-export',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminGalleryRoute = AdminGalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
@@ -390,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/admin/email': typeof AdminEmailRoute
   '/admin/fees': typeof AdminFeesRoute
   '/admin/gallery': typeof AdminGalleryRoute
+  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
@@ -450,6 +457,7 @@ export interface FileRoutesByTo {
   '/admin/email': typeof AdminEmailRoute
   '/admin/fees': typeof AdminFeesRoute
   '/admin/gallery': typeof AdminGalleryRoute
+  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
@@ -511,6 +519,7 @@ export interface FileRoutesById {
   '/admin/email': typeof AdminEmailRoute
   '/admin/fees': typeof AdminFeesRoute
   '/admin/gallery': typeof AdminGalleryRoute
+  '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
@@ -573,6 +582,7 @@ export interface FileRouteTypes {
     | '/admin/email'
     | '/admin/fees'
     | '/admin/gallery'
+    | '/admin/import-export'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/maintenance'
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/admin/email'
     | '/admin/fees'
     | '/admin/gallery'
+    | '/admin/import-export'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/maintenance'
@@ -693,6 +704,7 @@ export interface FileRouteTypes {
     | '/admin/email'
     | '/admin/fees'
     | '/admin/gallery'
+    | '/admin/import-export'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/maintenance'
@@ -997,6 +1009,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInquiriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/import-export': {
+      id: '/admin/import-export'
+      path: '/import-export'
+      fullPath: '/admin/import-export'
+      preLoaderRoute: typeof AdminImportExportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/gallery': {
       id: '/admin/gallery'
       path: '/gallery'
@@ -1210,6 +1229,7 @@ interface AdminRouteChildren {
   AdminEmailRoute: typeof AdminEmailRoute
   AdminFeesRoute: typeof AdminFeesRoute
   AdminGalleryRoute: typeof AdminGalleryRoute
+  AdminImportExportRoute: typeof AdminImportExportRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMaintenanceRoute: typeof AdminMaintenanceRoute
@@ -1235,6 +1255,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEmailRoute: AdminEmailRoute,
   AdminFeesRoute: AdminFeesRoute,
   AdminGalleryRoute: AdminGalleryRoute,
+  AdminImportExportRoute: AdminImportExportRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMaintenanceRoute: AdminMaintenanceRoute,
