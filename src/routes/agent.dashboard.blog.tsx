@@ -1,9 +1,15 @@
+/**
+ * Agent blog management route — lists blog posts and provides an inline
+ * create/edit form for title, excerpt, HTML content, status, and metadata.
+ */
+
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Plus, FileText, Eye, Trash2, Loader2, Check, X, Sparkles } from "lucide-react";
 
+/** A blog post managed by the agent. */
 interface BlogPost {
   id: number;
   title: string;
@@ -23,6 +29,7 @@ export const Route = createFileRoute("/agent/dashboard/blog")({
   component: BlogManager,
 });
 
+/** Blog manager component — renders the post list and inline create/edit form. */
 function BlogManager() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +49,7 @@ function BlogManager() {
     tags: "",
   });
 
+  /** Fetch all blog posts from the API and update local state. */
   function loadPosts() {
     setLoading(true);
     api.get<{ data: BlogPost[] }>("/api/agent/blog")
@@ -52,12 +60,14 @@ function BlogManager() {
 
   useEffect(() => { loadPosts(); }, []);
 
+  /** Reset the create/edit form to its initial empty state and hide the form. */
   function resetForm() {
     setForm({ title: "", excerpt: "", content: "", status: "draft", featured_image: "", category_id: "", tags: "" });
     setEditingId(null);
     setShowCreate(false);
   }
 
+  /** Populate the form with an existing post's data for editing. */
   function editPost(post: BlogPost) {
     setForm({
       title: post.title,
@@ -72,6 +82,7 @@ function BlogManager() {
     setShowCreate(true);
   }
 
+  /** Create or update a blog post via the API, then reload the list. */
   async function save() {
     if (!form.title.trim() || !form.content.trim()) {
       setMessage({ type: "error", text: "Title and content are required" });
@@ -102,6 +113,7 @@ function BlogManager() {
     }
   }
 
+  /** Delete a blog post after confirmation, then remove it from local state. */
   async function deletePost(id: number) {
     if (!confirm("Delete this post?")) return;
     try {

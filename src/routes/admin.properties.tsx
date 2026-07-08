@@ -1,3 +1,8 @@
+/**
+ * Admin properties list route. Shows a paginated, filterable table of all
+ * properties with controls to publish/unpublish, toggle featured/verified,
+ * edit, and delete.
+ */
 import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -13,6 +18,7 @@ export const Route = createFileRoute("/admin/properties")({
   component: AdminProperties,
 });
 
+/** A single row returned by the admin properties listing endpoint. */
 interface PropertyRow {
   id: number;
   title: string; purpose: string; type: string; price: number;
@@ -21,6 +27,7 @@ interface PropertyRow {
   created_at: string;
 }
 
+/** Properties management page with search, status filter, pagination, and row-level actions. */
 function AdminProperties() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -35,6 +42,7 @@ function AdminProperties() {
   const [statusFilter, setStatusFilter] = useState("");
   const perPage = 15;
 
+  /** Fetch properties from the API with current search, status filter, and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: String(perPage) });
@@ -56,6 +64,7 @@ function AdminProperties() {
     return null;
   }
 
+  /** Publish, unpublish (draft), or archive a property. */
   async function changeStatus(id: number, status: string) {
     try {
       await api.put(`/api/admin/properties/${id}/status`, { status });
@@ -66,6 +75,7 @@ function AdminProperties() {
     }
   }
 
+  /** Toggle the featured (star) flag on a property. */
   async function toggleFeature(id: number) {
     try {
       await api.put(`/api/admin/properties/${id}/feature`, {});
@@ -76,6 +86,7 @@ function AdminProperties() {
     }
   }
 
+  /** Toggle the verified badge on a property. */
   async function toggleVerify(id: number) {
     try {
       await api.put(`/api/admin/properties/${id}/verify`, {});
@@ -86,6 +97,7 @@ function AdminProperties() {
     }
   }
 
+  /** Permanently delete a property after user confirmation. */
   async function deleteProp(id: number) {
     if (!confirm("Delete this property permanently?")) return;
     try {

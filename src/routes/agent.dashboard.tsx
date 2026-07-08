@@ -1,3 +1,8 @@
+/**
+ * Agent dashboard overview route — displays summary statistics,
+ * quick action links, and a recent activity feed for the logged-in agent.
+ */
+
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/agent/dashboard")({
   component: AgentDashboardPage,
 });
 
+/** Aggregated listing and lead counts for the dashboard overview. */
 interface DashboardStats {
   active_listings: number;
   draft_listings: number;
@@ -23,6 +29,7 @@ interface DashboardStats {
   total: number;
 }
 
+/** Dashboard overview page component — shows stat cards, quick actions, and activity. */
 function AgentDashboardPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();

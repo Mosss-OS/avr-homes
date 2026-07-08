@@ -2,6 +2,20 @@
 
 declare(strict_types=1);
 
+/**
+ * File upload endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for handling property image uploads.
+ *
+ * Supports single and gallery uploads, file validation by MIME type
+ * and extension, and image deletion with cleanup.
+ *
+ * @package AVRHomes\Controllers
+ */
 class UploadController
 {
   private const UPLOAD_DIR = __DIR__ . '/../uploads/properties';
@@ -9,6 +23,16 @@ class UploadController
   private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
   private const MAX_SIZE = 10485760; // 10MB
 
+  /**
+   * Upload a single property image.
+   *
+   * Accepts a 'file' upload and optional 'property_id' and 'is_primary' fields.
+   * Validates file type and size before saving.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function upload(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -64,6 +88,16 @@ class UploadController
     ], 'File uploaded successfully', 201);
   }
 
+  /**
+   * Upload multiple images for a property gallery.
+   *
+   * Accepts a 'files' array and a required 'property_id'. Each file
+   * is validated individually. Returns lists of successful and failed uploads.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function uploadGallery(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -133,6 +167,16 @@ class UploadController
     ], count($uploaded) . ' file(s) uploaded successfully');
   }
 
+  /**
+   * Delete a property image.
+   *
+   * Removes the file from disk and the database record. Clears the
+   * property's main image if the deleted image was the primary one.
+   *
+   * @param array $params Route parameters containing 'id' (image ID).
+   *
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -169,6 +213,14 @@ class UploadController
     Response::success(null, 'Image deleted successfully');
   }
 
+  /**
+   * Validate and save an uploaded file to the uploads directory.
+   *
+   * @param array $file The $_FILES entry for a single file.
+   *
+   * @return array{success: bool, path?: string, original_name?: string, size?: int, mime?: string, error?: string} Result with
+   *               success flag, file details on success, or error message on failure.
+   */
   private static function handleUpload(array $file): array
   {
     if ($file['error'] !== UPLOAD_ERR_OK) {

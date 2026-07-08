@@ -1,7 +1,17 @@
+/**
+ * Authentication context provider and hook for managing user sessions.
+ *
+ * Supports both agent and admin authentication flows — login, registration,
+ * logout, and automatic session restoration from localStorage.
+ *
+ * @module auth-context
+ */
+
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { api, ApiError } from "./api-client";
 import type { AuthResponse, UserData, RegisterPayload } from "./types";
 
+/** Shape of the auth context value exposed to consumers. */
 interface AuthContextType {
   user: UserData | null;
   token: string | null;
@@ -16,6 +26,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+/**
+ * Provides authentication state and actions to the component tree.
+ *
+ * On mount, attempts to restore a session from `auth_token` in localStorage
+ * by calling `/api/auth/me`. Exposes `login`, `adminLogin`, `register`, and
+ * `logout` callbacks, plus derived boolean flags `isAgent` / `isAdmin`.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -82,6 +99,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Returns the current auth context. Must be called within an `<AuthProvider>`.
+ *
+ * @throws {Error} If no auth context is found (not wrapped in AuthProvider).
+ */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

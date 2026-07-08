@@ -1,3 +1,8 @@
+/**
+ * Landing page (/) for AVR Homes.
+ * Displays hero banner, browse sections, featured / recently-added listings,
+ * value props, testimonials, agent recruitment CTA, and a diaspora investor banner.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
@@ -23,6 +28,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+/** Home page component composing hero, browse sections, featured/recent listings, testimonials, and CTAs. */
 function HomePage() {
   const [featured, setFeatured] = useState<Property[]>([]);
   const [fresh, setFresh] = useState<Property[]>([]);
@@ -237,6 +243,7 @@ const TESTIMONIALS = [
   { quote: "The agent dashboard is clean and professional. It finally feels like Lagos real estate is catching up with global standards.", name: "Funmi Adeyemi", title: "Senior Realtor, Victoria Island" },
 ];
 
+/** A single value proposition card (icon, title, body). */
 function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
@@ -246,6 +253,7 @@ function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string
     </div>
   );
 }
+/** A single benefit card used in the agent-recruitment section. */
 function Benefit({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">

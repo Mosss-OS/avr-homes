@@ -1,3 +1,7 @@
+/**
+ * Browse route for homes for rent (/rent).
+ * Wraps BrowseSection with category="rent" and sets purpose-specific SEO meta.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { BrowseSection } from "@/components/browse-section";
 

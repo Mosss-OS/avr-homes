@@ -1,11 +1,27 @@
+/**
+ * HTTP API client with automatic auth token injection, JSON serialisation,
+ * and typed error handling.
+ *
+ * @module api-client
+ */
+
+/** Base URL for the REST API — falls back from Vite env to a production URL. */
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
 
+/** Generic envelope returned by the API for every response. */
 interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
 }
 
+/**
+ * Core request helper — builds headers, injects the auth token if available,
+ * serialises JSON bodies (but passes FormData through), and throws an
+ * `ApiError` on non-OK responses.
+ *
+ * @typeParam T - The expected shape of `response.data`.
+ */
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -39,6 +55,10 @@ async function request<T>(
   return data;
 }
 
+/**
+ * Typed error for API failures, exposing the HTTP status and optional
+ * per-field validation errors.
+ */
 export class ApiError extends Error {
   status: number;
   errors?: Record<string, string[]>;
@@ -51,6 +71,10 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Convenience object exposing `get`, `post`, `put`, and `delete` HTTP
+ * methods with automatic typing.
+ */
 export const api = {
   get: <T>(endpoint: string) => request<T>(endpoint),
   post: <T>(endpoint: string, body?: unknown) =>

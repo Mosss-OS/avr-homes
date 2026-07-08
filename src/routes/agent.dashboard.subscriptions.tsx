@@ -1,3 +1,8 @@
+/**
+ * Agent subscription management route — displays the current plan details,
+ * feature breakdown, upgrade path, and cancel-subscription controls.
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -11,6 +16,7 @@ export const Route = createFileRoute("/agent/dashboard/subscriptions")({
   component: SubscriptionPage,
 });
 
+/** Current subscription details for the agent. */
 interface Subscription {
   tier: string;
   status: string;
@@ -25,6 +31,7 @@ interface Subscription {
   cancelled_at: string | null;
 }
 
+/** Subscription page component — shows current plan, features, upgrade options, and cancel flow. */
 function SubscriptionPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -38,6 +45,7 @@ function SubscriptionPage() {
     loadSubscription();
   }, [user, authLoading]);
 
+  /** Fetch the current subscription from the API. */
   async function loadSubscription() {
     try {
       setLoading(true);
@@ -50,6 +58,7 @@ function SubscriptionPage() {
     }
   }
 
+  /** Upgrade the subscription to a new tier via the API. */
   async function handleUpgrade(tier: string) {
     if (tier === subscription?.tier) return;
 
@@ -64,6 +73,7 @@ function SubscriptionPage() {
     }
   }
 
+  /** Cancel the subscription after confirmation; reload on success. */
   async function handleCancel() {
     if (!confirm("Cancel your subscription? This will end at the current period end.")) return;
     try {
@@ -85,6 +95,7 @@ gold: { name: "Gold", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200
     platinum: { name: "Platinum", color: "bg-purple-500/10 text-purple-600 border-purple-200", icon: Crown, price: "₦150,000" },
   };
 
+  /** Look up the feature value for a given tier key. */
   const getFeature = (key: string, tier: string) => {
     const features = {
       listings_limit: {
@@ -187,7 +198,7 @@ gold: { name: "Gold", color: "bg-yellow-500/10 text-yellow-600 border-yellow-200
                 { label: "Featured slots", value: getFeature("featured_slots", subscription.tier) },
                 { label: "Lead priority", value: getFeature("lead_priority", subscription.tier) },
                 { label: "Analytics access", value: getFeature("analytics_access", subscription.tier) },
-                { label: "Verification priority", value: get("verification_priority", subscription.tier) },
+                { label: "Verification priority", value: getFeature("verification_priority", subscription.tier) },
                 { label: "Dedicated manager", value: getFeature("dedicated_manager", subscription.tier) },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">

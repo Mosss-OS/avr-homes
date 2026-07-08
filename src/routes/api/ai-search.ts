@@ -1,3 +1,8 @@
+/**
+ * AI-powered property search API route (POST /api/ai-search).
+ * Receives a natural-language query, serialises the available property catalog,
+ * sends it to an LLM gateway, and returns the AI reply along with matching property IDs.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { properties } from "@/lib/properties";
 
@@ -12,6 +17,7 @@ Reply in this exact structure:
 
 Keep replies under 120 words. Use Naira (₦) for prices. Do not invent properties that are not in the list.`;
 
+/** Expected shape of the POST request body. */
 interface Body {
   query?: string;
 }

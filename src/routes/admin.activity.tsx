@@ -1,3 +1,7 @@
+/**
+ * Admin activity-log route. Shows a paginated, read-only table of platform
+ * events (user actions, entity changes, etc.) in reverse chronological order.
+ */
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -8,12 +12,14 @@ export const Route = createFileRoute("/admin/activity")({
   component: AdminActivity,
 });
 
+/** A single row returned by the admin activity-log endpoint. */
 interface ActivityRow {
   id: number; user_id: number | null; user_name: string | null; user_email: string | null;
   action: string; entity_type: string; entity_id: number | null;
   ip_address: string; created_at: string;
 }
 
+/** Read-only activity log page with paginated table of audit events. */
 function AdminActivity() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -23,6 +29,7 @@ function AdminActivity() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  /** Fetch activity-log entries for the current page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {

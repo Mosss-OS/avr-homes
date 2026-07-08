@@ -2,9 +2,25 @@
 
 declare(strict_types=1);
 
+/**
+ * AdminController
+ *
+ * Handles admin dashboard, property, agent, user, booking, activity,
+ * and blog management endpoints.
+ */
 class AdminController
 {
   // ─── Dashboard Stats ────────────────────────────────────────────────
+
+  /**
+   * Get dashboard statistics.
+   *
+   * Returns counts for properties, agents, users, verifications, bookings,
+   * inquiries, and blog posts.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function stats(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -39,6 +55,13 @@ class AdminController
   }
 
   // ─── Properties ─────────────────────────────────────────────────────
+
+  /**
+   * List properties with pagination, filtering, and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function properties(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -94,6 +117,12 @@ class AdminController
     ]);
   }
 
+  /**
+   * Create a new property.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function createProperty(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -143,6 +172,12 @@ class AdminController
     Response::success(['id' => $newId], 'Property created successfully', 201);
   }
 
+  /**
+   * Update property status (draft / published / archived).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updatePropertyStatus(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -164,6 +199,12 @@ class AdminController
     Response::success(['id' => $id, 'status' => $status], 'Property status updated');
   }
 
+  /**
+   * Toggle the featured flag on a property.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function toggleFeature(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -184,6 +225,12 @@ class AdminController
     Response::success(['id' => $id, 'featured' => (bool)$new], 'Property featured status toggled');
   }
 
+  /**
+   * Toggle the verified flag on a property.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function verifyProperty(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -204,6 +251,12 @@ class AdminController
     Response::success(['id' => $id, 'is_verified' => (bool)$new], 'Property verification toggled');
   }
 
+  /**
+   * Delete a property.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function deleteProperty(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -217,6 +270,12 @@ class AdminController
     Response::success(null, 'Property deleted');
   }
 
+  /**
+   * Get a single property by ID.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function getProperty(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -237,6 +296,12 @@ class AdminController
     Response::success(['property' => $row]);
   }
 
+  /**
+   * Update a property's editable fields.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateProperty(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -277,6 +342,13 @@ class AdminController
   }
 
   // ─── Agents ─────────────────────────────────────────────────────────
+
+  /**
+   * List agents with pagination and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function agents(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -321,6 +393,12 @@ class AdminController
     ]);
   }
 
+  /**
+   * Update agent active / inactive status.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateAgentStatus(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -342,6 +420,12 @@ class AdminController
     Response::success(['id' => $id, 'is_active' => (bool)$isActive], 'Agent status updated');
   }
 
+  /**
+   * Toggle agent verified status.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function toggleAgentVerify(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -360,6 +444,12 @@ class AdminController
     Response::success(['id' => $id, 'is_verified' => (bool)$new], 'Agent verification toggled');
   }
 
+  /**
+   * Delete an agent and reassign their properties.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function deleteAgent(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -381,6 +471,12 @@ class AdminController
     Response::success(null, 'Agent deleted');
   }
 
+  /**
+   * Get a single agent by ID.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function getAgent(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -402,6 +498,12 @@ class AdminController
     Response::success(['agent' => $row]);
   }
 
+  /**
+   * Update an agent's profile fields.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateAgent(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -438,6 +540,13 @@ class AdminController
   }
 
   // ─── Users ───────────────────────────────────────────────────────────
+
+  /**
+   * List users with pagination and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function users(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -474,6 +583,12 @@ class AdminController
     ]);
   }
 
+  /**
+   * Update a user's role.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateUserRole(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -494,6 +609,12 @@ class AdminController
     Response::success(['id' => $id, 'role' => $role], 'User role updated');
   }
 
+  /**
+   * Get a single user by ID.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function getUser(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -512,6 +633,12 @@ class AdminController
     Response::success(['user' => $row]);
   }
 
+  /**
+   * Update a user's name, email, or active status.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateUser(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -546,6 +673,13 @@ class AdminController
   }
 
   // ─── Bookings ────────────────────────────────────────────────────────
+
+  /**
+   * List bookings with pagination and status filter.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function bookings(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -590,6 +724,12 @@ class AdminController
     ]);
   }
 
+  /**
+   * Update a booking's status (confirmed / cancelled / completed).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateBookingStatus(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -610,6 +750,13 @@ class AdminController
   }
 
   // ─── Activity Log ────────────────────────────────────────────────────
+
+  /**
+   * List activity logs with pagination.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function activity(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -642,6 +789,13 @@ class AdminController
   }
 
   // ─── Blog ────────────────────────────────────────────────────────────
+
+  /**
+   * List blog posts with pagination and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function blogPosts(array $params): void
   {
     AuthMiddleware::authenticateAdmin();

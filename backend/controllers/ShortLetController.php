@@ -2,11 +2,30 @@
 
 declare(strict_types=1);
 
+/**
+ * Short-let booking endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for short-let property availability and booking management.
+ *
+ * Handles availability checks, booking requests, booking listing,
+ * and booking status updates for short-let properties.
+ *
+ * @package AVRHomes\Controllers
+ */
 class ShortLetController
 {
   /**
    * Check availability for a date range.
+   *
    * GET /api/shortlet/{id}/availability?check_in=2026-07-10&check_out=2026-07-15
+   *
+   * @param array $params Route parameters containing 'id' (property ID).
+   *
+   * @return void
    */
   public static function availability(array $params): void
   {
@@ -102,7 +121,12 @@ class ShortLetController
 
   /**
    * Create a booking request.
+   *
    * POST /api/shortlet/{id}/book
+   *
+   * @param array $params Route parameters containing 'id' (property ID).
+   *
+   * @return void
    */
   public static function book(array $params): void
   {
@@ -182,7 +206,12 @@ class ShortLetController
 
   /**
    * List bookings for a property (agent).
+   *
    * GET /api/agent/shortlet/{id}/bookings
+   *
+   * @param array $params Route parameters containing 'id' (property ID).
+   *
+   * @return void
    */
   public static function bookings(array $params): void
   {
@@ -210,7 +239,12 @@ class ShortLetController
 
   /**
    * Update booking status (agent).
+   *
    * PUT /api/agent/shortlet/bookings/{id}/status
+   *
+   * @param array $params Route parameters containing 'id' (booking ID).
+   *
+   * @return void
    */
   public static function updateBookingStatus(array $params): void
   {

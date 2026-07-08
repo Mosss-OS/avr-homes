@@ -1,3 +1,8 @@
+/**
+ * Interactive property map route (/map).
+ * Filters properties by URL search params and renders a simplified SVG map
+ * with price pins. Hovering a pin shows a preview card in the sidebar.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -26,7 +31,10 @@ export const Route = createFileRoute("/map")({
   component: MapView,
 });
 
-// Simple SVG "map" with stylized layout — no external map dependency.
+/**
+ * Map view component — filters properties by search params, projects lat/lng onto
+ * an SVG canvas, and renders price pins with a hover-activated preview sidebar.
+ */
 function MapView() {
   const search = Route.useSearch();
   const properties = useMemo(() => allProperties.filter((p) => {

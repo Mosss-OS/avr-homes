@@ -1,7 +1,30 @@
 <?php
 
+/**
+ * Referral program endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing agent referral codes and statistics.
+ *
+ * Handles listing referrals, generating unique referral codes,
+ * and retrieving referral stats.
+ *
+ * @package AVRHomes\Controllers
+ */
 class ReferralController
 {
+  /**
+   * List referrals for the authenticated agent.
+   *
+   * Supports pagination. Includes referred user names and emails.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -49,6 +72,15 @@ class ReferralController
     ], 'Referrals retrieved');
   }
 
+  /**
+   * Generate a unique referral code for the authenticated agent.
+   *
+   * If a code already exists for the agent it is returned instead.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function generateCode(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -76,6 +108,15 @@ class ReferralController
     Response::success(['referral_code' => $code], 'Referral code generated', 201);
   }
 
+  /**
+   * Get referral statistics for the authenticated agent.
+   *
+   * Includes counts by status and total earned/pending reward amounts.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function stats(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -106,6 +147,15 @@ class ReferralController
     Response::success($stats, 'Referral stats retrieved');
   }
 
+  /**
+   * Generate a unique 8-character referral code.
+   *
+   * Attempts up to 10 random codes before falling back to a hex-based code.
+   *
+   * @param PDO $db Database connection for uniqueness checks.
+   *
+   * @return string A unique referral code.
+   */
   private static function generateUniqueCode(PDO $db): string
   {
     $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

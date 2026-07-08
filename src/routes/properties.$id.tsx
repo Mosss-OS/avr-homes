@@ -1,3 +1,9 @@
+/**
+ * Property detail route (/properties/$id).
+ * Loads a single property by its numeric or prefixed (p-xxx, l-xxx) ID, then
+ * renders full details: gallery with lightbox, stats, description, amenities,
+ * mortgage calculator, agent sidebar, short-let booking or inquiry form, and similar listings.
+ */
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon } from "lucide-react";
 import { useMemo, useState, useCallback, useEffect } from "react";
@@ -51,6 +57,7 @@ export const Route = createFileRoute("/properties/$id")({
   component: Detail,
 });
 
+/** Full property detail component — gallery, stats, description, agent, booking/inquiry. */
 function Detail() {
   const { property: p } = Route.useLoaderData();
   const agent = p.agent_id != null && !("agent_name" in p)
@@ -344,6 +351,7 @@ function Detail() {
   );
 }
 
+/** Short-let booking widget — date selection, availability check, guest count and booking submission. */
 function ShortletBooking({ property }: { property: Property }) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -494,6 +502,7 @@ function ShortletBooking({ property }: { property: Property }) {
   );
 }
 
+/** Converts a YouTube / Vimeo URL to its embeddable equivalent with autoplay. Falls back to the raw URL. */
 function embedUrl(url: string): string {
   try {
     const u = new URL(url);
@@ -509,6 +518,7 @@ function embedUrl(url: string): string {
   return url;
 }
 
+/** A circular stat icon with a label and value used in the key-facts row (beds, baths, area). */
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
     <div className="text-center">
@@ -519,6 +529,7 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
   );
 }
 
+/** A single property-detail row (icon, label, value) used in the details panel. */
 function Detail2({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-2 last:border-0 last:pb-0 sm:border-0 sm:pb-0">
@@ -530,6 +541,7 @@ function Detail2({ icon, label, value }: { icon: React.ReactNode; label: string;
   );
 }
 
+/** Interactive mortgage estimate calculator with down payment, tenure, and interest sliders. */
 function MortgageCalc({ price }: { price: number }) {
   const [downPct, setDownPct] = useState(30);
   const [years, setYears] = useState(20);
@@ -568,6 +580,7 @@ function MortgageCalc({ price }: { price: number }) {
   );
 }
 
+/** A labelled range slider input used inside the mortgage calculator. */
 function Range({ label, suffix, min, max, value, onChange }: { label: string; suffix: string; min: number; max: number; value: number; onChange: (n: number) => void }) {
   return (
     <label className="block">
@@ -581,6 +594,7 @@ function Range({ label, suffix, min, max, value, onChange }: { label: string; su
   );
 }
 
+/** Viewing-request form shown in the sidebar for buy/rent properties (not short-let). */
 function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; propertyTitle: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");

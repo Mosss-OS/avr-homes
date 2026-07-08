@@ -1,3 +1,7 @@
+/**
+ * Admin users listing route. Shows a paginated, searchable table of all
+ * registered users with an inline role selector and link to the edit page.
+ */
 import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,11 +13,13 @@ export const Route = createFileRoute("/admin/users")({
   component: AdminUsers,
 });
 
+/** A single row returned by the admin users listing endpoint. */
 interface UserRow {
   id: number; name: string; email: string; role: string;
   is_active: boolean; email_verified_at: string | null; created_at: string;
 }
 
+/** Users management page with search, pagination, and inline role-change dropdown. */
 function AdminUsers() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -26,6 +32,7 @@ function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  /** Fetch users from the API with current search query and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: "15" });
@@ -46,6 +53,7 @@ function AdminUsers() {
     return null;
   }
 
+  /** Update a user's role (user / agent / admin). */
   async function changeRole(id: number, role: string) {
     try {
       await api.put(`/api/admin/users/${id}/role`, { role });

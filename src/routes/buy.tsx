@@ -1,3 +1,7 @@
+/**
+ * Browse route for homes for sale (/buy).
+ * Wraps BrowseSection with category="buy" and sets purpose-specific SEO meta.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { BrowseSection } from "@/components/browse-section";
 

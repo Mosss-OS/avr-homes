@@ -2,8 +2,29 @@
 
 declare(strict_types=1);
 
+/**
+ * Property management endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for handling CRUD operations on property listings.
+ *
+ * Handles listing, viewing, creating, updating, and deleting properties
+ * with filtering, pagination, sorting, validation, and activity logging.
+ *
+ * @package AVRHomes\Controllers
+ */
 class PropertyController
 {
+  /**
+   * List/search properties with filtering, pagination, and sorting.
+   *
+   * @param array $params Route parameters (unused; query string carries filters).
+   *
+   * @return void
+   */
   public static function index(array $params): void
   {
     $page    = max(1, (int)($_GET['page'] ?? 1));
@@ -33,6 +54,13 @@ class PropertyController
     Response::success($result, 'Properties retrieved successfully');
   }
 
+  /**
+   * Show a single property by ID.
+   *
+   * @param array $params Route parameters containing 'id'.
+   *
+   * @return void
+   */
   public static function show(array $params): void
   {
     $id = (int)($params['id'] ?? 0);
@@ -48,6 +76,16 @@ class PropertyController
     Response::success($property, 'Property retrieved successfully');
   }
 
+  /**
+   * Create a new property listing.
+   *
+   * Expects JSON or POST input with title, description, type, purpose, price,
+   * city, address, lat, lng, and optional fields.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function store(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -90,6 +128,15 @@ class PropertyController
     Response::success($property, 'Property created successfully', 201);
   }
 
+  /**
+   * Update an existing property listing.
+   *
+   * Only provided fields are validated and updated. Logs the activity.
+   *
+   * @param array $params Route parameters containing 'id'.
+   *
+   * @return void
+   */
   public static function update(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -146,6 +193,15 @@ class PropertyController
     Response::success($property, 'Property updated successfully');
   }
 
+  /**
+   * Delete a property listing.
+   *
+   * Removes the property and logs the deletion activity.
+   *
+   * @param array $params Route parameters containing 'id'.
+   *
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();

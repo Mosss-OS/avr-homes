@@ -1,8 +1,14 @@
+/**
+ * Blog index route (/blog).
+ * Fetches paginated blog posts and categories, renders category filters,
+ * a grid of post cards, and pagination.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import { Calendar, ArrowRight, Tag, Sparkles } from "lucide-react";
 
+/** Blog post summary returned by the /api/blog list endpoint. */
 interface BlogPost {
   id: number;
   title: string;
@@ -18,6 +24,7 @@ interface BlogPost {
   view_count: number;
 }
 
+/** A blog category with post count, returned by /api/blog/categories. */
 interface Category {
   id: number;
   name: string;
@@ -38,6 +45,7 @@ export const Route = createFileRoute("/blog")({
   component: BlogIndex,
 });
 
+/** Blog index component — fetches posts + categories, renders filters, grid, and pagination. */
 function BlogIndex() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

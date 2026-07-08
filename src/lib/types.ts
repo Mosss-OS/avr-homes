@@ -1,7 +1,20 @@
+/**
+ * Shared domain types for the AVR Homes app.
+ *
+ * Covers property data, agents, users, authentication, pagination, and
+ * agent registration payloads.
+ *
+ * @module types
+ */
+
+/** The purpose or listing intent — buy, rent, or short-let. */
 export type Purpose = "buy" | "rent" | "shortlet";
+/** The physical type of the property. */
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
+/** Supported display currencies. */
 export type Currency = "NGN" | "USD" | "GBP";
 
+/** Raw property data as returned by the API (snake_case fields). */
 export interface PropertyData {
   id: number;
   title: string;
@@ -40,6 +53,7 @@ export interface PropertyData {
   agent_is_verified?: boolean;
 }
 
+/** An image associated with a property. */
 export interface PropertyImage {
   id: number;
   file_path: string;
@@ -49,6 +63,7 @@ export interface PropertyImage {
   url: string;
 }
 
+/** Agent profile as returned by the API. */
 export interface AgentData {
   id: number | string;
   name: string;
@@ -62,6 +77,7 @@ export interface AgentData {
   properties?: PropertyData[];
 }
 
+/** Generic paginated API response wrapper. */
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
@@ -70,6 +86,7 @@ export interface PaginatedResponse<T> {
   total_pages: number;
 }
 
+/** Minimal agent profile embedded in user data. */
 export interface AgentProfile {
   agent_id: number;
   slug: string | null;
@@ -80,6 +97,7 @@ export interface AgentProfile {
   avatar_hue: number;
 }
 
+/** Authenticated user data (agent or admin). */
 export interface UserData {
   id: number;
   name: string;
@@ -88,12 +106,14 @@ export interface UserData {
   profile?: AgentProfile | null;
 }
 
+/** Authentication response payload containing tokens and user info. */
 export interface AuthResponse {
   token: string;
   refresh_token: string;
   user: UserData;
 }
 
+/** Payload for registering a new agent account. */
 export interface RegisterPayload {
   name: string;
   email: string;

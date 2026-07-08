@@ -1,3 +1,9 @@
+/**
+ * Agent directory route (/agents).
+ * Fetches all agents from the API, provides search and verification filters,
+ * and displays a paginated grid of agent cards. Each card links to the
+ * individual agent profile at /agents/$slug.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Phone, Mail, Globe, Search, BadgeCheck, ChevronLeft, ChevronRight, Loader2, MapPin } from "lucide-react";
@@ -20,6 +26,7 @@ export const Route = createFileRoute("/agents")({
   component: AgentsPage,
 });
 
+/** Shape of an agent as returned by the /api/agents list endpoint. */
 interface AgentListItem {
   id: number;
   slug: string | null;
@@ -37,6 +44,7 @@ interface AgentListItem {
 
 const PER_PAGE = 12;
 
+/** Agent directory page — fetches, filters, searches, and paginates through a list of agents. */
 function AgentsPage() {
   const [agents, setAgents] = useState<AgentListItem[]>([]);
   const [loading, setLoading] = useState(true);

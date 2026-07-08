@@ -1,3 +1,8 @@
+/**
+ * Market insights placeholder page (/insights).
+ * Announces the upcoming Lagos property price index, neighbourhood trends,
+ * and yield data with a "Get notified" CTA.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LineChart } from "lucide-react";
 
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/insights")({
   component: Insights,
 });
 
+/** Placeholder insights page showing coming-soon message and a notify CTA. */
 function Insights() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">

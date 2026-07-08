@@ -1,3 +1,4 @@
+/** shadcn/ui toggle-group component */
 "use client";
 
 import * as React from "react";

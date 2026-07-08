@@ -1,3 +1,8 @@
+/**
+ * Root layout route for AVR Homes.
+ * Wraps all pages with providers (QueryClient, Auth), global shell (header/footer),
+ * and defines SEO meta, structured data, favicon, and error/not-found boundaries.
+ */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -58,6 +63,7 @@ const STRUCTURED_DATA = {
   ],
 };
 
+/** Fallback 404 page rendered when no child route matches. */
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -73,6 +79,10 @@ function NotFoundComponent() {
   );
 }
 
+/**
+ * Global error boundary displayed when a route component throws.
+ * Reports the error to the monitoring service and offers retry / go-home actions.
+ */
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
@@ -134,6 +144,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/** HTML shell injecting `<head>` content and `<Scripts>` into every page. */
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -143,6 +154,7 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Root component that renders the site shell (header/footer) or admin shell depending on the path. */
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });

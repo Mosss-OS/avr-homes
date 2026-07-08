@@ -2,8 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * AgentLeadController
+ *
+ * Handles lead (inquiry) management for authenticated agents, including
+ * listing, viewing, marking as read, updating status and notes, and
+ * retrieving unread counts.
+ */
 class AgentLeadController
 {
+  /**
+   * Get the authenticated agent's ID from the users table.
+   *
+   * @param int $userId The authenticated user's ID.
+   * @return int The agent's ID.
+   */
   private static function getAgentId(int $userId): int
   {
     $db = Database::getConnection();
@@ -16,6 +29,12 @@ class AgentLeadController
     return (int)$agent['id'];
   }
 
+  /**
+   * List leads (inquiries) for the authenticated agent with filtering and pagination.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -103,6 +122,12 @@ class AgentLeadController
     ], 'Leads retrieved successfully');
   }
 
+  /**
+   * Get a single lead by ID.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -140,6 +165,12 @@ class AgentLeadController
     Response::success($lead, 'Lead retrieved successfully');
   }
 
+  /**
+   * Mark a lead as read.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function markRead(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -166,6 +197,12 @@ class AgentLeadController
     Response::success(['id' => $id, 'is_read' => true], 'Lead marked as read');
   }
 
+  /**
+   * Update a lead's status (new / contacted / qualified / closed).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateStatus(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -207,6 +244,12 @@ class AgentLeadController
     Response::success(['id' => $id, 'status' => $data['status']], "Lead marked as {$data['status']}");
   }
 
+  /**
+   * Update notes on a lead.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
   public static function updateNotes(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -248,6 +291,12 @@ class AgentLeadController
     Response::success(['id' => $id, 'notes' => $notes], 'Notes updated successfully');
   }
 
+  /**
+   * Get the count of unread leads for the authenticated agent.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function unreadCount(array $params): void
   {
     $user = AuthMiddleware::authenticate();

@@ -1,3 +1,8 @@
+/**
+ * Admin layout route. Renders either the login page (unauthenticated),
+ * the admin dashboard (at /admin root), or nested child routes
+ * (e.g. /admin/properties) wrapped in the AdminLayout shell.
+ */
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/lib/auth-context";
@@ -12,6 +17,11 @@ export const Route = createFileRoute("/admin")({
   component: AdminRouteLayout,
 });
 
+/**
+ * Top-level layout component for the /admin route.
+ * - Not authenticated -> renders login Outlet
+ * - Authenticated as admin/superadmin -> renders <AdminLayout> with dashboard or nested Outlet
+ */
 function AdminRouteLayout() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -41,6 +51,7 @@ function AdminRouteLayout() {
   );
 }
 
+/** Aggregate platform statistics returned by the admin/stats endpoint. */
 interface Stats {
   properties: { total: number; active: number };
   agents: { total: number; verified: number };
@@ -51,11 +62,13 @@ interface Stats {
   blog_posts: { total: number };
 }
 
+/** Dashboard overview page. Fetches platform stats and renders stat cards + quick links. */
 function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  /* Fetch aggregate stats on mount */
   useEffect(() => {
     api.get<Stats>("/api/admin/stats")
       .then((r) => setStats(r.data))
@@ -63,6 +76,7 @@ function AdminDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  /* Stat card definitions — each card has an icon, label, value, subtitle, and colour scheme */
   const cards = [
     { icon: Home, label: "Properties", value: stats?.properties.active ?? 0, sub: `${stats?.properties.total ?? 0} total`, color: "text-blue-600", bg: "bg-blue-100" },
     { icon: Building2, label: "Agents", value: stats?.agents.total ?? 0, sub: `${stats?.agents.verified ?? 0} verified`, color: "text-emerald-600", bg: "bg-emerald-100" },
@@ -133,6 +147,7 @@ function AdminDashboard() {
   );
 }
 
+/** A single quick-action link rendered inside the Dashboard sidebar card. */
 function QuickLink({ to, label }: { to: string; label: string }) {
   return (
     <a href={to} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary transition">

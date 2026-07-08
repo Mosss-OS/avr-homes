@@ -1,3 +1,8 @@
+/**
+ * Agent dashboard layout with sidebar navigation, unread-lead badge,
+ * and user info header.
+ */
+
 import { useState, useEffect, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -21,6 +26,7 @@ const NAV_ITEMS = [
   { icon: HelpCircle, label: "Help & Support", to: "#" },
 ];
 
+/** Agent dashboard shell wrapping page content with sidebar and top header. */
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const router = useRouter();

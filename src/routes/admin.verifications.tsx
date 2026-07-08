@@ -1,3 +1,7 @@
+/**
+ * Admin verification-requests route. Shows a paginated, filterable table of
+ * property verification submissions with Approve / Reject actions.
+ */
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,6 +13,7 @@ export const Route = createFileRoute("/admin/verifications")({
   component: AdminVerifications,
 });
 
+/** A single row returned by the admin verifications listing endpoint. */
 interface VerificationRow {
   id: number; property_id: number; property_title: string;
   status: string; agent_name: string;
@@ -16,6 +21,7 @@ interface VerificationRow {
   rejection_reason: string | null;
 }
 
+/** Verifications management page with status filter, pagination, and approve/reject actions. */
 function AdminVerifications() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -26,6 +32,7 @@ function AdminVerifications() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
 
+  /** Fetch verification requests from the API with current status filter and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: "15" });
@@ -48,6 +55,7 @@ function AdminVerifications() {
     return null;
   }
 
+  /** Approve a verification request. */
   async function approve(id: number) {
     try {
       await api.put(`/api/admin/verifications/${id}/approve`, {});
@@ -58,6 +66,7 @@ function AdminVerifications() {
     }
   }
 
+  /** Reject a verification with a required reason. */
   async function reject(id: number) {
     const reason = prompt("Rejection reason:");
     if (!reason) return;

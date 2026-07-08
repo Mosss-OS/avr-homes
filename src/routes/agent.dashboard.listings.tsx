@@ -1,3 +1,8 @@
+/**
+ * Agent listings management route — lists all agent-owned properties
+ * with search, status filtering, and inline publish/draft/delete actions.
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -13,6 +18,7 @@ export const Route = createFileRoute("/agent/dashboard/listings")({
   component: AgentListingsPage,
 });
 
+/** A single property listing managed by the agent. */
 interface Property {
   id: number;
   title: string;
@@ -30,6 +36,7 @@ interface Property {
   inquiry_count?: number;
 }
 
+/** Listings page component — renders a searchable, filterable table of agent properties. */
 function AgentListingsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [listings, setListings] = useState<Property[]>([]);
@@ -49,6 +56,7 @@ function AgentListingsPage() {
       .finally(() => setLoading(false));
   }, [user, authLoading, search, statusFilter]);
 
+  /** Delete a listing after user confirmation, then remove it from local state. */
   async function handleDelete(id: number) {
     if (!confirm("Delete this listing?")) return;
     try {
@@ -57,6 +65,7 @@ function AgentListingsPage() {
     } catch {}
   }
 
+  /** Toggle a listing between published and draft status. */
   async function handleToggleStatus(id: number, currentStatus: string) {
     const newStatus = currentStatus === "published" ? "draft" : "published";
     try {
@@ -65,6 +74,7 @@ function AgentListingsPage() {
     } catch {}
   }
 
+  /** Return a coloured Badge element for the given listing status. */
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
       published: "bg-emerald-500/10 text-emerald-600 border-emerald-200",

@@ -1,3 +1,9 @@
+/**
+ * Property listing / search route (/properties).
+ * Renders a filterable grid of properties with URL-driven search params
+ * (purpose, city, type, beds, price range, text query). Supports saving searches
+ * and delegates to a detail child route when a property is selected.
+ */
 import { createFileRoute, Link, Outlet, useMatches } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -14,6 +20,7 @@ import type { Property } from "@/lib/properties";
 import { addSavedSearch } from "@/lib/saved";
 import { BookmarkPlus, SlidersHorizontal } from "lucide-react";
 
+/** Zod schema for URL search params — purpose, query, city, type, price range, beds. */
 const schema = z.object({
   purpose: fallback(z.enum(["buy", "rent", "shortlet"]), "buy").default("buy"),
   q: fallback(z.string(), "").optional(),
@@ -46,6 +53,7 @@ export const Route = createFileRoute("/properties")({
   component: List,
 });
 
+/** List page that fetches/filters properties from search params and renders the grid. */
 function List() {
   const matches = useMatches();
   const hasDetailChild = matches.some((m) => m.routeId === "/properties/$id");
@@ -155,6 +163,7 @@ function List() {
   );
 }
 
+/** Horizontal pill-bar of filter links for purpose, city, type, and beds. */
 function Filters({ current }: { current: z.infer<typeof schema> }) {
   return (
     <div className="mt-6 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
@@ -229,6 +238,7 @@ function Filters({ current }: { current: z.infer<typeof schema> }) {
   );
 }
 
+/** A labelled group of filter chips displayed inline. */
 function Pill({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex shrink-0 items-center gap-1 rounded-xl bg-secondary/60 p-1">
@@ -237,6 +247,7 @@ function Pill({ label, children }: { label: string; children: React.ReactNode })
     </div>
   );
 }
+/** Returns the Tailwind class string for a filter chip based on active state. */
 function chip(active: boolean) {
   return `rounded-lg px-3 py-1 text-xs font-medium capitalize transition ${
     active ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-background"

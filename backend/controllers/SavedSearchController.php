@@ -2,8 +2,29 @@
 
 declare(strict_types=1);
 
+/**
+ * Saved search endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing saved property searches.
+ *
+ * Allows authenticated users to save, update, list, and delete
+ * search queries with optional email alert settings.
+ *
+ * @package AVRHomes\Controllers
+ */
 class SavedSearchController
 {
+  /**
+   * List all saved searches for the authenticated user.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -25,6 +46,15 @@ class SavedSearchController
     Response::success($searches, 'Saved searches retrieved');
   }
 
+  /**
+   * Save a new search query.
+   *
+   * Expects JSON body with optional 'name', 'filters', and 'alert_enabled'.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function store(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -61,6 +91,15 @@ class SavedSearchController
     Response::success($search, 'Search saved', 201);
   }
 
+  /**
+   * Update a saved search.
+   *
+   * Only the provided fields (name, filters, alert_enabled) are updated.
+   *
+   * @param array $params Route parameters containing 'id'.
+   *
+   * @return void
+   */
   public static function update(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -112,6 +151,13 @@ class SavedSearchController
     Response::success($search, 'Saved search updated');
   }
 
+  /**
+   * Delete a saved search.
+   *
+   * @param array $params Route parameters containing 'id'.
+   *
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();

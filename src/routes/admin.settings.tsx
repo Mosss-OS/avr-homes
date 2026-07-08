@@ -1,3 +1,7 @@
+/**
+ * Admin settings route. Provides a simple key-value form for editing
+ * platform-wide configuration values (site name, contacts, social links, etc.).
+ */
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,6 +13,7 @@ export const Route = createFileRoute("/admin/settings")({
   component: AdminSettings,
 });
 
+/** Settings editor — loads all settings on mount and saves them as a flat key-value object. */
 function AdminSettings() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -17,6 +22,7 @@ function AdminSettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  /* Load all settings on mount */
 useEffect(() => {
     api.get<Record<string, string>>("/api/settings")
       .then((r) => setSettings(r.data))
@@ -29,6 +35,7 @@ useEffect(() => {
     return null;
   }
 
+  /** Persist all settings to the API. Shows "Saved!" confirmation for 2 seconds. */
   async function save() {
     setSaving(true);
     try {

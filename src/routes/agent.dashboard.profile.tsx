@@ -1,3 +1,8 @@
+/**
+ * Agent profile settings route — allows the agent to view and update their
+ * personal info, professional details, business stats, social links, and community info.
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -18,6 +23,7 @@ export const Route = createFileRoute("/agent/dashboard/profile")({
   component: AgentProfilePage,
 });
 
+/** Complete agent profile data returned by the API. */
 interface FullAgentProfile {
   id: number;
   slug: string | null;
@@ -56,6 +62,7 @@ const MONTHLY_LISTINGS = [["1-5", "1-5 listings"], ["6-15", "6-15 listings"], ["
 const DEAL_SIZES = [["below-10m", "Below ₦10M"], ["10m-50m", "₦10M - ₦50M"], ["50m-200m", "₦50M - ₦200M"], ["200m+", "₦200M+"]];
 const LANGUAGE_OPTIONS = ["English", "Igbo", "Yoruba", "Hausa", "Pidgin", "French"];
 
+/** Profile page component — fetches the agent profile and renders editable sections. */
 function AgentProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<FullAgentProfile | null>(null);
@@ -70,10 +77,12 @@ function AgentProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  /** Update a single profile field in local state. */
   function update(field: string, value: string | string[]) {
     setProfile((prev) => prev ? { ...prev, [field]: value } : prev);
   }
 
+  /** Toggle a value in one of the multi-select array fields (property types, specializations, languages). */
   function toggleArray(field: "property_types" | "specialization" | "languages", value: string) {
     setProfile((prev) => {
       if (!prev) return prev;
@@ -83,6 +92,7 @@ function AgentProfilePage() {
     });
   }
 
+  /** Persist the full profile to the API and show a success/error toast. */
   async function handleSave() {
     if (!profile) return;
     setSaving(true);
@@ -109,6 +119,7 @@ function AgentProfilePage() {
     }
   }
 
+  /** Upload a new avatar image and update the profile photo_url. */
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -148,6 +159,7 @@ function AgentProfilePage() {
 
   const initials = profile.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
+  /** Render a group of toggle-able chip buttons for multi-select fields. */
   function ChipSelect({ items, selected, onToggle, label }: { items: string[]; selected: string[]; onToggle: (v: string) => void; label: string }) {
     return (
       <div className="space-y-2">

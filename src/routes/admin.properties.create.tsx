@@ -1,3 +1,7 @@
+/**
+ * Admin create-property route. A multi-step wizard (Basic Info → Details →
+ * Location → Media → Review) that submits all data as FormData to the API.
+ */
 import { useState } from "react";
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -26,6 +30,7 @@ const PURPOSES = [
 ];
 const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
 
+/** Shape of the create-property form data before being serialised into FormData. */
 interface FormData {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
@@ -33,6 +38,7 @@ interface FormData {
   image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string; status: string;
 }
 
+/** Multi-step property creation wizard. Manages form state, validation, and submission across 5 steps. */
 function AdminCreateProperty() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -49,11 +55,13 @@ function AdminCreateProperty() {
     image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "", status: "published",
   });
 
+  /** Update a single form field and clear its validation error. */
   function update<K extends keyof FormData>(field: K, value: FormData[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setFieldErrors((prev) => ({ ...prev, [field]: "" }));
   }
 
+  /** Add or remove an amenity from the selected list. */
   function toggleAmenity(a: string) {
     setForm((prev) => ({
       ...prev,
@@ -63,6 +71,7 @@ function AdminCreateProperty() {
     }));
   }
 
+  /** Store the selected image file and create an object URL for preview. */
   function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
@@ -71,6 +80,7 @@ function AdminCreateProperty() {
     }
   }
 
+  /** Validate required fields for the current step. Returns true if no errors. */
   function validateStep(): boolean {
     const errors: Record<string, string> = {};
     if (step === 0) {
@@ -86,6 +96,7 @@ function AdminCreateProperty() {
     return Object.keys(errors).length === 0;
   }
 
+  /** Submit the completed form as multipart FormData to the API. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateStep()) return;

@@ -1,9 +1,35 @@
 <?php
 
+/**
+ * Property model — data access for property listings.
+ *
+ * Provides full-text search, filtering (purpose, type, city,
+ * community, price range, beds, baths), pagination, sorting,
+ * image retrieval, and CRUD operations.
+ *
+ * @package AvrHomes
+ */
+
 declare(strict_types=1);
 
+/**
+ * Data-access layer for the properties table.
+ */
 class Property
 {
+  /**
+   * Search and paginate active properties with optional filters.
+   *
+   * Supported filters: purpose, type, city, community, min_price,
+   * max_price, beds, baths, featured, q (full-text search), ids.
+   *
+   * @param array<string,mixed> $filters Associative array of filter criteria.
+   * @param int                 $page    Page number (1-based).
+   * @param int                 $perPage Results per page.
+   * @param string              $sort    Sort column (price, created_at, title, area, beds, posted_days_ago).
+   * @param string              $order   Sort direction ('asc' or 'desc').
+   * @return array{data: array, total: int, page: int, per_page: int, total_pages: int}
+   */
   public static function findAll(array $filters = [], int $page = 1, int $perPage = 12, string $sort = 'created_at', string $order = 'desc'): array
   {
     $db = Database::getConnection();
@@ -121,6 +147,12 @@ class Property
     ];
   }
 
+  /**
+   * Find a property by primary key, including agent info and images.
+   *
+   * @param int $id Property ID.
+   * @return array|null Property detail array or null if not found.
+   */
   public static function findById(int $id): ?array
   {
     $db = Database::getConnection();
@@ -158,6 +190,12 @@ class Property
     return $property;
   }
 
+  /**
+   * Insert a new property record.
+   *
+   * @param array<string,mixed> $data Property data including title, description, type, purpose, price, etc.
+   * @return int The new property ID.
+   */
   public static function create(array $data): int
   {
     $db = Database::getConnection();
@@ -198,6 +236,13 @@ class Property
     return (int)$db->lastInsertId();
   }
 
+  /**
+   * Update a property record, regenerating slug if the title changed.
+   *
+   * @param int   $id   Property ID.
+   * @param array $data Associative array of fields to update.
+   * @return bool True on success.
+   */
   public static function update(int $id, array $data): bool
   {
     $db = Database::getConnection();
@@ -245,6 +290,12 @@ class Property
     return $stmt->execute($params);
   }
 
+  /**
+   * Delete a property record.
+   *
+   * @param int $id Property ID.
+   * @return bool True on success.
+   */
   public static function delete(int $id): bool
   {
     $db = Database::getConnection();
@@ -252,6 +303,12 @@ class Property
     return $stmt->execute([$id]);
   }
 
+  /**
+   * Retrieve all images for a property, ordered by sort_order / id.
+   *
+   * @param int $propertyId Property ID.
+   * @return array<int,array<string,mixed>> Image records with url resolved.
+   */
   public static function getImages(int $propertyId): array
   {
     $db = Database::getConnection();
@@ -271,6 +328,12 @@ class Property
     return $images;
   }
 
+  /**
+   * Resolve a relative image path to a full URL.
+   *
+   * @param string $path Relative file path or absolute URL.
+   * @return string Full image URL.
+   */
   public static function imageUrl(string $path): string
   {
     if (str_starts_with($path, 'http')) {
@@ -280,6 +343,14 @@ class Property
     return "{$baseUrl}/{$path}";
   }
 
+  /**
+   * Generate a unique URL slug from a property title.
+   *
+   * Appends a numeric suffix if the slug already exists.
+   *
+   * @param string $title Property title.
+   * @return string Unique slug.
+   */
   private static function generateSlug(string $title): string
   {
     $slug = strtolower(trim($title));

@@ -1,3 +1,8 @@
+/**
+ * About page (/about).
+ * Static informational page covering AVR Homes' mission, founding story,
+ * values, and a partnership CTA.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Award, Globe, Lock, MessageCircle } from "lucide-react";
 
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
+/** About page — mission statement, story, values grid, and partnership CTA. */
 function About() {
   return (
     <div>

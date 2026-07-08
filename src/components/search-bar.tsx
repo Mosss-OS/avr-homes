@@ -1,8 +1,14 @@
+/**
+ * Property search form with purpose tabs, keyword input, city and
+ * type dropdowns, and a submit button that navigates to /properties.
+ */
+
 import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { cities, propertyTypes, purposes, type Purpose } from "@/lib/properties";
 
+/** Search form that navigates to the properties listing with query params. */
 export function SearchBar({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
   const [purpose, setPurpose] = useState<Purpose>("buy");

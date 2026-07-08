@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Manages diaspora investor profiles, wallets, and KYC verification.
+ * All endpoints require superadmin authentication.
+ */
 class DiasporaController
 {
+  /**
+   * List all diaspora investors with pagination.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     // Get diaspora investors - requires superadmin
@@ -40,6 +50,12 @@ class DiasporaController
     ], 'Diaspora investors retrieved');
   }
 
+  /**
+   * Show a single diaspora investor profile by ID.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function show(array $params): void
   {
     $investorId = (int)($params['id'] ?? 0);
@@ -65,6 +81,12 @@ class DiasporaController
     Response::success($investor, 'Investor profile retrieved');
   }
 
+  /**
+   * List all wallets for a given diaspora investor.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function wallets(array $params): void
   {
     $investorId = (int)($params['id'] ?? 0);
@@ -91,6 +113,13 @@ class DiasporaController
     Response::success($wallets, 'Investor wallets retrieved');
   }
 
+  /**
+   * Update the KYC status for a diaspora investor.
+   * Sets is_verified based on kyc_status value.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function updateKyc(array $params): void
   {
     $investorId = (int)($params['id'] ?? 0);

@@ -2,8 +2,20 @@
 
 declare(strict_types=1);
 
+/**
+ * AuthController
+ *
+ * Handles user and agent authentication, registration, token refresh,
+ * and session management.
+ */
 class AuthController
 {
+  /**
+   * Authenticate a user and return access & refresh tokens.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function login(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -51,6 +63,12 @@ class AuthController
     ], 'Login successful');
   }
 
+  /**
+   * Register a new agent account with user, agent profile, subscription, and wallet.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function registerAgent(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -176,6 +194,12 @@ class AuthController
     }
   }
 
+  /**
+   * Authenticate an agent and return tokens with agent profile data.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function loginAgent(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -236,6 +260,12 @@ class AuthController
     ], 'Login successful');
   }
 
+  /**
+   * Get the authenticated user's details (includes agent profile for agent role).
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function me(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -281,6 +311,12 @@ class AuthController
     ]);
   }
 
+  /**
+   * Logout the authenticated user (revoke refresh token).
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function logout(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -299,6 +335,12 @@ class AuthController
     Response::success(null, 'Logged out successfully');
   }
 
+  /**
+   * Refresh an expired access token using a valid refresh token.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
   public static function refreshToken(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);

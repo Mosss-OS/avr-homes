@@ -1,3 +1,8 @@
+/**
+ * Saved properties and searches route (/saved).
+ * Reads locally stored saved property IDs and saved searches (with optional alerts),
+ * then renders the saved listings grid and a search-alert management list.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Heart, Search, Trash2, Bell, BellOff } from "lucide-react";
@@ -16,6 +21,7 @@ export const Route = createFileRoute("/saved")({
   component: Saved,
 });
 
+/** Saved page — shows bookmarked properties and saved searches with alert-toggle and delete. */
 function Saved() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [searches, setSearches] = useState<SavedSearch[]>([]);

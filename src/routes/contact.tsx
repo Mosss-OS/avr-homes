@@ -1,3 +1,8 @@
+/**
+ * Contact page (/contact).
+ * Displays office address, WhatsApp number, email, embedded Google Map,
+ * and a contact form that submits enquiries to the API.
+ */
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { useState } from "react";
@@ -14,6 +19,7 @@ export const Route = createFileRoute("/contact")({
   component: Contact,
 });
 
+/** Contact page — info rows (address/phone/email), map embed, and enquiry form. */
 function Contact() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -99,6 +105,7 @@ function Contact() {
   );
 }
 
+/** A single info row (icon, title, value) in the contact details column. */
 function InfoRow({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-3 rounded-2xl border border-border bg-card p-4">
@@ -110,6 +117,7 @@ function InfoRow({ icon, title, children }: { icon: React.ReactNode; title: stri
     </div>
   );
 }
+/** A labelled form field wrapper used inside the contact form. */
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
