@@ -308,44 +308,46 @@ class SubscriptionController
 
     $where = implode(' AND ', $conditions);
 
-    // Count distinct agents with matching subscriptions
-    $countStmt = $db->prepare(
-      "SELECT COUNT(DISTINCT s.agent_id) FROM agent_subscriptions s
-       JOIN users u ON u.id = s.agent_id
-       WHERE {$where}"
-    );
-    $countStmt->execute($binds);
-    $total = (int)$countStmt->fetchColumn();
+    try {
+      $countStmt = $db->prepare(
+        "SELECT COUNT(DISTINCT s.agent_id) FROM agent_subscriptions s
+         JOIN users u ON u.id = s.agent_id
+         WHERE {$where}"
+      );
+      $countStmt->execute($binds);
+      $total = (int)$countStmt->fetchColumn();
 
-    // Get latest subscription per agent
-    $offset = ($page - 1) * $perPage;
-    $stmt = $db->prepare(
-      "SELECT s.*, u.name as user_name, u.email as user_email,
-              (SELECT COUNT(*) FROM properties p WHERE p.agent_id = s.agent_id) as listing_count
-       FROM agent_subscriptions s
-       JOIN users u ON u.id = s.agent_id
-       WHERE {$where}
-       AND s.id = (
-         SELECT s2.id FROM agent_subscriptions s2
-         WHERE s2.agent_id = s.agent_id
-         ORDER BY s2.current_period_start DESC LIMIT 1
-       )
-       ORDER BY s.current_period_start DESC
-       LIMIT {$perPage} OFFSET {$offset}"
-    );
-    $stmt->execute($binds);
-    $rows = $stmt->fetchAll();
+      $offset = ($page - 1) * $perPage;
+      $stmt = $db->prepare(
+        "SELECT s.*, u.name as user_name, u.email as user_email,
+                (SELECT COUNT(*) FROM properties p WHERE p.agent_id = s.agent_id) as listing_count
+         FROM agent_subscriptions s
+         JOIN users u ON u.id = s.agent_id
+         WHERE {$where}
+         AND s.id = (
+           SELECT s2.id FROM agent_subscriptions s2
+           WHERE s2.agent_id = s.agent_id
+           ORDER BY s2.current_period_start DESC LIMIT 1
+         )
+         ORDER BY s.current_period_start DESC
+         LIMIT {$perPage} OFFSET {$offset}"
+      );
+      $stmt->execute($binds);
+      $rows = $stmt->fetchAll();
 
-    foreach ($rows as &$r) {
-      $r['id'] = (int)$r['id'];
-      $r['agent_id'] = (int)$r['agent_id'];
-      $r['listings_limit'] = (int)$r['listings_limit'];
-      $r['featured_slots'] = (int)$r['featured_slots'];
-      $r['lead_priority'] = (int)$r['lead_priority'];
-      $r['analytics_access'] = (bool)$r['analytics_access'];
-      $r['verification_priority'] = (int)$r['verification_priority'];
-      $r['dedicated_manager'] = (bool)$r['dedicated_manager'];
-      $r['listing_count'] = (int)$r['listing_count'];
+      foreach ($rows as &$r) {
+        $r['id'] = (int)$r['id'];
+        $r['agent_id'] = (int)$r['agent_id'];
+        $r['listings_limit'] = (int)$r['listings_limit'];
+        $r['featured_slots'] = (int)$r['featured_slots'];
+        $r['lead_priority'] = (int)$r['lead_priority'];
+        $r['analytics_access'] = (bool)$r['analytics_access'];
+        $r['verification_priority'] = (int)$r['verification_priority'];
+        $r['dedicated_manager'] = (bool)$r['dedicated_manager'];
+        $r['listing_count'] = (int)$r['listing_count'];
+      }
+    } catch (Exception $e) {
+      $rows = []; $total = 0;
     }
 
     Response::success([

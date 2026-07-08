@@ -877,26 +877,30 @@ class AdminController
 
     $where = implode(' AND ', $conditions);
 
-    $countStmt = $db->prepare("SELECT COUNT(*) FROM blog_posts p WHERE {$where}");
-    $countStmt->execute($binds);
-    $total = (int)$countStmt->fetchColumn();
+    try {
+      $countStmt = $db->prepare("SELECT COUNT(*) FROM blog_posts p WHERE {$where}");
+      $countStmt->execute($binds);
+      $total = (int)$countStmt->fetchColumn();
 
-    $offset = ($page - 1) * $perPage;
-    $stmt = $db->prepare(
-      "SELECT p.*, c.name as category_name, u.name as author_name
-       FROM blog_posts p
-       LEFT JOIN blog_categories c ON p.category_id = c.id
-       LEFT JOIN users u ON p.author_id = u.id
-       WHERE {$where}
-       ORDER BY p.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
-    );
-    $stmt->execute($binds);
-    $rows = $stmt->fetchAll();
+      $offset = ($page - 1) * $perPage;
+      $stmt = $db->prepare(
+        "SELECT p.*, c.name as category_name, u.name as author_name
+         FROM blog_posts p
+         LEFT JOIN blog_categories c ON p.category_id = c.id
+         LEFT JOIN users u ON p.author_id = u.id
+         WHERE {$where}
+         ORDER BY p.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
+      );
+      $stmt->execute($binds);
+      $rows = $stmt->fetchAll();
 
-    foreach ($rows as &$r) {
-      $r['id'] = (int)$r['id'];
-      $r['category_id'] = (int)$r['category_id'];
-      $r['is_published'] = (bool)$r['is_published'];
+      foreach ($rows as &$r) {
+        $r['id'] = (int)$r['id'];
+        $r['category_id'] = (int)$r['category_id'];
+        $r['is_published'] = (bool)$r['is_published'];
+      }
+    } catch (Exception $e) {
+      $rows = []; $total = 0;
     }
 
     Response::success([
@@ -1162,29 +1166,33 @@ class AdminController
 
     $since = date('Y-m-d', strtotime("-{$period} days"));
 
-    $trends = $db->query(
-      "SELECT
-         d.date,
-         COALESCE(u.cnt, 0) as new_users,
-         COALESCE(p.cnt, 0) as new_properties,
-         COALESCE(b.cnt, 0) as new_bookings,
-         COALESCE(i.cnt, 0) as new_inquiries,
-         COALESCE(r.cnt, 0) as new_referrals,
-         COALESCE(s.cnt, 0) as new_subscriptions
-       FROM (
-         SELECT DATE_ADD('{$since}', INTERVAL seq DAY) as date
-         FROM (SELECT 0 as seq UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) d1
-         CROSS JOIN (SELECT 0 as seq UNION SELECT 10 UNION SELECT 20 UNION SELECT 30 UNION SELECT 40 UNION SELECT 50 UNION SELECT 60 UNION SELECT 70 UNION SELECT 80 UNION SELECT 90) d2
-         HAVING date <= CURDATE()
-       ) d
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM users WHERE created_at >= ? GROUP BY dt) u ON u.dt = d.date
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM properties WHERE created_at >= ? GROUP BY dt) p ON p.dt = d.date
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM property_bookings WHERE created_at >= ? GROUP BY dt) b ON b.dt = d.date
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM inquiries WHERE created_at >= ? GROUP BY dt) i ON i.dt = d.date
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM referrals WHERE created_at >= ? GROUP BY dt) r ON r.dt = d.date
-       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM agent_subscriptions WHERE created_at >= ? GROUP BY dt) s ON s.dt = d.date
-       ORDER BY d.date"
-    )->fetchAll();
+    try {
+      $trends = $db->query(
+        "SELECT
+           d.date,
+           COALESCE(u.cnt, 0) as new_users,
+           COALESCE(p.cnt, 0) as new_properties,
+           COALESCE(b.cnt, 0) as new_bookings,
+           COALESCE(i.cnt, 0) as new_inquiries,
+           COALESCE(r.cnt, 0) as new_referrals,
+           COALESCE(s.cnt, 0) as new_subscriptions
+         FROM (
+           SELECT DATE_ADD('{$since}', INTERVAL seq DAY) as date
+           FROM (SELECT 0 as seq UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) d1
+           CROSS JOIN (SELECT 0 as seq UNION SELECT 10 UNION SELECT 20 UNION SELECT 30 UNION SELECT 40 UNION SELECT 50 UNION SELECT 60 UNION SELECT 70 UNION SELECT 80 UNION SELECT 90) d2
+           HAVING date <= CURDATE()
+         ) d
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM users WHERE created_at >= ? GROUP BY dt) u ON u.dt = d.date
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM properties WHERE created_at >= ? GROUP BY dt) p ON p.dt = d.date
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM property_bookings WHERE created_at >= ? GROUP BY dt) b ON b.dt = d.date
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM inquiries WHERE created_at >= ? GROUP BY dt) i ON i.dt = d.date
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM referrals WHERE created_at >= ? GROUP BY dt) r ON r.dt = d.date
+         LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM agent_subscriptions WHERE created_at >= ? GROUP BY dt) s ON s.dt = d.date
+         ORDER BY d.date"
+      )->fetchAll();
+    } catch (Exception $e) {
+      $trends = [];
+    }
 
     Response::success(['period' => $period, 'data' => $trends], 'Trends retrieved');
   }
@@ -1198,15 +1206,20 @@ class AdminController
     AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
-    $propertiesByType = $db->query("SELECT type, COUNT(*) as count FROM properties GROUP BY type ORDER BY count DESC")->fetchAll();
-    $propertiesByPurpose = $db->query("SELECT purpose, COUNT(*) as count FROM properties GROUP BY purpose ORDER BY count DESC")->fetchAll();
-    $propertiesByCity = $db->query("SELECT city, COUNT(*) as count FROM properties GROUP BY city ORDER BY count DESC LIMIT 10")->fetchAll();
-    $subscriptionsByTier = $db->query("SELECT tier, COUNT(*) as count FROM agent_subscriptions WHERE status = 'active' GROUP BY tier ORDER BY count DESC")->fetchAll();
-    $bookingsByStatus = $db->query("SELECT status, COUNT(*) as count FROM property_bookings GROUP BY status")->fetchAll();
-    $inquiriesByStatus = $db->query("SELECT status, COUNT(*) as count FROM inquiries GROUP BY status")->fetchAll();
+    try {
+      $propertiesByType = $db->query("SELECT type, COUNT(*) as count FROM properties GROUP BY type ORDER BY count DESC")->fetchAll();
+      $propertiesByPurpose = $db->query("SELECT purpose, COUNT(*) as count FROM properties GROUP BY purpose ORDER BY count DESC")->fetchAll();
+      $propertiesByCity = $db->query("SELECT city, COUNT(*) as count FROM properties GROUP BY city ORDER BY count DESC LIMIT 10")->fetchAll();
+      $subscriptionsByTier = $db->query("SELECT tier, COUNT(*) as count FROM agent_subscriptions WHERE status = 'active' GROUP BY tier ORDER BY count DESC")->fetchAll();
+      $bookingsByStatus = $db->query("SELECT status, COUNT(*) as count FROM property_bookings GROUP BY status")->fetchAll();
+      $inquiriesByStatus = $db->query("SELECT status, COUNT(*) as count FROM inquiries GROUP BY status")->fetchAll();
 
-    foreach ([&$propertiesByType, &$propertiesByPurpose, &$propertiesByCity, &$subscriptionsByTier, &$bookingsByStatus, &$inquiriesByStatus] as &$arr) {
-      foreach ($arr as &$r) { $r['count'] = (int)$r['count']; }
+      foreach ([&$propertiesByType, &$propertiesByPurpose, &$propertiesByCity, &$subscriptionsByTier, &$bookingsByStatus, &$inquiriesByStatus] as &$arr) {
+        foreach ($arr as &$r) { $r['count'] = (int)$r['count']; }
+      }
+    } catch (Exception $e) {
+      $propertiesByType = $propertiesByPurpose = $propertiesByCity = [];
+      $subscriptionsByTier = $bookingsByStatus = $inquiriesByStatus = [];
     }
 
     Response::success([
