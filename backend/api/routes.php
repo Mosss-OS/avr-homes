@@ -38,6 +38,9 @@ route('POST', '/api/properties', ['PropertyController', 'store']);
 route('PUT', '/api/properties/{id}', ['PropertyController', 'update']);
 route('DELETE', '/api/properties/{id}', ['PropertyController', 'destroy']);
 
+/* ── Public stats ─────────────────────────────────────────── */
+route('GET', '/api/stats', ['StatsController', 'index']);
+
 /* ── Agent public routes ──────────────────────────────────── */
 route('GET', '/api/agents', ['AgentController', 'index']);
 route('GET', '/api/agents/by-slug/{slug}', ['AgentController', 'showBySlug']);

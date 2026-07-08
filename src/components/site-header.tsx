@@ -350,67 +350,118 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-20 border-t border-border bg-secondary/40">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
-        <div className="md:col-span-1">
-          <div className="flex items-center gap-2.5">
-            <img src={LOGO_URL} alt="AVR Homes" className="h-14 w-14 rounded-xl object-cover" />
-            <span className="font-display text-xl font-semibold">AVR Homes.</span>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="grid gap-8 md:grid-cols-5">
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2.5">
+              <img src={LOGO_URL} alt="AVR Homes" className="h-14 w-14 rounded-xl object-cover" />
+              <span className="font-display text-xl font-semibold">AVR Homes.</span>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
+            </p>
+            <address className="mt-4 not-italic text-sm text-muted-foreground">
+              <div className="font-medium text-foreground">Visit us</div>
+              {settings?.address ? settings.address : (
+                <>2 Lanre Olumide Street,<br />Idado Estate, Igbo-efon,<br />Lekki, Lagos, Nigeria.</>
+              )}
+            </address>
+            <p className="mt-3 text-xs text-muted-foreground">{settings?.contact_email || "hello@avrhomes.ng"}</p>
+            {settings?.contact_phone && <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>}
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
-          </p>
-          <address className="mt-4 not-italic text-sm text-muted-foreground">
-            <div className="font-medium text-foreground">Visit us</div>
-            {settings?.address ? settings.address : (
-              <>2 Lanre Olumide Street,<br />Idado Estate, Igbo-efon,<br />Lekki, Lagos, Nigeria.</>
-            )}
-          </address>
+
+          {/* Explore */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-3">Explore</h4>
+            <div className="flex flex-col gap-2">
+              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Buy</Link>
+              <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Rent</Link>
+              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Shortlet</Link>
+              <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">Map View</Link>
+              <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">Agents</Link>
+              <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">Market Insights</Link>
+            </div>
+          </div>
+
+          {/* For Sale */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-3">For Sale</h4>
+            <div className="flex flex-col gap-2">
+              <Link to="/properties" search={{ purpose: "buy", type: "apartment" } as never} className="text-sm text-muted-foreground hover:text-foreground">Flats & Apartments</Link>
+              <Link to="/properties" search={{ purpose: "buy", type: "villa" } as never} className="text-sm text-muted-foreground hover:text-foreground">Houses & Villas</Link>
+              <Link to="/properties" search={{ type: "land" } as never} className="text-sm text-muted-foreground hover:text-foreground">Lands</Link>
+              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Commercial Property</Link>
+              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Luxury Homes</Link>
+              <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">Diaspora Investment</Link>
+            </div>
+          </div>
+
+          {/* For Rent / Shortlet */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-3">Rent & Shortlet</h4>
+            <div className="flex flex-col gap-2">
+              <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Homes for Rent</Link>
+              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Shortlets</Link>
+              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Vacation Rentals</Link>
+              <Link to="/properties" search={{ purpose: "rent", type: "apartment" } as never} className="text-sm text-muted-foreground hover:text-foreground">Serviced Apartments</Link>
+            </div>
+            <h4 className="text-sm font-semibold text-foreground mt-6 mb-3">Resources</h4>
+            <div className="flex flex-col gap-2">
+              <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link>
+              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link>
+              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
+              <Link to="/agent/register" className="text-sm text-muted-foreground hover:text-foreground">Become an Agent</Link>
+              <Link to="/agent/login" className="text-sm text-muted-foreground hover:text-foreground">Agent Login</Link>
+            </div>
+          </div>
+
+          {/* Follow */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground mb-3">Follow AVR Homes</h4>
+            <div className="flex flex-wrap gap-2">
+              {socialLinks.length > 0 ? socialLinks.map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <s.icon className="h-4 w-4" />
+                </a>
+              )) : (
+                <>
+                  <a href="https://instagram.com/avrhomes.ng" target="_blank" rel="noreferrer" aria-label="Instagram"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                    <Instagram className="h-4 w-4" />
+                  </a>
+                  <a href="https://facebook.com/avrhomesng" target="_blank" rel="noreferrer" aria-label="Facebook"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a href="https://linkedin.com/company/avr-homes" target="_blank" rel="noreferrer" aria-label="LinkedIn"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="md:col-span-2">
-          <h4 className="text-sm font-semibold text-foreground mb-3">Explore</h4>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
-            <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Buy</Link>
-            <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Rent</Link>
-            <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">Map view</Link>
-            <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">Agents</Link>
-            <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">Market Insights</Link>
-            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link>
-            <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link>
-            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
-            <Link to="/agent/register" className="text-sm text-muted-foreground hover:text-foreground">Become an Agent</Link>
-            <Link to="/agent/login" className="text-sm text-muted-foreground hover:text-foreground">Agent Login</Link>
-            <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">Diaspora Investors</Link>
+        {/* State/city SEO grid */}
+        <div className="mt-10 border-t border-border pt-8">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Properties by Location</h4>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {LOCATIONS.map((loc) => (
+              <div key={loc.state}>
+                <Link to="/properties" search={{ city: loc.state } as never}
+                  className="text-sm font-medium text-foreground hover:text-primary">{loc.state}</Link>
+                <div className="mt-1 flex flex-col gap-0.5">
+                  {loc.cities.slice(0, 4).map((city) => (
+                    <Link key={city} to="/properties" search={{ city } as never}
+                      className="text-xs text-muted-foreground hover:text-foreground">{city}</Link>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold text-foreground">Follow AVR Homes</h4>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {socialLinks.length > 0 ? socialLinks.map((s) => (
-              <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}
-                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
-                <s.icon className="h-4 w-4" />
-              </a>
-            )) : (
-              <>
-                <a href="https://instagram.com/avrhomes.ng" target="_blank" rel="noreferrer" aria-label="Instagram"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
-                  <Instagram className="h-4 w-4" />
-                </a>
-                <a href="https://facebook.com/avrhomesng" target="_blank" rel="noreferrer" aria-label="Facebook"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
-                  <Facebook className="h-4 w-4" />
-                </a>
-                <a href="https://linkedin.com/company/avr-homes" target="_blank" rel="noreferrer" aria-label="LinkedIn"
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </>
-            )}
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground">{settings?.contact_email || "hello@avrhomes.ng"}</p>
-          {settings?.contact_phone && <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>}
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
@@ -419,3 +470,18 @@ export function SiteFooter() {
     </footer>
   );
 }
+
+const LOCATIONS = [
+  { state: "Lagos", cities: ["Lekki", "Ikoyi", "Victoria Island", "Ikeja", "Ajah", "Surulere", "Yaba", "Gbagada"] },
+  { state: "Abuja", cities: ["Maitama", "Wuse 2", "Asokoro", "Gwarinpa", "Jabi", "Kubwa", "Lugbe", "Katampe"] },
+  { state: "Rivers", cities: ["Port Harcourt", "Obio Akpor", "Ikwerre", "Elelenwo"] },
+  { state: "Oyo", cities: ["Ibadan", "Bodija", "Jericho", "Ring Road"] },
+  { state: "Ogun", cities: ["Abeokuta", "Sagamu", "Ifo", "Ado Odo Ota"] },
+  { state: "Delta", cities: ["Asaba", "Warri", "Sapele", "Ughelli"] },
+  { state: "Enugu", cities: ["Enugu", "Nsukka", "Awgu", "Aninri"] },
+  { state: "Edo", cities: ["Benin City", "Oredo", "Ikpoba Okha", "Etsako West"] },
+  { state: "Anambra", cities: ["Awka", "Onitsha", "Nnewi", "Oyi"] },
+  { state: "Imo", cities: ["Owerri", "Okigwe", "Ohaji Egbema"] },
+  { state: "Kaduna", cities: ["Kaduna South", "Kaduna North", "Zaria", "Chikun"] },
+  { state: "FCT", cities: ["Abuja", "Gwagwalada", "Kuje", "Bwari"] },
+];

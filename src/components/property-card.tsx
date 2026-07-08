@@ -4,7 +4,7 @@
  */
 
 import { Link } from "@tanstack/react-router";
-import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart } from "lucide-react";
+import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart, Play } from "lucide-react";
 import { useState } from "react";
 import { formatPrice, type Currency, type Property } from "@/lib/properties";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
@@ -31,6 +31,13 @@ export function PropertyCard({ p }: { p: Property }) {
           height={768}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
+        {p.video_url && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="grid h-14 w-14 place-items-center rounded-full bg-black/50 text-white backdrop-blur transition group-hover:bg-black/70">
+              <Play className="ml-0.5 h-6 w-6" />
+            </div>
+          </div>
+        )}
         <div className="absolute left-3 top-3 flex gap-2">
           {(p.verified || p.is_verified) && (
             <span className="inline-flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 text-xs font-medium text-primary">
@@ -56,7 +63,7 @@ export function PropertyCard({ p }: { p: Property }) {
       </div>
       <div className="p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <div className="font-display text-xl font-semibold tracking-tight">
+          <div className="font-display text-2xl font-bold tracking-tight">
             {formatPrice(p.price, currency)}
             {p.purpose === "rent" && (
               <span className="ml-1 text-xs font-normal text-muted-foreground">/yr</span>
