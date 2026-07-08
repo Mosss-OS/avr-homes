@@ -41,6 +41,8 @@ class AdminController
     $pendingBookings   = $safeCount("SELECT COUNT(*) FROM property_bookings WHERE status = 'pending'");
     $totalInquiries    = $safeCount("SELECT COUNT(*) FROM inquiries");
     $unreadInquiries   = $safeCount("SELECT COUNT(*) FROM inquiries WHERE is_read = 0");
+    $totalContacts     = $safeCount("SELECT COUNT(*) FROM contact_messages");
+    $unreadContacts    = $safeCount("SELECT COUNT(*) FROM contact_messages WHERE is_read = 0");
     $totalBlogPosts    = $safeCount("SELECT COUNT(*) FROM blog_posts");
 
     Response::success([
@@ -50,6 +52,7 @@ class AdminController
       'verifications'    => ['pending' => $pendingVerifs],
       'bookings'         => ['total' => $totalBookings, 'pending' => $pendingBookings],
       'inquiries'        => ['total' => $totalInquiries, 'unread' => $unreadInquiries],
+      'contact_messages' => ['total' => $totalContacts, 'unread' => $unreadContacts],
       'blog_posts'       => ['total' => $totalBlogPosts],
     ]);
   }
@@ -838,5 +841,230 @@ class AdminController
       'data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage,
       'total_pages' => (int)ceil($total / $perPage),
     ]);
+  }
+
+  // ─── Inquiries ────────────────────────────────────────────────────────
+
+  /**
+   * List property inquiries with pagination, status filter, and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function inquiries(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $status  = $_GET['status'] ?? null;
+    $search  = $_GET['q'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($status === 'unread') { $conditions[] = 'i.is_read = 0'; }
+    elseif ($status) { $conditions[] = 'i.status = ?'; $binds[] = $status; }
+    if ($search) { $conditions[] = '(i.name LIKE ? OR i.email LIKE ? OR i.phone LIKE ?)'; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; }
+
+    $where = implode(' AND ', $conditions);
+
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM inquiries i WHERE {$where}");
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT i.*, p.title as property_title, p.slug as property_slug
+       FROM inquiries i
+       LEFT JOIN properties p ON i.property_id = p.id
+       WHERE {$where}
+       ORDER BY i.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['property_id'] = $r['property_id'] ? (int)$r['property_id'] : null;
+      $r['is_read'] = (bool)$r['is_read'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /**
+   * Mark an inquiry as read.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function updateInquiryRead(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid inquiry ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('UPDATE inquiries SET is_read = 1 WHERE id = ?');
+    $stmt->execute([$id]);
+
+    Response::success(['id' => $id], 'Inquiry marked as read');
+  }
+
+  /**
+   * Update inquiry status (new / contacted / qualified / closed).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function updateInquiryStatus(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid inquiry ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $status = $input['status'] ?? null;
+
+    if (!in_array($status, ['new', 'contacted', 'qualified', 'closed'])) {
+      Response::error('Invalid status. Use: new, contacted, qualified, closed', 422);
+    }
+
+    $db = Database::getConnection();
+    $db->prepare('UPDATE inquiries SET status = ? WHERE id = ?')->execute([$status, $id]);
+
+    Response::success(['id' => $id, 'status' => $status], 'Inquiry status updated');
+  }
+
+  /**
+   * Update inquiry notes.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function updateInquiryNotes(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid inquiry ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $notes = $input['notes'] ?? '';
+
+    $db = Database::getConnection();
+    $db->prepare('UPDATE inquiries SET notes = ? WHERE id = ?')->execute([$notes, $id]);
+
+    Response::success(['id' => $id], 'Inquiry notes updated');
+  }
+
+  /**
+   * Delete an inquiry.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function deleteInquiry(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid inquiry ID', 400);
+
+    $db = Database::getConnection();
+    $db->prepare('DELETE FROM inquiries WHERE id = ?')->execute([$id]);
+
+    Response::success(null, 'Inquiry deleted');
+  }
+
+  // ─── Contact Messages ─────────────────────────────────────────────────
+
+  /**
+   * List contact messages with pagination, status filter, and search.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function contactMessages(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $unread  = $_GET['unread'] ?? null;
+    $search  = $_GET['q'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($unread === '1') { $conditions[] = 'cm.is_read = 0'; }
+    if ($search) { $conditions[] = '(cm.name LIKE ? OR cm.email LIKE ? OR cm.phone LIKE ?)'; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; }
+
+    $where = implode(' AND ', $conditions);
+
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM contact_messages cm WHERE {$where}");
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT cm.*
+       FROM contact_messages cm
+       WHERE {$where}
+       ORDER BY cm.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['is_read'] = (bool)$r['is_read'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /**
+   * Mark a contact message as read.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function updateContactMessageRead(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid contact message ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('UPDATE contact_messages SET is_read = 1 WHERE id = ?');
+    $stmt->execute([$id]);
+
+    Response::success(['id' => $id], 'Contact message marked as read');
+  }
+
+  /**
+   * Delete a contact message.
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function deleteContactMessage(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid contact message ID', 400);
+
+    $db = Database::getConnection();
+    $db->prepare('DELETE FROM contact_messages WHERE id = ?')->execute([$id]);
+
+    Response::success(null, 'Contact message deleted');
   }
 }

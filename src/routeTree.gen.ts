@@ -37,6 +37,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAgentsRouteImport } from './routes/admin.agents'
@@ -195,6 +196,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
+  id: '/inquiries',
+  path: '/inquiries',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBookingsRoute = AdminBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
@@ -306,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/blog': typeof AdminBlogRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/admin/agents'
     | '/admin/blog'
     | '/admin/bookings'
+    | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
     | '/admin/settings'
@@ -497,6 +507,7 @@ export interface FileRouteTypes {
     | '/admin/agents'
     | '/admin/blog'
     | '/admin/bookings'
+    | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
     | '/admin/settings'
@@ -544,6 +555,7 @@ export interface FileRouteTypes {
     | '/admin/agents'
     | '/admin/blog'
     | '/admin/bookings'
+    | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
     | '/admin/settings'
@@ -792,6 +804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/inquiries': {
+      id: '/admin/inquiries'
+      path: '/inquiries'
+      fullPath: '/admin/inquiries'
+      preLoaderRoute: typeof AdminInquiriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/bookings': {
       id: '/admin/bookings'
       path: '/bookings'
@@ -957,6 +976,7 @@ interface AdminRouteChildren {
   AdminAgentsRoute: typeof AdminAgentsRouteWithChildren
   AdminBlogRoute: typeof AdminBlogRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -969,6 +989,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAgentsRoute: AdminAgentsRouteWithChildren,
   AdminBlogRoute: AdminBlogRoute,
   AdminBookingsRoute: AdminBookingsRoute,
+  AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
