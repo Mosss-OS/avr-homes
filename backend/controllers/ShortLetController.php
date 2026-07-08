@@ -205,6 +205,227 @@ class ShortLetController
   }
 
   /**
+   * [Admin] List availability for a property in a date range.
+   *
+   * GET /api/admin/shortlet/{id}/availability?month=2026-07
+   */
+  public static function adminAvailability(array $params): void
+  {
+    AuthMiddleware::authenticateAgent();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid property ID', 400);
+
+    $month = $_GET['month'] ?? date('Y-m');
+    $start = $month . '-01';
+    $end = date('Y-m-t', strtotime($start));
+
+    $db = Database::getConnection();
+
+    $prop = $db->prepare("SELECT id, title, nightly_price, purpose FROM properties WHERE id = ?");
+    $prop->execute([$id]);
+    $property = $prop->fetch();
+    if (!$property) Response::error('Property not found', 404);
+
+    // Booked dates (confirmed + pending)
+    $bookStmt = $db->prepare(
+      "SELECT check_in, check_out, id as booking_id, guest_name, status
+       FROM property_bookings
+       WHERE property_id = ? AND status IN ('pending','confirmed','completed')
+       AND check_in < ? AND check_out > ?"
+    );
+    $bookStmt->execute([$id, $end, $start]);
+    $bookings = $bookStmt->fetchAll();
+
+    // Availability overrides
+    $availStmt = $db->prepare(
+      "SELECT date, is_available, price_override FROM property_availability
+       WHERE property_id = ? AND date >= ? AND date <= ?"
+    );
+    $availStmt->execute([$id, $start, $end]);
+    $availRecords = $availStmt->fetchAll();
+    $availMap = [];
+    foreach ($availRecords as $a) {
+      $availMap[$a['date']] = ['is_available' => (bool)$a['is_available'], 'price_override' => $a['price_override'] ? (int)$a['price_override'] : null];
+    }
+
+    // Build calendar days
+    $days = [];
+    $current = new DateTime($start);
+    $lastDay = new DateTime($end);
+    while ($current <= $lastDay) {
+      $ds = $current->format('Y-m-d');
+      $day = [
+        'date' => $ds,
+        'is_available' => true,
+        'price_override' => null,
+        'booking' => null,
+      ];
+      if (isset($availMap[$ds])) {
+        $day['is_available'] = $availMap[$ds]['is_available'];
+        $day['price_override'] = $availMap[$ds]['price_override'];
+      }
+      foreach ($bookings as $b) {
+        if ($ds >= $b['check_in'] && $ds < $b['check_out']) {
+          $day['booking'] = [
+            'id' => (int)$b['booking_id'],
+            'guest_name' => $b['guest_name'],
+            'status' => $b['status'],
+          ];
+          $day['is_available'] = false;
+          break;
+        }
+      }
+      $days[] = $day;
+      $current->modify('+1 day');
+    }
+
+    Response::success([
+      'property' => $property,
+      'month' => $month,
+      'days' => $days,
+    ], 'Availability retrieved');
+  }
+
+  /**
+   * [Admin] Toggle availability for a specific date.
+   *
+   * PUT /api/admin/shortlet/availability
+   */
+  public static function adminUpdateAvailability(array $params): void
+  {
+    AuthMiddleware::authenticateAgent();
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $propertyId = (int)($data['property_id'] ?? 0);
+    $date = $data['date'] ?? '';
+    $isAvailable = (bool)($data['is_available'] ?? true);
+    $priceOverride = isset($data['price_override']) ? (int)$data['price_override'] : null;
+
+    if (!$propertyId || !$date) Response::error('Property ID and date required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare(
+      "INSERT INTO property_availability (property_id, date, is_available, price_override)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE is_available = VALUES(is_available), price_override = VALUES(price_override)"
+    );
+    $stmt->execute([$propertyId, $date, $isAvailable ? 1 : 0, $priceOverride]);
+
+    Response::success([], 'Availability updated');
+  }
+
+  /**
+   * [Admin] Set availability for multiple dates at once.
+   *
+   * PUT /api/admin/shortlet/availability/batch
+   */
+  public static function adminBatchAvailability(array $params): void
+  {
+    AuthMiddleware::authenticateAgent();
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $propertyId = (int)($data['property_id'] ?? 0);
+    $dates = $data['dates'] ?? [];
+    $isAvailable = (bool)($data['is_available'] ?? true);
+    $priceOverride = isset($data['price_override']) ? (int)$data['price_override'] : null;
+
+    if (!$propertyId || empty($dates)) Response::error('Property ID and dates required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare(
+      "INSERT INTO property_availability (property_id, date, is_available, price_override)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE is_available = VALUES(is_available), price_override = VALUES(price_override)"
+    );
+    foreach ($dates as $date) {
+      $stmt->execute([$propertyId, $date, $isAvailable ? 1 : 0, $priceOverride]);
+    }
+
+    Response::success(['updated' => count($dates)], 'Availability updated');
+  }
+
+  /**
+   * [Admin] List bookings for a property (admin version).
+   *
+   * GET /api/admin/shortlet/{id}/bookings
+   */
+  public static function adminPropertyBookings(array $params): void
+  {
+    AuthMiddleware::authenticateAgent();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid property ID', 400);
+
+    $page = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $offset = ($page - 1) * $perPage;
+
+    $db = Database::getConnection();
+
+    $countStmt = $db->prepare('SELECT COUNT(*) FROM property_bookings WHERE property_id = ?');
+    $countStmt->execute([$id]);
+    $total = (int)$countStmt->fetchColumn();
+
+    $stmt = $db->prepare(
+      "SELECT pb.*, p.title as property_title
+       FROM property_bookings pb
+       LEFT JOIN properties p ON p.id = pb.property_id
+       WHERE pb.property_id = ?
+       ORDER BY pb.check_in DESC
+       LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute([$id]);
+    $bookings = $stmt->fetchAll();
+
+    foreach ($bookings as &$b) {
+      $b['id'] = (int)$b['id'];
+      $b['property_id'] = (int)$b['property_id'];
+      $b['guests'] = (int)$b['guests'];
+      $b['total_price'] = (int)$b['total_price'];
+    }
+
+    Response::success([
+      'data' => $bookings,
+      'total' => $total,
+      'page' => $page,
+      'total_pages' => (int)ceil($total / $perPage),
+    ], 'Property bookings retrieved');
+  }
+
+  /**
+   * [Admin] Get short-let dashboard stats.
+   *
+   * GET /api/admin/shortlet/stats
+   */
+  public static function adminDashboardStats(array $params): void
+  {
+    AuthMiddleware::authenticateAgent();
+    $db = Database::getConnection();
+
+    $stmt = $db->query(
+      "SELECT
+         COUNT(DISTINCT p.id) as total_shortlets,
+         COUNT(DISTINCT CASE WHEN pb.status IN ('pending','confirmed') THEN pb.property_id END) as active_bookings_properties,
+         COUNT(CASE WHEN pb.status = 'pending' THEN 1 END) as pending_bookings,
+         COUNT(CASE WHEN pb.status = 'confirmed' THEN 1 END) as confirmed_bookings,
+         COUNT(CASE WHEN pb.status = 'completed' THEN 1 END) as completed_bookings,
+         COALESCE(SUM(CASE WHEN pb.status IN ('confirmed','completed') THEN pb.total_price END), 0) as total_revenue
+       FROM properties p
+       LEFT JOIN property_bookings pb ON pb.property_id = p.id
+       WHERE p.purpose = 'shortlet'"
+    );
+    $stats = $stmt->fetch();
+
+    $stats['total_shortlets'] = (int)$stats['total_shortlets'];
+    $stats['active_bookings_properties'] = (int)$stats['active_bookings_properties'];
+    $stats['pending_bookings'] = (int)$stats['pending_bookings'];
+    $stats['confirmed_bookings'] = (int)$stats['confirmed_bookings'];
+    $stats['completed_bookings'] = (int)$stats['completed_bookings'];
+    $stats['total_revenue'] = (float)$stats['total_revenue'];
+
+    Response::success($stats, 'Dashboard stats retrieved');
+  }
+
+  /**
    * List bookings for a property (agent).
    *
    * GET /api/agent/shortlet/{id}/bookings
