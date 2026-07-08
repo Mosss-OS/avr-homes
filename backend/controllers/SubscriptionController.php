@@ -279,4 +279,142 @@ class SubscriptionController
 
     return $tiers[$tier];
   }
+
+  // ─── Admin routes ─────────────────────────────────────────────────────
+
+  /**
+   * List all subscriptions with agent info, pagination, filtering.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function adminIndex(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $tier    = $_GET['tier'] ?? null;
+    $status  = $_GET['status'] ?? null;
+    $search  = $_GET['q'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($tier) { $conditions[] = 's.tier = ?'; $binds[] = $tier; }
+    if ($status) { $conditions[] = 's.status = ?'; $binds[] = $status; }
+    if ($search) { $conditions[] = '(u.name LIKE ? OR u.email LIKE ?)'; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; }
+
+    $where = implode(' AND ', $conditions);
+
+    // Count distinct agents with matching subscriptions
+    $countStmt = $db->prepare(
+      "SELECT COUNT(DISTINCT s.agent_id) FROM agent_subscriptions s
+       JOIN users u ON u.id = s.agent_id
+       WHERE {$where}"
+    );
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
+    // Get latest subscription per agent
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT s.*, u.name as user_name, u.email as user_email,
+              (SELECT COUNT(*) FROM properties p WHERE p.agent_id = s.agent_id) as listing_count
+       FROM agent_subscriptions s
+       JOIN users u ON u.id = s.agent_id
+       WHERE {$where}
+       AND s.id = (
+         SELECT s2.id FROM agent_subscriptions s2
+         WHERE s2.agent_id = s.agent_id
+         ORDER BY s2.current_period_start DESC LIMIT 1
+       )
+       ORDER BY s.current_period_start DESC
+       LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['agent_id'] = (int)$r['agent_id'];
+      $r['listings_limit'] = (int)$r['listings_limit'];
+      $r['featured_slots'] = (int)$r['featured_slots'];
+      $r['lead_priority'] = (int)$r['lead_priority'];
+      $r['analytics_access'] = (bool)$r['analytics_access'];
+      $r['verification_priority'] = (int)$r['verification_priority'];
+      $r['dedicated_manager'] = (bool)$r['dedicated_manager'];
+      $r['listing_count'] = (int)$r['listing_count'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total,
+      'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /**
+   * Update a subscription's tier (admin).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function adminUpdateTier(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid subscription ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $tier = $input['tier'] ?? null;
+
+    if (!in_array($tier, ['free', 'bronze', 'silver', 'gold', 'platinum'])) {
+      Response::error('Invalid tier', 422);
+    }
+
+    $tierData = self::getTierData($tier);
+    $db = Database::getConnection();
+
+    $stmt = $db->prepare(
+      "UPDATE agent_subscriptions SET tier = ?, listings_limit = ?, featured_slots = ?,
+       lead_priority = ?, analytics_access = ?, verification_priority = ?, dedicated_manager = ?
+       WHERE id = ?"
+    );
+    $stmt->execute([
+      $tier, $tierData['listings_limit'], $tierData['featured_slots'],
+      $tierData['lead_priority'], (int)$tierData['analytics_access'],
+      $tierData['verification_priority'], (int)$tierData['dedicated_manager'],
+      $id,
+    ]);
+
+    Response::success(['id' => $id, 'tier' => $tier], 'Subscription tier updated');
+  }
+
+  /**
+   * Update a subscription's status (admin).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function adminUpdateStatus(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid subscription ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $status = $input['status'] ?? null;
+
+    if (!in_array($status, ['active', 'cancelled', 'past_due'])) {
+      Response::error('Invalid status. Use: active, cancelled, past_due', 422);
+    }
+
+    $db = Database::getConnection();
+    $cancelled = $status === 'cancelled' ? ", cancelled_at = NOW()" : "";
+    $db->prepare("UPDATE agent_subscriptions SET status = ? {$cancelled} WHERE id = ?")->execute([$status, $id]);
+
+    Response::success(['id' => $id, 'status' => $status], 'Subscription status updated');
+  }
 }
