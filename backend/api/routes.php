@@ -235,6 +235,10 @@ route('POST', '/api/saved-searches', ['SavedSearchController', 'store']);
 route('PUT', '/api/saved-searches/{id}', ['SavedSearchController', 'update']);
 route('DELETE', '/api/saved-searches/{id}', ['SavedSearchController', 'destroy']);
 
+/* ── Admin saved search routes ───────────────────────────── */
+route('GET', '/api/admin/saved-searches', ['SavedSearchController', 'adminIndex']);
+route('DELETE', '/api/admin/saved-searches/{id}', ['SavedSearchController', 'adminDelete']);
+
 /* ── Migration routes (admin only) ────────────────────────── */
 route('POST', '/api/admin/migrations/run', ['MigrationController', 'run']);
 route('POST', '/api/admin/migrations/run/{name}', ['MigrationController', 'run']);
