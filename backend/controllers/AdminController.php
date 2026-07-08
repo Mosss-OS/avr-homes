@@ -884,9 +884,11 @@ class AdminController
 
     $offset = ($page - 1) * $perPage;
     $stmt = $db->prepare(
-      "SELECT i.*, p.title as property_title, p.slug as property_slug
+      "SELECT i.*, p.title as property_title, p.slug as property_slug,
+              a.name as assigned_agent_name, a.id as assigned_agent_id
        FROM inquiries i
        LEFT JOIN properties p ON i.property_id = p.id
+       LEFT JOIN agents a ON i.assigned_to = a.id
        WHERE {$where}
        ORDER BY i.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
     );
@@ -968,6 +970,24 @@ class AdminController
     $db->prepare('UPDATE inquiries SET notes = ? WHERE id = ?')->execute([$notes, $id]);
 
     Response::success(['id' => $id], 'Inquiry notes updated');
+  }
+
+  /**
+   * Assign an inquiry to an agent.
+   */
+  public static function assignInquiry(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid inquiry ID', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $assignedTo = isset($input['assigned_to']) ? (int)$input['assigned_to'] : null;
+
+    $db = Database::getConnection();
+    $db->prepare('UPDATE inquiries SET assigned_to = ? WHERE id = ?')->execute([$assignedTo, $id]);
+
+    Response::success(['id' => $id], 'Inquiry assigned');
   }
 
   /**
