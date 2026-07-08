@@ -1,3 +1,8 @@
+/**
+ * Agent login route — provides an email/password sign-in form
+ * that authenticates via the Auth context and redirects to the dashboard.
+ */
+
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -17,6 +22,7 @@ export const Route = createFileRoute("/agent/login")({
   component: AgentLoginPage,
 });
 
+/** Login page component — email/password form with show/hide password toggle. */
 function AgentLoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -26,6 +32,7 @@ function AgentLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /** Handle form submission: call login and navigate to dashboard on success. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");

@@ -1,9 +1,27 @@
 <?php
 
+/**
+ * Authentication middleware using self-contained JWT tokens.
+ *
+ * Provides bearer-token extraction, JWT generation/validation,
+ * and role-based access control helpers for users, agents, and admins.
+ *
+ * @package AvrHomes
+ */
+
 declare(strict_types=1);
 
+/**
+ * JWT-based authentication handler.
+ */
 class AuthMiddleware
 {
+  /**
+   * Authenticate a user from the bearer token with optional role check.
+   *
+   * @param string|null $requiredRole If set, the user must have this role (or 'superadmin').
+   * @return array<string,mixed> Authenticated user row.
+   */
   public static function authenticate(?string $requiredRole = null): array
   {
     $token = self::getBearerToken();
@@ -33,6 +51,11 @@ class AuthMiddleware
     return $user;
   }
 
+  /**
+   * Authenticate and ensure the user has an active agent profile.
+   *
+   * @return array<string,mixed> Authenticated user row with agent_id injected.
+   */
   public static function authenticateAgent(): array
   {
     $user = self::authenticate();
@@ -49,11 +72,21 @@ class AuthMiddleware
     return $user;
   }
 
+  /**
+   * Authenticate and require the admin role.
+   *
+   * @return array<string,mixed> Authenticated user row.
+   */
   public static function authenticateAdmin(): array
   {
     return self::authenticate('admin');
   }
 
+  /**
+   * Extract the Bearer token from the Authorization header or ?token query param.
+   *
+   * @return string|null Token string or null if not present.
+   */
   private static function getBearerToken(): ?string
   {
     $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
@@ -69,6 +102,12 @@ class AuthMiddleware
     return null;
   }
 
+  /**
+   * Generate a signed HS256 JWT access token valid for 24 hours.
+   *
+   * @param int $userId The user identifier to embed in the token.
+   * @return string Encoded JWT string.
+   */
   public static function generateToken(int $userId): string
   {
     $secret = $_ENV['JWT_SECRET'] ?? 'change-this-to-a-random-secret-key';
@@ -89,6 +128,12 @@ class AuthMiddleware
     return "{$header}.{$payload}.{$signature}";
   }
 
+  /**
+   * Generate a cryptographically random refresh token (7-day TTL) and persist it.
+   *
+   * @param int $userId The user identifier.
+   * @return string The raw refresh token string.
+   */
   public static function generateRefreshToken(int $userId): string
   {
     $token = bin2hex(random_bytes(32));
@@ -103,6 +148,12 @@ class AuthMiddleware
     return $token;
   }
 
+  /**
+   * Validate a JWT token: verify signature and check expiration.
+   *
+   * @param string $token The raw JWT string.
+   * @return array|null Decoded payload or null on failure.
+   */
   private static function validateToken(string $token): ?array
   {
     $parts = explode('.', $token);
@@ -129,11 +180,23 @@ class AuthMiddleware
     return $data;
   }
 
+  /**
+   * Base64-URL encode (RFC 4648 §5) a string.
+   *
+   * @param string $data Raw binary data.
+   * @return string URL-safe base64 encoded string.
+   */
   public static function base64UrlEncode(string $data): string
   {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
   }
 
+  /**
+   * Base64-URL decode (RFC 4648 §5) a string.
+   *
+   * @param string $data URL-safe base64 encoded string.
+   * @return string Decoded raw binary data.
+   */
   private static function base64UrlDecode(string $data): string
   {
     return base64_decode(strtr($data, '-_', '+/'));

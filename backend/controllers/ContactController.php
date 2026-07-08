@@ -2,8 +2,18 @@
 
 declare(strict_types=1);
 
+/**
+ * Handles contact form submissions from the public website.
+ * Provides CRUD operations for admin management of contact messages.
+ */
 class ContactController
 {
+  /**
+   * Store a new contact message from the public form.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function store(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -48,6 +58,12 @@ class ContactController
     ], 'Thank you! We have received your message and will reply shortly.', 201);
   }
 
+  /**
+   * List contact messages with pagination and optional unread filter.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -91,6 +107,12 @@ class ContactController
     ]);
   }
 
+  /**
+   * Delete a contact message by ID.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();

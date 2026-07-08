@@ -2,8 +2,18 @@
 
 declare(strict_types=1);
 
+/**
+ * Handles property inquiry submissions from the public and admin management.
+ * Supports linking inquiries to specific properties.
+ */
 class InquiryController
 {
+  /**
+   * Submit a new property inquiry, optionally linked to a property.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function store(array $params): void
   {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -57,6 +67,12 @@ class InquiryController
     ], 'Your inquiry has been submitted. An agent will reach out shortly.', 201);
   }
 
+  /**
+   * List inquiries with pagination and optional unread filter.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticate();
@@ -107,6 +123,12 @@ class InquiryController
     ]);
   }
 
+  /**
+   * Delete an inquiry by ID.
+   *
+   * @param array $params Route parameters containing 'id'.
+   * @return void
+   */
   public static function destroy(array $params): void
   {
     $user = AuthMiddleware::authenticate();

@@ -1,3 +1,4 @@
+/** shadcn/ui progress component */
 "use client";
 
 import * as React from "react";

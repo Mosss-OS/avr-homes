@@ -1,7 +1,30 @@
 <?php
 
+/**
+ * Subscription management endpoints.
+ *
+ * @package AVRHomes\Controllers
+ */
+
+/**
+ * Controller for managing agent subscription tiers.
+ *
+ * Handles retrieving current subscription, upgrading to a different tier,
+ * cancelling an active subscription, and providing tier configuration data.
+ *
+ * @package AVRHomes\Controllers
+ */
 class SubscriptionController
 {
+  /**
+   * Get the current active subscription for the authenticated agent.
+   *
+   * Returns free-tier defaults if no subscription exists.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function index(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -42,6 +65,16 @@ class SubscriptionController
     Response::success($subscription, 'Subscription data retrieved');
   }
 
+  /**
+   * Upgrade or change the subscription tier for the authenticated agent.
+   *
+   * Accepts a 'tier' parameter (bronze, silver, gold, platinum, free) and
+   * creates or updates the subscription record accordingly.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function upgrade(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -149,6 +182,15 @@ class SubscriptionController
     }
   }
 
+  /**
+   * Cancel the active subscription for the authenticated agent.
+   *
+   * Sets status to 'cancelled' and records the cancellation timestamp.
+   *
+   * @param array $params Route parameters (unused).
+   *
+   * @return void
+   */
   public static function cancel(array $params): void
   {
     $user = AuthMiddleware::authenticateAgent();
@@ -183,6 +225,13 @@ class SubscriptionController
     Response::success(null, 'Subscription cancelled successfully');
   }
 
+  /**
+   * Get the feature data for a given subscription tier.
+   *
+   * @param string $tier The tier name (free, bronze, silver, gold, platinum).
+   *
+   * @return array The tier configuration with listings_limit, featured_slots, etc.
+   */
   public static function getTierData(string $tier): array
   {
     $tiers = [

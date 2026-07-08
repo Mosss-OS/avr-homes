@@ -1,8 +1,14 @@
+/**
+ * Individual blog post route (/blog/$slug).
+ * Fetches the full post (content, meta, related articles) by slug and renders
+ * the article page with featured image, tags, content, and related-posts section.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import { Calendar, ArrowLeft, User, Tag, ArrowRight, Sparkles } from "lucide-react";
 
+/** Full blog post detail returned by /api/blog/:slug. */
 interface BlogPostDetail {
   id: number;
   title: string;
@@ -22,6 +28,7 @@ interface BlogPostDetail {
   meta_description: string | null;
 }
 
+/** Minimal related post data returned alongside the main post. */
 interface RelatedPost {
   id: number;
   title: string;
@@ -42,6 +49,7 @@ export const Route = createFileRoute("/blog/$slug")({
   component: BlogSingle,
 });
 
+/** Single blog post page — fetches post + related, renders article with meta tag updates. */
 function BlogSingle() {
   const { slug } = Route.useParams();
   const [post, setPost] = useState<BlogPostDetail | null>(null);

@@ -1,3 +1,9 @@
+/**
+ * Agent registration route — multi-step sign-up wizard collecting personal,
+ * professional, business, social, and community information before
+ * submitting the registration to the API.
+ */
+
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -31,6 +37,7 @@ const EXPERIENCE_LEVELS = [["1-2", "1-2 years"], ["3-5", "3-5 years"], ["6-10", 
 const MONTHLY_LISTINGS = [["1-5", "1-5 listings"], ["6-15", "6-15 listings"], ["16-30", "16-30 listings"], ["30+", "30+ listings"]];
 const DEAL_SIZES = [["below-10m", "Below ₦10M"], ["10m-50m", "₦10M - ₦50M"], ["50m-200m", "₦50M - ₦200M"], ["200m+", "₦200M+"]];
 
+/** Registration page component — multi-step form for agent sign-up. */
 function AgentRegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -50,11 +57,13 @@ function AgentRegisterPage() {
 
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  /** Update a single form field and clear its validation error. */
   function update(field: keyof RegisterPayload, value: string | string[]) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setFieldErrors((prev) => ({ ...prev, [field]: "" }));
   }
 
+  /** Toggle a value in one of the multi-select array fields. */
   function toggleArray(field: "property_types" | "specialization", value: string) {
     setForm((prev) => {
       const arr = prev[field] as string[];
@@ -63,6 +72,7 @@ function AgentRegisterPage() {
     });
   }
 
+  /** Return an array of labels for required fields that are missing or invalid. */
   function getMissingRequired(): string[] {
     const missing: string[] = [];
     if (!form.name?.trim()) missing.push("Full Name");
@@ -73,6 +83,7 @@ function AgentRegisterPage() {
     return missing;
   }
 
+  /** Validate the current step's required fields. Returns true if valid. */
   function validateStep(): boolean {
     const errors: Record<string, string> = {};
     if (step === 0) {
@@ -85,6 +96,7 @@ function AgentRegisterPage() {
     return Object.keys(errors).length === 0;
   }
 
+  /** Submit the full registration form and navigate to the dashboard on success. */
   async function handleSubmit() {
     const missing = getMissingRequired();
     if (missing.length) {
@@ -112,14 +124,17 @@ function AgentRegisterPage() {
     }
   }
 
+  /** Advance to the next step after validation. */
   function nextStep() {
     if (validateStep()) setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }
 
+  /** Go back to the previous step. */
   function prevStep() {
     setStep((s) => Math.max(s - 1, 0));
   }
 
+  /** Render a group of toggle-able chip buttons for multi-select fields. */
   function ChipSelect({ items, selected, onToggle, label }: { items: string[]; selected: string[]; onToggle: (v: string) => void; label: string }) {
     return (
       <div className="space-y-2">
@@ -142,6 +157,7 @@ function AgentRegisterPage() {
     );
   }
 
+  /** Render the form fields for the current registration step. */
   function renderStep() {
     switch (step) {
       case 0: return (

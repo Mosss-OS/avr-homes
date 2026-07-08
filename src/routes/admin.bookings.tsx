@@ -1,3 +1,7 @@
+/**
+ * Admin bookings listing route. Shows a paginated, filterable table of all
+ * bookings with inline controls to confirm, cancel, or mark as complete.
+ */
 import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,6 +13,7 @@ export const Route = createFileRoute("/admin/bookings")({
   component: AdminBookings,
 });
 
+/** A single row returned by the admin bookings listing endpoint. */
 interface BookingRow {
   id: number; property_id: number; property_title: string;
   guest_name: string; guest_email: string; guest_phone: string;
@@ -23,6 +28,7 @@ const STATUS_COLORS: Record<string, string> = {
   completed: "bg-blue-100 text-blue-700",
 };
 
+/** Bookings management page with status filter, pagination, and status-change actions. */
 function AdminBookings() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +39,7 @@ function AdminBookings() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
 
+  /** Fetch bookings from the API with current status filter and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: "15" });
@@ -55,6 +62,7 @@ function AdminBookings() {
     return null;
   }
 
+  /** Transition a booking to a new status (confirm, cancel, complete). */
   async function updateStatus(id: number, status: string) {
     try {
       await api.put(`/api/admin/bookings/${id}/status`, { status });

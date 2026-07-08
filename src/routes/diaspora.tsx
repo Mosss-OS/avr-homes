@@ -1,3 +1,8 @@
+/**
+ * Diaspora investor guide page (/diaspora).
+ * Static page presenting the value proposition for overseas Nigerians
+ * investing in Lagos property: virtual tours, verified titles, escrow, multi-currency.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plane, ShieldCheck, FileCheck, Banknote } from "lucide-react";
 
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/diaspora")({
   component: Diaspora,
 });
 
+/** Diaspora page — feature cards and link to contact a diaspora advisor. */
 function Diaspora() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">

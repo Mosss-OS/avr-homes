@@ -1,3 +1,8 @@
+/**
+ * Individual agent profile route (/agents/$slug).
+ * Fetches full agent details (bio, credentials, social links, listings) by
+ * slug and renders the profile page with a contact sheet modal.
+ */
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
@@ -23,6 +28,7 @@ export const Route = createFileRoute("/agents/$slug")({
   component: AgentProfilePage,
 });
 
+/** Full agent profile as returned by /api/agents/by-slug/:slug. */
 interface AgentPublicProfile {
   id: number;
   slug: string | null;
@@ -50,6 +56,7 @@ interface AgentPublicProfile {
   properties: AgentProperty[];
 }
 
+/** Minimal property data shown in an agent's listing grid. */
 interface AgentProperty {
   id: number;
   title: string;
@@ -67,12 +74,14 @@ interface AgentProperty {
   is_verified: boolean;
 }
 
+/** Formats a price number into a compact Naira string (e.g. ₦1.5B, ₦250M). */
 function formatPrice(price: number) {
   if (price >= 1e9) return `₦${(price / 1e9).toFixed(1)}B`;
   if (price >= 1e6) return `₦${(price / 1e6).toFixed(1)}M`;
   return `₦${price.toLocaleString()}`;
 }
 
+/** Agent profile page rendering hero card, bio, credentials, social links, listings grid, and contact sheet. */
 function AgentProfilePage() {
   const { slug } = Route.useParams();
   const [agent, setAgent] = useState<AgentPublicProfile | null>(null);

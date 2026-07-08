@@ -1,3 +1,8 @@
+/**
+ * Agent verification center route — lists properties and allows the agent
+ * to upload verification documents and track their verification status.
+ */
+
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -19,6 +24,7 @@ export const Route = createFileRoute("/agent/dashboard/verification")({
   component: AgentVerificationPage,
 });
 
+/** A property listing shown in the verification table. */
 interface ListingItem {
   id: number;
   title: string;
@@ -33,6 +39,7 @@ interface ListingItem {
   status: string;
 }
 
+/** A verification document uploaded by the agent. */
 interface VerificationDoc {
   id: number;
   document_type: string;
@@ -41,6 +48,7 @@ interface VerificationDoc {
   created_at: string;
 }
 
+/** Full verification data for a single property, including its status and documents. */
 interface VerificationData {
   property: {
     id: number;
@@ -80,6 +88,7 @@ const VERIFICATION_BADGES: Record<string, { label: string; className: string }> 
   rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
+/** Verification center page component — lists properties and manages document uploads. */
 function AgentVerificationPage() {
   const [listings, setListings] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +107,7 @@ function AgentVerificationPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  /** Open the detail sheet for a listing and fetch its verification data. */
   async function openDetail(listing: ListingItem) {
     setSelectedListing(listing);
     setDetailOpen(true);
@@ -113,6 +123,7 @@ function AgentVerificationPage() {
     }
   }
 
+  /** Upload a selected verification document for the current listing. */
   async function handleUpload() {
     if (!docType || !selectedListing) return;
     const fileInput = document.getElementById("doc-file") as HTMLInputElement;
@@ -137,12 +148,14 @@ function AgentVerificationPage() {
     }
   }
 
+  /** Format a price number into a readable NGN string (e.g. ₦2.5B, ₦150M). */
   function formatPrice(price: number) {
     if (price >= 1e9) return `₦${(price / 1e9).toFixed(1)}B`;
     if (price >= 1e6) return `₦${(price / 1e6).toFixed(1)}M`;
     return `₦${price.toLocaleString()}`;
   }
 
+  /** Render a Badge indicating whether the listing is verified or unverified. */
   function statusBadge(listing: ListingItem) {
     if (listing.is_verified) {
       return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Verified</Badge>;
@@ -150,6 +163,7 @@ function AgentVerificationPage() {
     return <Badge variant="outline" className="bg-muted text-muted-foreground">Unverified</Badge>;
   }
 
+  /** Calculate the number of days remaining until a verification expires. */
   function daysUntilExpiry(expiresAt: string | null): number | null {
     if (!expiresAt) return null;
     const diff = new Date(expiresAt).getTime() - Date.now();

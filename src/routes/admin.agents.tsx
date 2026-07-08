@@ -1,3 +1,8 @@
+/**
+ * Admin agents listing route. Shows a paginated, searchable table of all
+ * registered agents with controls to activate/suspend, toggle verification,
+ * edit, and delete.
+ */
 import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
@@ -9,12 +14,14 @@ export const Route = createFileRoute("/admin/agents")({
   component: AdminAgents,
 });
 
+/** A single row returned by the admin agents listing endpoint. */
 interface AgentRow {
   id: number; name: string; email: string; agency: string; phone: string;
   listings: number; is_verified: boolean; is_active: boolean;
   created_at: string;
 }
 
+/** Agents management page with search, pagination, and row-level actions. */
 function AdminAgents() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +34,7 @@ function AdminAgents() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  /** Fetch agents from the API with current search query and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: "15" });
@@ -47,6 +55,7 @@ function AdminAgents() {
     return null;
   }
 
+  /** Activate or suspend an agent based on current state. */
   async function toggleStatus(id: number) {
     const row = rows.find((r) => r.id === id);
     if (!row) return;
@@ -59,6 +68,7 @@ function AdminAgents() {
     }
   }
 
+  /** Toggle the verified badge on an agent. */
   async function toggleVerify(id: number) {
     try {
       await api.put(`/api/admin/agents/${id}/verify`, {});
@@ -69,6 +79,7 @@ function AdminAgents() {
     }
   }
 
+  /** Permanently delete an agent after user confirmation. */
   async function deleteAgent(id: number) {
     if (!confirm("Delete this agent? Properties will be unlinked.")) return;
     try {

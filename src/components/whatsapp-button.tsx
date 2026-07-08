@@ -1,3 +1,4 @@
+/** Fixed-position floating WhatsApp chat button with tooltip. */
 export function WhatsAppButton() {
   return (
     <a

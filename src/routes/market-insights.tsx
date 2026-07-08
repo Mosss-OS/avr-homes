@@ -1,3 +1,8 @@
+/**
+ * Market insights dashboard (/market-insights).
+ * Displays quarterly Lagos property price index charts, neighbourhood heatmaps,
+ * and downloadable market reports. Filters by city, property type, and purpose.
+ */
 import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { api } from "@/lib/api-client";
@@ -13,6 +18,7 @@ export const Route = createFileRoute("/market-insights")({
   component: MarketInsightsPage,
 });
 
+/** Price-index data including current average, yield, sample count, and historical index. */
 interface PriceIndexData {
   city: string;
   property_type: string | null;
@@ -23,6 +29,7 @@ interface PriceIndexData {
   index_history: { period: string; index_value: number; change_pct: number | null; samples: number }[];
 }
 
+/** Per-community heatmap data — average price/rent, yield, sample size, and location. */
 interface HeatmapData {
   community: string;
   avg_price: number;
@@ -34,6 +41,7 @@ interface HeatmapData {
   lng: number;
 }
 
+/** A published market report with period, PDF download, highlights, and publish date. */
 interface MarketReport {
   id: number;
   period: string;
@@ -42,6 +50,7 @@ interface MarketReport {
   published_at: string;
 }
 
+/** Market insights dashboard — loads price index, heatmap, and reports; renders KPI cards, filters, and tabbed views. */
 function MarketInsightsPage() {
   const [priceIndex, setPriceIndex] = useState<PriceIndexData | null>(null);
   const [heatmap, setHeatmap] = useState<HeatmapData[]>([]);
@@ -250,6 +259,7 @@ function MarketInsightsPage() {
   );
 }
 
+/** A KPI summary card with icon, metric, subtitle, and colour-coded border. */
 function KPICard({ icon: Icon, label, value, subtitle, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; subtitle: string; color: string }) {
   const colors = {
     primary: "bg-primary/10 text-primary border-primary/20",
@@ -273,6 +283,7 @@ function KPICard({ icon: Icon, label, value, subtitle, color }: { icon: React.Co
   );
 }
 
+/** SVG-based quarterly price index chart with area fill, line, data points, and summary table. */
 function PriceIndexChart({ data }: { data: { period: string; index_value: number; change_pct: number | null; samples: number }[] }) {
   const maxValue = Math.max(...data.map(d => d.index_value));
   const minValue = Math.min(...data.map(d => d.index_value));
@@ -407,6 +418,7 @@ function PriceIndexChart({ data }: { data: { period: string; index_value: number
   );
 }
 
+/** Neighbourhood price heatmap — colour-coded cards showing avg price, yield, and rent. */
 function HeatmapView({ data }: { data: HeatmapData[] }) {
   const maxPrice = Math.max(...data.map(d => d.avg_price));
   const minPrice = Math.min(...data.map(d => d.avg_price));
@@ -468,6 +480,7 @@ function HeatmapView({ data }: { data: HeatmapData[] }) {
   );
 }
 
+/** Paginated list of downloadable market reports. */
 function ReportsList({ reports, total, page, onPageChange }: { reports: MarketReport[]; total: number; page: number; onPageChange: (page: number) => void }) {
   const totalPages = Math.ceil(total / 10);
 
@@ -510,6 +523,7 @@ function ReportsList({ reports, total, page, onPageChange }: { reports: MarketRe
   );
 }
 
+/** A single market report card with period, highlights, download link, and metadata. */
 function ReportCard({ report }: { report: MarketReport }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] hover:shadow-md transition-shadow">

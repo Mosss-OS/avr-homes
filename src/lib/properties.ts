@@ -1,3 +1,14 @@
+/**
+ * Property data layer — fetch functions, runtime types, static fallback data,
+ * and formatting helpers.
+ *
+ * Combines API-driven property data (`PropertyData` → `Property` conversion)
+ * with a large set of static fallback listings for the Lagos / Nigerian
+ * real-estate market.
+ *
+ * @module properties
+ */
+
 import { api } from "./api-client";
 import { getRate } from "./settings";
 import type { PropertyData, AgentData, PaginatedResponse } from "./types";
@@ -8,8 +19,11 @@ import prop4 from "@/assets/prop-4.jpg";
 import prop5 from "@/assets/prop-5.jpg";
 import prop6 from "@/assets/prop-6.jpg";
 
+/** The purpose or listing intent (re-exported locally for convenience). */
 export type Purpose = "buy" | "rent" | "shortlet";
+/** The physical type of the property (re-exported locally for convenience). */
 export type PropertyType = "apartment" | "villa" | "townhouse" | "penthouse" | "studio" | "land" | "commercial";
+/** Supported display currencies (re-exported locally for convenience). */
 export type Currency = "NGN" | "USD" | "GBP";
 
 /**
@@ -57,6 +71,12 @@ export interface Property {
   agent_is_verified?: boolean;
 }
 
+/**
+ * Converts a raw API property object (`PropertyData`, snake_case) into the
+ * runtime `Property` shape used by UI components.
+ *
+ * Normalises image, gallery, coordinates, and optional fields.
+ */
 export function propertyFromApi(p: PropertyData): Property {
   return {
     ...p,
@@ -75,6 +95,12 @@ export function propertyFromApi(p: PropertyData): Property {
   };
 }
 
+/**
+ * Fetches a paginated, filtered list of properties from the API.
+ * Results are normalised via `propertyFromApi`.
+ *
+ * @param params - Optional URL query parameters (e.g. `{ city: "Lagos", type: "villa" }`).
+ */
 export async function fetchProperties(params?: Record<string, string>): Promise<PaginatedResponse<Property>> {
   const qs = params ? "?" + new URLSearchParams(params).toString() : "";
   const res = await api.get<PaginatedResponse<PropertyData>>(`/api/properties${qs}`);
@@ -84,24 +110,40 @@ export async function fetchProperties(params?: Record<string, string>): Promise<
   };
 }
 
+/**
+ * Fetches a single property by its numeric ID and normalises it.
+ */
 export async function fetchProperty(id: number): Promise<Property> {
   const res = await api.get<PropertyData>(`/api/properties/${id}`);
   return propertyFromApi(res.data);
 }
 
+/**
+ * Fetches the list of all agents from the API.
+ */
 export async function fetchAgents(): Promise<AgentData[]> {
   const res = await api.get<AgentData[]>("/api/agents");
   return res.data;
 }
 
+/**
+ * Submits a contact form message to the API.
+ */
 export async function submitContact(data: Record<string, string>): Promise<void> {
   await api.post("/api/contact", data);
 }
 
+/**
+ * Submits a property inquiry (lead) to the API.
+ */
 export async function submitInquiry(data: Record<string, string | number>): Promise<void> {
   await api.post("/api/inquiries", data);
 }
 
+/**
+ * Static fallback property listings used for development / demo purposes
+ * and as a content base when the API is unavailable.
+ */
 export const properties: Property[] = [
   {
     id: "p-101",
@@ -316,6 +358,7 @@ export const properties: Property[] = [
   },
 ];
 
+/** A real-estate agent displayed in the UI. */
 export interface Agent {
   id: string;
   name: string;
@@ -327,14 +370,18 @@ export interface Agent {
   avatarHue: number;
 }
 
+/** Static fallback agent data. */
 export const agents: Agent[] = [
   { id: "a-1", name: "Adaeze Okafor", agency: "AVR Homes", phone: "+234 802 123 4567", email: "adaeze@avrhomes.ng", languages: ["English", "Igbo"], listings: 42, avatarHue: 195 },
   { id: "a-2", name: "Tunde Bakare", agency: "AVR Homes", phone: "+234 809 987 6543", email: "tunde@avrhomes.ng", languages: ["English", "Yoruba", "French"], listings: 28, avatarHue: 75 },
   { id: "a-3", name: "Zainab Mohammed", agency: "AVR Homes", phone: "+234 813 555 1212", email: "zainab@avrhomes.ng", languages: ["English", "Hausa"], listings: 36, avatarHue: 220 },
 ];
 
+/** List of cities used for property search filters. */
 export const cities = ["Lagos", "Abuja", "Port Harcourt", "Asaba", "Owerri", "Awka", "Ibadan", "Benin City"];
+/** List of Nigerian states / cities used in agent registration forms. */
 export const nigerianStates = ["Lagos", "Abuja", "Port Harcourt", "Asaba", "Owerri", "Awka"];
+/** Dropdown options for filtering by property type. */
 export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "apartment", label: "Apartment" },
   { value: "villa", label: "Villa" },
@@ -345,14 +392,24 @@ export const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: "commercial", label: "Commercial" },
 ];
 
+/** Dropdown options for filtering by purpose (buy / rent / short-let). */
 export const purposes: { value: Purpose; label: string }[] = [
   { value: "buy", label: "Buy" },
   { value: "rent", label: "Rent" },
   { value: "shortlet", label: "Short-Let" },
 ];
 
+/** Currency symbol lookup. */
 const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
+/**
+ * Formats a numeric NGN price as a human-readable string in the given
+ * currency, using abbreviations for large values (B / M / K).
+ *
+ * @param n - Price in NGN.
+ * @param currency - Target display currency.
+ * @returns Formatted price string (e.g. `₦950M`, `$633K`).
+ */
 export function formatPrice(n: number, currency: Currency = "NGN"): string {
   const sym = SYMBOL[currency];
   const v = n * getRate(currency);
@@ -362,16 +419,30 @@ export function formatPrice(n: number, currency: Currency = "NGN"): string {
   return `${sym}${Math.round(v)}`;
 }
 
+/**
+ * Formats a nightly price and appends "/night".
+ */
 export function formatNightlyPrice(n: number, currency: Currency = "NGN"): string {
   return `${formatPrice(n, currency)}/night`;
 }
 
-// Back-compat alias used in older imports.
+/**
+ * Backward-compatible alias for `formatPrice(n, "NGN")`, used by older
+ * import references.
+ *
+ * @deprecated Use `formatPrice(n, "NGN")` directly.
+ */
 export const formatAED = (n: number) => formatPrice(n, "NGN");
 
+/**
+ * Looks up a static fallback property by its string ID.
+ */
 export function getProperty(id: string) {
   return properties.find((p) => p.id === id);
 }
+/**
+ * Looks up a static fallback agent by their string ID.
+ */
 export function getAgent(id: string) {
   return agents.find((a) => a.id === id);
 }

@@ -1,3 +1,7 @@
+/**
+ * Admin blog listing route. Shows a paginated, searchable table of blog
+ * posts with published/draft indicator.
+ */
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
@@ -8,12 +12,14 @@ export const Route = createFileRoute("/admin/blog")({
   component: AdminBlog,
 });
 
+/** A single row returned by the admin blog listing endpoint. */
 interface BlogRow {
   id: number; title: string; category_name: string;
   is_published: boolean; author_name: string;
   created_at: string;
 }
 
+/** Blog management page with search, pagination, and link to create a new post. */
 function AdminBlog() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +30,7 @@ function AdminBlog() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  /** Fetch blog posts from the API with current search query and page. */
   const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), per_page: "15" });

@@ -1,7 +1,24 @@
 <?php
 
+/**
+ * Subscription-based access control for agent features.
+ *
+ * Enforces listing limits and featured-slot limits based on
+ * the agent's active subscription tier.
+ *
+ * @package AvrHomes
+ */
+
+/**
+ * Middleware that checks subscription limits before allowing operations.
+ */
 class SubscriptionMiddleware
 {
+  /**
+   * Check whether the agent has remaining listing slots on their plan.
+   *
+   * @param int $userId The authenticated user ID.
+   */
   public static function checkListingLimit(int $userId): void
   {
     $db = Database::getConnection();
@@ -34,6 +51,11 @@ class SubscriptionMiddleware
     }
   }
 
+  /**
+   * Check whether the agent has featured slots remaining on their plan.
+   *
+   * @param int $userId The authenticated user ID.
+   */
   public static function checkFeaturedLimit(int $userId): void
   {
     $db = Database::getConnection();
@@ -59,6 +81,12 @@ class SubscriptionMiddleware
     }
   }
 
+  /**
+   * Convenience: authenticate as agent and check listing limits in one call.
+   *
+   * @param array $params Unused (matches route handler signature convention).
+   * @return array<string,mixed> Authenticated user row.
+   */
   public static function agentAuthAndSubscription(array $params): array
   {
     $user = AuthMiddleware::authenticateAgent();

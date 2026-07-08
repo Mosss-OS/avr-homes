@@ -1,3 +1,4 @@
+/** shadcn/ui collapsible component */
 "use client";
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";

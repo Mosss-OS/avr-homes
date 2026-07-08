@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Serves market data, price indices, heatmap data, and market reports.
+ * Provides both public endpoints and admin-only report publishing.
+ */
 class MarketDataController
 {
+  /**
+   * List market data filtered by city, property type, and purpose.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function index(array $params): void
   {
     $city = $_GET['city'] ?? 'Lagos';
@@ -41,6 +51,12 @@ class MarketDataController
     Response::success($data, 'Market data retrieved');
   }
 
+  /**
+   * Get heatmap data (latest period) with coordinates for map rendering.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function heatmap(array $params): void
   {
     $city = $_GET['city'] ?? 'Lagos';
@@ -80,6 +96,12 @@ class MarketDataController
     Response::success($data, 'Heatmap data retrieved');
   }
 
+  /**
+   * Get the price index over time (last 8 periods) with period-over-period changes.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function priceIndex(array $params): void
   {
     $city = $_GET['city'] ?? 'Lagos';
@@ -145,6 +167,12 @@ class MarketDataController
     ], 'Price index retrieved');
   }
 
+  /**
+   * Retrieve a specific market report by period identifier.
+   *
+   * @param array $params Route parameters containing 'period'.
+   * @return void
+   */
   public static function report(array $params): void
   {
     $period = $params['period'] ?? date('Y') . '-Q' . ceil(date('n') / 3);
@@ -166,6 +194,13 @@ class MarketDataController
     Response::success($report, 'Market report retrieved');
   }
 
+  /**
+   * Publish or update a market report with PDF URL and highlights.
+   * Requires admin authentication.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function publishReport(array $params): void
   {
     AuthMiddleware::authenticateAdmin();
@@ -203,6 +238,12 @@ class MarketDataController
     Response::success(['period' => $data['period']], 'Report published', 201);
   }
 
+  /**
+   * List all published market reports with pagination.
+   *
+   * @param array $params Route parameters (unused).
+   * @return void
+   */
   public static function reportsList(array $params): void
   {
     $page = max(1, (int)($_GET['page'] ?? 1));

@@ -1,3 +1,8 @@
+/**
+ * Property listing card showing image, price (with currency toggle),
+ * key features, and save/bookmark ability.
+ */
+
 import { Link } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart } from "lucide-react";
 import { useState } from "react";
@@ -7,6 +12,7 @@ import { isSaved, toggleSavedProp } from "@/lib/saved";
 const CURRENCIES: Currency[] = ["NGN", "USD", "GBP"];
 const SYMBOLS: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
+/** Clickable card displaying a single property's image, price, features, and save state. */
 export function PropertyCard({ p }: { p: Property }) {
   const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [currency, setCurrency] = useState<Currency>("NGN");

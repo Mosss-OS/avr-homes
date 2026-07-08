@@ -6,6 +6,7 @@ import type { Property } from "@/lib/properties";
  * Renders pins for the passed properties using the same visual language
  * as /map, but non-interactive.
  */
+/** Decorative SVG map preview pinning the given properties. */
 export function MiniMap({ items }: { items: Property[] }) {
   const bounds = useMemo(() => {
     if (items.length === 0) {
