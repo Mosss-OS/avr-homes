@@ -133,20 +133,29 @@ function AdminCreateProperty() {
         <p className="text-sm text-muted-foreground">Create a new listing on the platform</p>
       </div>
 
-      <div className="mb-8 flex items-center gap-2">
-        {STEPS.map((s, i) => (
-          <div key={s} className="flex items-center gap-2">
-            <div className={`grid h-7 w-7 place-items-center rounded-full text-xs font-medium ${
-              i < step ? "bg-primary text-primary-foreground" :
-              i === step ? "border-2 border-primary text-primary" :
-              "border border-border text-muted-foreground"
-            }`}>
-              {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
+      <div className="mb-8">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">Step {step + 1} of {STEPS.length}</span>
+          <span className="hidden text-xs font-medium text-muted-foreground sm:inline">{STEPS[step]}</span>
+        </div>
+        <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+          <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+        </div>
+        <div className="hidden sm:flex sm:items-center sm:gap-2">
+          {STEPS.map((s, i) => (
+            <div key={s} className="flex items-center gap-2">
+              <div className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-medium ${
+                i < step ? "bg-primary text-primary-foreground" :
+                i === step ? "border-2 border-primary text-primary" :
+                "border border-border text-muted-foreground"
+              }`}>
+                {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
+              </div>
+              <span className={`whitespace-nowrap text-xs font-medium ${i === step ? "text-foreground" : "text-muted-foreground"}`}>{s}</span>
+              {i < STEPS.length - 1 && <div className="h-px w-6 bg-border" />}
             </div>
-            <span className={`text-xs font-medium ${i === step ? "text-foreground" : "text-muted-foreground"}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="h-px w-6 bg-border" />}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -162,7 +171,7 @@ function AdminCreateProperty() {
               <Textarea id="description" value={form.description} onChange={(e) => update("description", e.target.value)} rows={5} placeholder="Describe the property..." />
               {fieldErrors.description && <p className="mt-1 text-xs text-destructive">{fieldErrors.description}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label>Type</Label>
                 <Select value={form.type} onValueChange={(v) => update("type", v)}>
@@ -192,7 +201,7 @@ function AdminCreateProperty() {
 
         {step === 1 && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <Label htmlFor="beds">Bedrooms</Label>
                 <Input id="beds" type="number" min="0" value={form.beds} onChange={(e) => update("beds", e.target.value)} />
@@ -226,7 +235,7 @@ function AdminCreateProperty() {
 
         {step === 2 && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="city">City</Label>
                 <Input id="city" value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="e.g. Lekki" />
@@ -242,7 +251,7 @@ function AdminCreateProperty() {
               <Label htmlFor="address">Address</Label>
               <Input id="address" value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Full street address" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="lat">Latitude</Label>
                 <Input id="lat" value={form.lat} onChange={(e) => update("lat", e.target.value)} placeholder="e.g. 6.4281" />
@@ -296,7 +305,7 @@ function AdminCreateProperty() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-6">
               <h3 className="font-display text-lg font-semibold">{form.title || "Untitled Property"}</h3>
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div><span className="text-muted-foreground">Type:</span> <span className="font-medium capitalize">{form.type}</span></div>
                 <div><span className="text-muted-foreground">Purpose:</span> <span className="font-medium capitalize">{form.purpose}</span></div>
                 <div><span className="text-muted-foreground">Price:</span> <span className="font-medium">₦{Number(form.price).toLocaleString()}</span></div>
@@ -319,20 +328,20 @@ function AdminCreateProperty() {
           </div>
         )}
 
-        <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
-          <Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/properties" })}>Cancel</Button>
+        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/properties" })} className="w-full sm:w-auto">Cancel</Button>
           <div className="flex gap-3">
             {step > 0 && (
-              <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+              <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1 sm:flex-none">
                 <ChevronLeft className="mr-1 h-4 w-4" /> Back
               </Button>
             )}
             {step < STEPS.length - 1 ? (
-              <Button type="button" onClick={() => { if (validateStep()) setStep(step + 1); }}>
+              <Button type="button" onClick={() => { if (validateStep()) setStep(step + 1); }} className="flex-1 sm:flex-none">
                 Next <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Create Property
               </Button>
