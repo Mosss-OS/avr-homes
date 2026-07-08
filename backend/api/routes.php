@@ -160,6 +160,8 @@ route('PUT', '/api/agent/shortlet/bookings/{id}/status', ['ShortLetController', 
 
 /* ── Admin dashboard routes ───────────────────────────────── */
 route('GET', '/api/admin/stats', ['AdminController', 'stats']);
+route('GET', '/api/admin/analytics/trends', ['AdminController', 'trends']);
+route('GET', '/api/admin/analytics/breakdown', ['AdminController', 'breakdown']);
 
 /* ── Admin property management ────────────────────────────── */
 route('GET', '/api/admin/properties', ['AdminController', 'properties']);
