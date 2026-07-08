@@ -1,17 +1,13 @@
-/**
- * Landing page (/) for AVR Homes.
- * Displays hero banner, browse sections, featured / recently-added listings,
- * value props, testimonials, agent recruitment CTA, and a diaspora investor banner.
- */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
 import { BrowseSection } from "@/components/browse-section";
 import { AiSearchWidget } from "@/components/ai-search-widget";
 import { fetchProperties, properties } from "@/lib/properties";
+import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import type { Property } from "@/lib/properties";
-import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote, Search, Play, Heart, Building2, MapPin, LandPlot, Gem, ChevronRight } from "lucide-react";
 import heroLekki from "@/assets/hero-lekki.jpg";
 
 export const Route = createFileRoute("/")({
@@ -28,20 +24,28 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-/** Home page component composing hero, browse sections, featured/recent listings, testimonials, and CTAs. */
+interface AgentLogo { id: number; name: string; agency: string; avatar_hue?: number; avatar_url?: string; listings: number; }
+interface StatsData { total_properties: number; featured_properties: number; cities_covered: number; total_agents: number; total_users: number; }
+
 function HomePage() {
   const [featured, setFeatured] = useState<Property[]>([]);
   const [fresh, setFresh] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState<AgentLogo[]>([]);
+  const [stats, setStats] = useState<StatsData | null>(null);
 
   useEffect(() => {
     Promise.all([
       fetchProperties({ featured: "1", per_page: "6" }),
       fetchProperties({ per_page: "6", sort: "created_at", order: "desc" }),
+      api.get<{ data: AgentLogo[] }>("/api/agents").catch(() => null),
+      api.get<StatsData>("/api/stats").catch(() => null),
     ])
-      .then(([featuredRes, freshRes]) => {
+      .then(([featuredRes, freshRes, agentsRes, statsRes]) => {
         setFeatured(featuredRes.data);
         setFresh(freshRes.data);
+        if (agentsRes) setAgents(agentsRes.data.data || []);
+        if (statsRes) setStats(statsRes.data);
       })
       .catch(() => {
         setFeatured(properties.filter((p) => p.featured));
@@ -97,17 +101,79 @@ function HomePage() {
               Agents & Realtors — Join the Early Access Waitlist <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </a>
           </div>
-
         </div>
       </section>
 
-      {/* Browse sections — homes for sale, homes for rent, land */}
+      {/* Quick category tiles */}
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {CATEGORIES.map((cat) => (
+            <Link key={cat.label} to="/properties" search={cat.search as never}
+              className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ background: cat.bg }}>
+                <cat.icon className="h-6 w-6" style={{ color: cat.color }} />
+              </div>
+              <div>
+                <div className="font-semibold text-foreground">{cat.label}</div>
+                <div className="text-xs text-muted-foreground">{cat.desc}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Browse sections */}
       <BrowseSection category="buy" />
       <BrowseSection category="rent" dark />
       <BrowseSection category="shortlet" />
       <BrowseSection category="land" />
 
-      {/* Honest banner (replaces fake stats) */}
+      {/* Top stats */}
+      {stats && (
+        <section className="border-y border-border bg-secondary/40">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+            <p className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Platform Snapshot</p>
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              <StatCard value={stats.total_properties} label="Properties Listed" icon={Home} />
+              <StatCard value={stats.featured_properties} label="Featured Listings" icon={Sparkles} />
+              <StatCard value={stats.total_agents} label="Active Agents" icon={Users} />
+              <StatCard value={stats.cities_covered} label="Cities Covered" icon={MapPin} />
+              <StatCard value={stats.total_users} label="Registered Users" icon={Heart} />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Featured agents */}
+      {agents.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Partner Agents</p>
+              <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">Trusted real estate professionals</h2>
+            </div>
+            <Link to="/agents" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
+              All agents <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-4">
+            {agents.slice(0, 8).map((a) => (
+              <Link key={a.id} to="/agents" className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold text-white"
+                  style={{ background: a.avatar_hue ? `oklch(0.45 0.1 ${a.avatar_hue})` : "oklch(0.45 0.1 200)" }}>
+                  {a.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">{a.agency || a.name}</div>
+                  <div className="text-xs text-muted-foreground">{a.listings} listings</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Honest banner */}
       <section className="border-y border-border bg-secondary/40">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:gap-6 sm:text-left sm:px-6">
           <div>
@@ -117,9 +183,7 @@ function HomePage() {
           </div>
           <a href="https://tally.so/r/RGrA0p" target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
             Register your interest <ArrowRight className="h-4 w-4" />
-
           </a>
-
         </div>
       </section>
 
@@ -148,6 +212,28 @@ function HomePage() {
           body="Draw an area, save a search, get alerts when a matching home goes live." />
         <ValueCard icon={<Sparkles className="h-5 w-5" />} title="Trusted agents"
           body="Talk directly to top-rated Lagos agents — no middleman, no spam calls." />
+      </section>
+
+      {/* City guide */}
+      <section className="bg-secondary/40 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Neighbourhood Guide</p>
+          <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Explore cities across Nigeria</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {CITIES.map((c) => (
+              <Link key={c.name} to="/properties" search={{ city: c.name } as never}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+                <div className="aspect-[16/9] overflow-hidden">
+                  <div className="h-full w-full bg-gradient-to-br transition duration-500 group-hover:scale-105" style={{ background: c.gradient }} />
+                </div>
+                <div className="absolute inset-0 flex flex-col justify-end p-4" style={{ background: "linear-gradient(transparent 40%, rgba(0,0,0,0.7))" }}>
+                  <h3 className="font-display text-xl font-bold text-white">{c.name}</h3>
+                  <p className="text-xs text-white/80">{c.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Recent */}
@@ -237,13 +323,26 @@ function HomePage() {
   );
 }
 
+const CATEGORIES = [
+  { label: "Buy", desc: "Homes for purchase", icon: Home, search: { purpose: "buy" }, bg: "rgba(201,168,76,0.12)", color: "#C9A84C" },
+  { label: "Rent", desc: "Premium rentals", icon: Search, search: { purpose: "rent" }, bg: "rgba(59,130,246,0.12)", color: "#3B82F6" },
+  { label: "Shortlet", desc: "Short stays", icon: Building2, search: { purpose: "shortlet" }, bg: "rgba(16,185,129,0.12)", color: "#10B981" },
+  { label: "Land", desc: "Plots & acres", icon: LandPlot, search: { type: "land" }, bg: "rgba(245,158,11,0.12)", color: "#F59E0B" },
+];
+
+const CITIES = [
+  { name: "Lagos", desc: "Lekki, Ikoyi, VI, Banana Island", gradient: "linear-gradient(135deg, #0A1628, #1B2E4B)" },
+  { name: "Abuja", desc: "Maitama, Wuse, Asokoro, Gwarinpa", gradient: "linear-gradient(135deg, #1a3a2a, #2d5a3e)" },
+  { name: "Port Harcourt", desc: "GRA, Old GRA, Elelenwo", gradient: "linear-gradient(135deg, #3a1a1a, #5a2d2d)" },
+  { name: "Ibadan", desc: "Bodija, Jericho, Ibadan North", gradient: "linear-gradient(135deg, #2a1a3a, #4a2d5a)" },
+];
+
 const TESTIMONIALS = [
   { quote: "AVR Homes gave my listings the professional presentation they deserved. I closed two deals within my first month on the platform.", name: "Chidi Okonkwo", title: "Property Consultant, Lekki" },
   { quote: "As a diaspora investor in London, I needed a platform I could trust. AVR Homes verified listings gave me the confidence to buy remotely.", name: "Adaeze M.", title: "Investor, London / Lagos" },
   { quote: "The agent dashboard is clean and professional. It finally feels like Lagos real estate is catching up with global standards.", name: "Funmi Adeyemi", title: "Senior Realtor, Victoria Island" },
 ];
 
-/** A single value proposition card (icon, title, body). */
 function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
@@ -253,13 +352,23 @@ function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string
     </div>
   );
 }
-/** A single benefit card used in the agent-recruitment section. */
+
 function Benefit({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
       <div className="grid h-10 w-10 place-items-center rounded-lg" style={{ background: "rgba(201,168,76,0.15)", color: "#C9A84C" }}>{icon}</div>
       <h3 className="mt-4 font-display text-lg font-semibold text-white">{title}</h3>
       <p className="mt-1.5 text-sm text-white/70">{body}</p>
+    </div>
+  );
+}
+
+function StatCard({ value, label, icon: Icon }: { value: number; label: string; icon: React.ComponentType<{ className?: string }> }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 text-center">
+      <Icon className="mx-auto h-5 w-5 text-primary" />
+      <div className="mt-2 font-display text-2xl font-bold">{value.toLocaleString()}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
     </div>
   );
 }
