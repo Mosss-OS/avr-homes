@@ -37,6 +37,7 @@ import { Route as AdminVerificationsRouteImport } from './routes/admin.verificat
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminSavedSearchesRouteImport } from './routes/admin.saved-searches'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
@@ -205,6 +206,11 @@ const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSavedSearchesRoute = AdminSavedSearchesRouteImport.update({
+  id: '/saved-searches',
+  path: '/saved-searches',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
@@ -390,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -449,6 +456,7 @@ export interface FileRoutesByTo {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -509,6 +517,7 @@ export interface FileRoutesById {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
     | '/admin/users'
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
     | '/admin/users'
@@ -688,6 +699,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
     | '/admin/users'
@@ -934,6 +946,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/saved-searches': {
+      id: '/admin/saved-searches'
+      path: '/saved-searches'
+      fullPath: '/admin/saved-searches'
+      preLoaderRoute: typeof AdminSavedSearchesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/referrals': {
@@ -1197,6 +1216,7 @@ interface AdminRouteChildren {
   AdminModerationRoute: typeof AdminModerationRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminReferralsRoute: typeof AdminReferralsRoute
+  AdminSavedSearchesRoute: typeof AdminSavedSearchesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
@@ -1221,6 +1241,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminModerationRoute: AdminModerationRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminReferralsRoute: AdminReferralsRoute,
+  AdminSavedSearchesRoute: AdminSavedSearchesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
