@@ -43,3 +43,5 @@ backend/logs/*
 .vercel
 .env*.local
 .env.vercel
+.env*
+!backend/.env.example
