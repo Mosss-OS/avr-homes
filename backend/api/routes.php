@@ -84,7 +84,10 @@ route('GET', '/api/admin/verifications', ['PropertyVerificationController', 'adm
 route('PUT', '/api/admin/verifications/{id}/approve', ['PropertyVerificationController', 'adminApprove']);
 route('PUT', '/api/admin/verifications/{id}/reject', ['PropertyVerificationController', 'adminReject']);
 
-/* ── Subscription routes (agent only) ─────────────────────── */
+/* ── Admin subscription management ──────────────────────────── */
+route('GET', '/api/admin/subscriptions', ['SubscriptionController', 'adminIndex']);
+route('PUT', '/api/admin/subscriptions/{id}/tier', ['SubscriptionController', 'adminUpdateTier']);
+route('PUT', '/api/admin/subscriptions/{id}/status', ['SubscriptionController', 'adminUpdateStatus']);
 route('GET', '/api/agent/subscription', ['SubscriptionController', 'index']);
 route('POST', '/api/agent/subscription/upgrade', ['SubscriptionController', 'upgrade']);
 route('POST', '/api/agent/subscription/cancel', ['SubscriptionController', 'cancel']);
