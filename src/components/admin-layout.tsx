@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Users, ShieldCheck, CalendarCheck, Activity, Settings,
-  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent, TrendingUp, Image, ShieldCheck, ClipboardList, Wrench, ShieldCheck,
+  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent, TrendingUp, Image, ShieldCheck, ClipboardList, Wrench, Search, ShieldCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -28,6 +28,7 @@ const NAV_ITEMS = [
   { icon: Wallet, label: "Wallet", to: "/admin/wallet" },
   { icon: Gift, label: "Referrals", to: "/admin/referrals" },
   { icon: ClipboardList, label: "Moderation", to: "/admin/moderation" },
+  { icon: Search, label: "Saved Searches", to: "/admin/saved-searches" },
   { icon: ShieldCheck, label: "Verifications", to: "/admin/verifications" },
   { icon: MessageSquare, label: "Inquiries", to: "/admin/inquiries" },
   { icon: FileText, label: "Blog", to: "/admin/blog" },
