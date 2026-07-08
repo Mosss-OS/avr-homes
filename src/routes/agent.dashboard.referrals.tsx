@@ -204,7 +204,8 @@ function ReferralsPage() {
     );
   }
 
-  const referralLink = wallet ? `${window.location.origin}/register?ref=${referrals[0]?.referral_code || 'N/A'}` : null;
+  const referralCode = referrals.find(r => r.referral_code)?.referral_code;
+  const referralLink = referralCode ? `${window.location.origin}/register?ref=${referralCode}` : null;
 
   return (
     <DashboardLayout>
@@ -444,7 +445,7 @@ function ReferralsPage() {
       {/* Leaderboard Tab */}
       {activeTab === "leaderboard" && (
         <div className="space-y-6">
-          {['weekly', 'monthly', 'quarterly'].map((period) => (
+          {(['weekly', 'monthly', 'quarterly'] as const).map((period) => (
             <LeaderboardCard key={period} period={period} />
           ))}
         </div>

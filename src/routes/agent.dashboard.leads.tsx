@@ -222,11 +222,11 @@ function AgentLeadsPage() {
       </div>
 
       {loading ? (
-        <div className="flex min-h-[200px] items-center justify-center">
+        <div className="flex min-h-[400px] items-center justify-center rounded-2xl border border-border bg-card">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : leads.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-12">
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-border bg-card">
           <Mail className="mb-3 h-12 w-12 text-muted-foreground/40" />
           <p className="font-medium">No leads found</p>
           <p className="text-sm text-muted-foreground">

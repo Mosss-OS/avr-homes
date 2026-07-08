@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   { icon: UserCircle, label: "Profile", to: "/agent/dashboard/profile" },
   { icon: ShieldCheck, label: "Verification", to: "/agent/dashboard/verification" },
   { icon: FileText, label: "Blog", to: "/agent/dashboard/blog" },
-  { icon: HelpCircle, label: "Help & Support", to: "#" },
+  { icon: HelpCircle, label: "Help & Support", to: "/contact" },
 ];
 
 /** Agent dashboard shell wrapping page content with sidebar and top header. */

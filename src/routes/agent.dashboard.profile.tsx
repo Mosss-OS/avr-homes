@@ -119,7 +119,7 @@ function AgentProfilePage() {
     }
   }
 
-  /** Upload a new avatar image and update the profile photo_url. */
+  /** Upload a new avatar image and update the profile photo_url with cache busting. */
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,7 +128,8 @@ function AgentProfilePage() {
       const formData = new FormData();
       formData.append("avatar", file);
       const res = await api.post<{ photo_url: string }>("/api/agent/profile/avatar", formData);
-      setProfile((prev) => prev ? { ...prev, photo_url: res.data.photo_url } : prev);
+      const busted = res.data.photo_url + (res.data.photo_url.includes("?") ? "&" : "?") + "t=" + Date.now();
+      setProfile((prev) => prev ? { ...prev, photo_url: busted } : prev);
       toast.success("Avatar updated");
     } catch {
       toast.error("Failed to upload avatar");
