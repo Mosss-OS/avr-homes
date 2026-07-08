@@ -80,7 +80,7 @@ function AdminLoginPage() {
                 value={password} onChange={(e) => setPassword(e.target.value)} required
                 className="border-white/10 bg-white/5 pl-10 pr-10 text-white placeholder:text-white/30" />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
+                className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-[#C9A84C]/70 hover:text-[#C9A84C]">
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
