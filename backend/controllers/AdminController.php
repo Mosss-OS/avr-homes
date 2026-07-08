@@ -1075,4 +1075,73 @@ class AdminController
 
     Response::success(null, 'Contact message deleted');
   }
+
+  /**
+   * [Admin] Trend data for charts.
+   * GET /api/admin/analytics/trends?period=30
+   */
+  public static function trends(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $period = max(7, min(365, (int)($_GET['period'] ?? 30)));
+    $db = Database::getConnection();
+
+    $since = date('Y-m-d', strtotime("-{$period} days"));
+
+    $trends = $db->query(
+      "SELECT
+         d.date,
+         COALESCE(u.cnt, 0) as new_users,
+         COALESCE(p.cnt, 0) as new_properties,
+         COALESCE(b.cnt, 0) as new_bookings,
+         COALESCE(i.cnt, 0) as new_inquiries,
+         COALESCE(r.cnt, 0) as new_referrals,
+         COALESCE(s.cnt, 0) as new_subscriptions
+       FROM (
+         SELECT DATE_ADD('{$since}', INTERVAL seq DAY) as date
+         FROM (SELECT 0 as seq UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) d1
+         CROSS JOIN (SELECT 0 as seq UNION SELECT 10 UNION SELECT 20 UNION SELECT 30 UNION SELECT 40 UNION SELECT 50 UNION SELECT 60 UNION SELECT 70 UNION SELECT 80 UNION SELECT 90) d2
+         HAVING date <= CURDATE()
+       ) d
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM users WHERE created_at >= ? GROUP BY dt) u ON u.dt = d.date
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM properties WHERE created_at >= ? GROUP BY dt) p ON p.dt = d.date
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM property_bookings WHERE created_at >= ? GROUP BY dt) b ON b.dt = d.date
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM inquiries WHERE created_at >= ? GROUP BY dt) i ON i.dt = d.date
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM referrals WHERE created_at >= ? GROUP BY dt) r ON r.dt = d.date
+       LEFT JOIN (SELECT DATE(created_at) as dt, COUNT(*) as cnt FROM agent_subscriptions WHERE created_at >= ? GROUP BY dt) s ON s.dt = d.date
+       ORDER BY d.date"
+    )->fetchAll();
+
+    Response::success(['period' => $period, 'data' => $trends], 'Trends retrieved');
+  }
+
+  /**
+   * [Admin] Breakdown stats.
+   * GET /api/admin/analytics/breakdown
+   */
+  public static function breakdown(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $db = Database::getConnection();
+
+    $propertiesByType = $db->query("SELECT type, COUNT(*) as count FROM properties GROUP BY type ORDER BY count DESC")->fetchAll();
+    $propertiesByPurpose = $db->query("SELECT purpose, COUNT(*) as count FROM properties GROUP BY purpose ORDER BY count DESC")->fetchAll();
+    $propertiesByCity = $db->query("SELECT city, COUNT(*) as count FROM properties GROUP BY city ORDER BY count DESC LIMIT 10")->fetchAll();
+    $subscriptionsByTier = $db->query("SELECT tier, COUNT(*) as count FROM agent_subscriptions WHERE status = 'active' GROUP BY tier ORDER BY count DESC")->fetchAll();
+    $bookingsByStatus = $db->query("SELECT status, COUNT(*) as count FROM property_bookings GROUP BY status")->fetchAll();
+    $inquiriesByStatus = $db->query("SELECT status, COUNT(*) as count FROM inquiries GROUP BY status")->fetchAll();
+
+    foreach ([&$propertiesByType, &$propertiesByPurpose, &$propertiesByCity, &$subscriptionsByTier, &$bookingsByStatus, &$inquiriesByStatus] as &$arr) {
+      foreach ($arr as &$r) { $r['count'] = (int)$r['count']; }
+    }
+
+    Response::success([
+      'properties_by_type' => $propertiesByType,
+      'properties_by_purpose' => $propertiesByPurpose,
+      'properties_by_city' => $propertiesByCity,
+      'subscriptions_by_tier' => $subscriptionsByTier,
+      'bookings_by_status' => $bookingsByStatus,
+      'inquiries_by_status' => $inquiriesByStatus,
+    ], 'Breakdown retrieved');
+  }
 }
