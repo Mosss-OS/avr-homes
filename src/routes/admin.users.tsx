@@ -7,7 +7,7 @@ import { createFileRoute, Outlet, useNavigate, useRouterState, Link } from "@tan
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
-import { Search, Loader2, ChevronLeft, ChevronRight, Shield, Pencil } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Shield, Pencil, Plus, UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/users")({
   component: AdminUsers,
@@ -65,9 +65,15 @@ function AdminUsers() {
   }
 
   return (<>
-      <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold">Users</h1>
-        <p className="text-sm text-muted-foreground">{total} registered users</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-semibold">Users</h1>
+          <p className="text-sm text-muted-foreground">{total} registered users</p>
+        </div>
+        <Link to="/admin/users/new"
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <UserPlus className="h-4 w-4" /> Create User
+        </Link>
       </div>
 
       <div className="mb-4">

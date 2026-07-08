@@ -2,6 +2,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2, LogIn, LayoutDashboard, LogOut, ChevronDown, Home, Search, ShieldCheck, BarChart3, Info, Phone, Globe, GraduationCap, BookOpen, DollarSign, Send, Sparkles } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { fetchSettings, type AppSettings } from "@/lib/settings";
 const LOGO_URL = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
 
 interface MegaItem {
@@ -316,19 +317,26 @@ function MobileLink({ to, search, children, onClick }: { to: string; search?: Re
   );
 }
 
-const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com/avrhomes.ng", icon: Instagram },
-  { label: "TikTok", href: "https://tiktok.com/@avrhomes", icon: Music2 },
-  { label: "LinkedIn", href: "https://linkedin.com/company/avr-homes", icon: Linkedin },
-  { label: "Facebook", href: "https://facebook.com/avrhomesng", icon: Facebook },
-  { label: "YouTube", href: "https://youtube.com/@avrhomes", icon: Youtube },
-];
+const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Instagram, TikTok: Music2, Linkedin, Facebook, Youtube,
+};
 
 export function SiteFooter() {
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  useEffect(() => { fetchSettings().then(setSettings); }, []);
+
+  const socialLinks = settings ? [
+    { label: "Instagram", href: settings.social_instagram, icon: Instagram },
+    { label: "TikTok", href: settings.social_tiktok, icon: Music2 },
+    { label: "LinkedIn", href: settings.social_linkedin, icon: Linkedin },
+    { label: "Facebook", href: settings.social_facebook, icon: Facebook },
+    { label: "YouTube", href: settings.social_youtube, icon: Youtube },
+  ].filter((s) => s.href) : [];
+
   return (
     <footer className="mt-20 border-t border-border bg-secondary/40">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
-        <div>
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
+        <div className="md:col-span-1">
           <div className="flex items-center gap-2.5">
             <img src={LOGO_URL} alt="AVR Homes" className="h-14 w-14 rounded-xl object-cover" />
             <span className="font-display text-xl font-semibold">AVR Homes.</span>
@@ -338,48 +346,60 @@ export function SiteFooter() {
           </p>
           <address className="mt-4 not-italic text-sm text-muted-foreground">
             <div className="font-medium text-foreground">Visit us</div>
-            2 Lanre Olumide Street,<br />
-            Idado Estate, Igbo-efon,<br />
-            Lekki, Lagos, Nigeria.
+            {settings?.address ? settings.address : (
+              <>2 Lanre Olumide Street,<br />Idado Estate, Igbo-efon,<br />Lekki, Lagos, Nigeria.</>
+            )}
           </address>
         </div>
-        <div>
-          <h4 className="text-sm font-semibold text-foreground">Explore</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/properties" search={{ purpose: "buy" } as never} className="hover:text-foreground">Buy</Link></li>
-            <li><Link to="/properties" search={{ purpose: "rent" } as never} className="hover:text-foreground">Rent</Link></li>
-            <li><Link to="/map" className="hover:text-foreground">Map view</Link></li>
-            <li><Link to="/agents" className="hover:text-foreground">Agents</Link></li>
-            <li><Link to="/insights" className="hover:text-foreground">Market Insights</Link></li>
-            <li><Link to="/blog" className="hover:text-foreground">Blog</Link></li>
-            <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-            <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-            <li><Link to="/agent/register" className="hover:text-foreground">Become an Agent</Link></li>
-            <li><Link to="/agent/login" className="hover:text-foreground">Agent Login</Link></li>
-            <li><Link to="/diaspora" className="hover:text-foreground">Diaspora Investors</Link></li>
-          </ul>
+
+        <div className="md:col-span-2">
+          <h4 className="text-sm font-semibold text-foreground mb-3">Explore</h4>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
+            <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Buy</Link>
+            <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Rent</Link>
+            <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">Map view</Link>
+            <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">Agents</Link>
+            <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">Market Insights</Link>
+            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link>
+            <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link>
+            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
+            <Link to="/agent/register" className="text-sm text-muted-foreground hover:text-foreground">Become an Agent</Link>
+            <Link to="/agent/login" className="text-sm text-muted-foreground hover:text-foreground">Agent Login</Link>
+            <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">Diaspora Investors</Link>
+          </div>
         </div>
+
         <div>
           <h4 className="text-sm font-semibold text-foreground">Follow AVR Homes</h4>
           <div className="mt-3 flex flex-wrap gap-2">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={s.label}
-                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground"
-              >
+            {socialLinks.length > 0 ? socialLinks.map((s) => (
+              <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}
+                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
                 <s.icon className="h-4 w-4" />
               </a>
-            ))}
+            )) : (
+              <>
+                <a href="https://instagram.com/avrhomes.ng" target="_blank" rel="noreferrer" aria-label="Instagram"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a href="https://facebook.com/avrhomesng" target="_blank" rel="noreferrer" aria-label="Facebook"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a href="https://linkedin.com/company/avr-homes" target="_blank" rel="noreferrer" aria-label="LinkedIn"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              </>
+            )}
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">hello@avrhomes.ng</p>
+          <p className="mt-4 text-xs text-muted-foreground">{settings?.contact_email || "hello@avrhomes.ng"}</p>
+          {settings?.contact_phone && <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>}
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} AVR Homes — Lekki, Lagos. All rights reserved.
+        &copy; {new Date().getFullYear()} AVR Homes &mdash; Lekki, Lagos. All rights reserved.
       </div>
     </footer>
   );

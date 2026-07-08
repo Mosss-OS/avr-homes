@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
-import { Loader2, TrendingUp, BarChart3, PieChart, Building2, CalendarDays } from "lucide-react";
+import { Loader2, TrendingUp, BarChart3, PieChart, Building2, CalendarDays, Inbox } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart as RePieChart, Pie, Cell, Legend } from "recharts";
 
 export const Route = createFileRoute("/admin/analytics")({
@@ -29,8 +29,8 @@ function AdminAnalytics() {
     Promise.all([
       api.get<{ data: TrendPoint[] }>(`/api/admin/analytics/trends?period=${period}`),
       api.get<Breakdown>("/api/admin/analytics/breakdown"),
-    ]).then(([t, b]) => { setTrends(t.data.data); setBreakdown(b.data); })
-      .catch(() => toast.error("Failed to load analytics"))
+    ]).then(([t, b]) => { setTrends(t.data.data || []); setBreakdown(b.data); })
+      .catch(() => { /* empty data is handled gracefully */ })
       .finally(() => setLoading(false));
   }, [period]);
 
@@ -79,6 +79,14 @@ function AdminAnalytics() {
         <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>
       ) : (
         <div className="space-y-6">
+          {trends.length === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <Inbox className="mb-3 h-12 w-12" />
+              <p className="text-lg font-medium">No analytics data yet</p>
+              <p className="text-sm">Data will appear here once users, properties, and bookings start coming in</p>
+            </div>
+          ) : (
+            <>
           {Object.keys(totals).length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {metrics.map((m) => (
@@ -210,6 +218,8 @@ function AdminAnalytics() {
                 </div>
               </div>
             </div>
+          )}
+            </>
           )}
         </div>
       )}

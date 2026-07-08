@@ -13,20 +13,22 @@ export interface AppSettings {
   contact_email: string;
   contact_phone: string;
   whatsapp_number: string;
+  address: string;
   currency_ngn_usd: string;
   currency_ngn_gbp: string;
+  social_instagram: string;
+  social_tiktok: string;
+  social_linkedin: string;
+  social_facebook: string;
+  social_youtube: string;
 }
 
 let cached: AppSettings | null = null;
 
-/**
- * Fetches application settings from the API and caches them in memory.
- * Returns an empty object cast to `AppSettings` on failure.
- */
 export async function fetchSettings(): Promise<AppSettings> {
   try {
-    const res = await api.get<{ data: AppSettings }>("/api/settings");
-    cached = res.data.data;
+    const res = await api.get<AppSettings>("/api/settings");
+    cached = res.data;
     return cached;
   } catch {
     return {} as AppSettings;

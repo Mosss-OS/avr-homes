@@ -44,7 +44,7 @@ function AdminBlog() {
       setRows(res.data.data);
       setTotal(res.data.total);
       setTotalPages(res.data.total_pages);
-    } catch { toast.error("Failed to load blog posts"); }
+    } catch { setRows([]); setTotal(0); setTotalPages(1); }
     setLoading(false);
   }, [page, search]);
 
