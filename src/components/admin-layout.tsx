@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Users, ShieldCheck, CalendarCheck, Activity, Settings,
-  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail,
+  Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { icon: CalendarCheck, label: "Bookings", to: "/admin/bookings" },
   { icon: CalendarRange, label: "Calendar", to: "/admin/booking-calendar" },
   { icon: Tag, label: "Coupons", to: "/admin/coupons" },
+  { icon: BadgePercent, label: "Fees", to: "/admin/fees" },
   { icon: Mail, label: "Email", to: "/admin/email" },
   { icon: CreditCard, label: "Subscriptions", to: "/admin/subscriptions" },
   { icon: Wallet, label: "Wallet", to: "/admin/wallet" },

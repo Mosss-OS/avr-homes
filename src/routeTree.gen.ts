@@ -41,6 +41,7 @@ import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
+import { Route as AdminFeesRouteImport } from './routes/admin.fees'
 import { Route as AdminEmailRouteImport } from './routes/admin.email'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
@@ -222,6 +223,11 @@ const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
   path: '/inquiries',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFeesRoute = AdminFeesRouteImport.update({
+  id: '/fees',
+  path: '/fees',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminEmailRoute = AdminEmailRouteImport.update({
   id: '/email',
   path: '/email',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/fees': typeof AdminFeesRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/fees': typeof AdminFeesRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
@@ -460,6 +468,7 @@ export interface FileRoutesById {
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/fees': typeof AdminFeesRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
@@ -516,6 +525,7 @@ export interface FileRouteTypes {
     | '/admin/bookings'
     | '/admin/coupons'
     | '/admin/email'
+    | '/admin/fees'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
@@ -570,6 +580,7 @@ export interface FileRouteTypes {
     | '/admin/bookings'
     | '/admin/coupons'
     | '/admin/email'
+    | '/admin/fees'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
@@ -624,6 +635,7 @@ export interface FileRouteTypes {
     | '/admin/bookings'
     | '/admin/coupons'
     | '/admin/email'
+    | '/admin/fees'
     | '/admin/inquiries'
     | '/admin/login'
     | '/admin/properties'
@@ -904,6 +916,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInquiriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/fees': {
+      id: '/admin/fees'
+      path: '/fees'
+      fullPath: '/admin/fees'
+      preLoaderRoute: typeof AdminFeesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/email': {
       id: '/admin/email'
       path: '/email'
@@ -1093,6 +1112,7 @@ interface AdminRouteChildren {
   AdminBookingsRoute: typeof AdminBookingsRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
   AdminEmailRoute: typeof AdminEmailRoute
+  AdminFeesRoute: typeof AdminFeesRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
@@ -1112,6 +1132,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBookingsRoute: AdminBookingsRoute,
   AdminCouponsRoute: AdminCouponsRoute,
   AdminEmailRoute: AdminEmailRoute,
+  AdminFeesRoute: AdminFeesRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
