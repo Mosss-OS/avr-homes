@@ -204,6 +204,7 @@ route('GET', '/api/admin/inquiries', ['AdminController', 'inquiries']);
 route('PUT', '/api/admin/inquiries/{id}/read', ['AdminController', 'updateInquiryRead']);
 route('PUT', '/api/admin/inquiries/{id}/status', ['AdminController', 'updateInquiryStatus']);
 route('PUT', '/api/admin/inquiries/{id}/notes', ['AdminController', 'updateInquiryNotes']);
+route('PUT', '/api/admin/inquiries/{id}/assign', ['AdminController', 'assignInquiry']);
 route('DELETE', '/api/admin/inquiries/{id}', ['AdminController', 'deleteInquiry']);
 
 /* ── Admin contact message management ─────────────────────── */
