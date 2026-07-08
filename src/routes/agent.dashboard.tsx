@@ -34,9 +34,6 @@ function AgentDashboardPage() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  if (pathname !== "/agent/dashboard") return <Outlet />;
-
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState("");
 
@@ -49,6 +46,8 @@ function AgentDashboardPage() {
       .then((res) => setStats(res.data))
       .catch(() => setError("Failed to load stats"));
   }, []);
+
+  if (pathname !== "/agent/dashboard") return <Outlet />;
 
   if (isLoading) {
     return (
