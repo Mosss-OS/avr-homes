@@ -214,4 +214,169 @@ class WalletController
       Response::error('Failed to process withdrawal: ' . $e->getMessage(), 500);
     }
   }
+
+  // ─── Admin routes ─────────────────────────────────────────────────────
+
+  /**
+   * List all wallets with agent info and balance (admin).
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function adminWallets(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $search  = $_GET['q'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($search) { $conditions[] = '(u.name LIKE ? OR u.email LIKE ?)'; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; }
+
+    $where = implode(' AND ', $conditions);
+
+    $total = (int)$db->query("SELECT COUNT(*) FROM agent_wallets w JOIN users u ON u.id = w.agent_id WHERE {$where}")->fetchColumn();
+
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT w.*, u.name as user_name, u.email as user_email
+       FROM agent_wallets w
+       JOIN users u ON u.id = w.agent_id
+       WHERE {$where}
+       ORDER BY w.balance DESC LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['agent_id'] = (int)$r['agent_id'];
+      $r['balance'] = (float)$r['balance'];
+      $r['total_earned'] = (float)$r['total_earned'];
+      $r['total_withdrawn'] = (float)$r['total_withdrawn'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total,
+      'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /**
+   * List pending/status-filtered withdrawals across all agents (admin).
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function adminWithdrawals(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $status  = $_GET['status'] ?? null;
+    $search  = $_GET['q'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['wt.type = "debit"'];
+    $binds = [];
+
+    if ($status) { $conditions[] = 'wt.status = ?'; $binds[] = $status; }
+    if ($search) { $conditions[] = '(u.name LIKE ? OR u.email LIKE ?)'; $binds[] = "%{$search}%"; $binds[] = "%{$search}%"; }
+
+    $where = implode(' AND ', $conditions);
+
+    $countStmt = $db->prepare(
+      "SELECT COUNT(*) FROM wallet_transactions wt
+       JOIN agent_wallets w ON w.id = wt.wallet_id
+       JOIN users u ON u.id = w.agent_id
+       WHERE {$where}"
+    );
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT wt.*, w.agent_id, u.name as user_name, u.email as user_email
+       FROM wallet_transactions wt
+       JOIN agent_wallets w ON w.id = wt.wallet_id
+       JOIN users u ON u.id = w.agent_id
+       WHERE {$where}
+       ORDER BY wt.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['wallet_id'] = (int)$r['wallet_id'];
+      $r['amount'] = (float)$r['amount'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total,
+      'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /**
+   * Approve a pending withdrawal (admin).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function adminApproveWithdrawal(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid transaction ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT * FROM wallet_transactions WHERE id = ? AND type = 'debit' AND status = 'pending'");
+    $stmt->execute([$id]);
+    $tx = $stmt->fetch();
+
+    if (!$tx) Response::error('Pending withdrawal not found', 404);
+
+    $db->prepare("UPDATE wallet_transactions SET status = 'completed' WHERE id = ?")->execute([$id]);
+    Response::success(['id' => $id], 'Withdrawal approved');
+  }
+
+  /**
+   * Reject a pending withdrawal and refund the wallet (admin).
+   *
+   * @param array $params Must contain 'id'.
+   * @return void
+   */
+  public static function adminRejectWithdrawal(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) Response::error('Invalid transaction ID', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT * FROM wallet_transactions WHERE id = ? AND type = 'debit' AND status = 'pending'");
+    $stmt->execute([$id]);
+    $tx = $stmt->fetch();
+
+    if (!$tx) Response::error('Pending withdrawal not found', 404);
+
+    $db->beginTransaction();
+    try {
+      $db->prepare("UPDATE wallet_transactions SET status = 'failed' WHERE id = ?")->execute([$id]);
+      $db->prepare("UPDATE agent_wallets SET balance = balance + ?, total_withdrawn = total_withdrawn - ? WHERE id = ?")
+        ->execute([(float)$tx['amount'], (float)$tx['amount'], (int)$tx['wallet_id']]);
+      $db->commit();
+      Response::success(['id' => $id], 'Withdrawal rejected and wallet refunded');
+    } catch (Exception $e) {
+      $db->rollBack();
+      Response::error('Failed to reject withdrawal: ' . $e->getMessage(), 500);
+    }
+  }
 }

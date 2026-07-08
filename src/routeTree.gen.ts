@@ -32,6 +32,7 @@ import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as AgentLoginRouteImport } from './routes/agent.login'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
+import { Route as AdminWalletRouteImport } from './routes/admin.wallet'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
@@ -171,6 +172,11 @@ const AgentDashboardRoute = AgentDashboardRouteImport.update({
   id: '/agent/dashboard',
   path: '/agent/dashboard',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWalletRoute = AdminWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   id: '/verifications',
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/wallet': typeof AdminWalletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/wallet': typeof AdminWalletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/wallet': typeof AdminWalletRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/login': typeof AgentLoginRoute
   '/agent/register': typeof AgentRegisterRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/verifications'
+    | '/admin/wallet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/verifications'
+    | '/admin/wallet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -573,6 +584,7 @@ export interface FileRouteTypes {
     | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/verifications'
+    | '/admin/wallet'
     | '/agent/dashboard'
     | '/agent/login'
     | '/agent/register'
@@ -780,6 +792,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/agent/dashboard'
       preLoaderRoute: typeof AgentDashboardRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/wallet': {
+      id: '/admin/wallet'
+      path: '/wallet'
+      fullPath: '/admin/wallet'
+      preLoaderRoute: typeof AdminWalletRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/verifications': {
       id: '/admin/verifications'
@@ -1002,6 +1021,7 @@ interface AdminRouteChildren {
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AdminWalletRoute: typeof AdminWalletRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -1016,6 +1036,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminVerificationsRoute: AdminVerificationsRoute,
+  AdminWalletRoute: AdminWalletRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

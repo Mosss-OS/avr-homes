@@ -97,7 +97,11 @@ route('GET', '/api/agent/referrals', ['ReferralController', 'index']);
 route('POST', '/api/agent/referrals/generate', ['ReferralController', 'generateCode']);
 route('GET', '/api/agent/referrals/stats', ['ReferralController', 'stats']);
 
-/* ── Wallet routes (agent) ────────────────────────────────── */
+/* ── Admin wallet / withdrawal management ─────────────────── */
+route('GET', '/api/admin/wallets', ['WalletController', 'adminWallets']);
+route('GET', '/api/admin/withdrawals', ['WalletController', 'adminWithdrawals']);
+route('PUT', '/api/admin/withdrawals/{id}/approve', ['WalletController', 'adminApproveWithdrawal']);
+route('PUT', '/api/admin/withdrawals/{id}/reject', ['WalletController', 'adminRejectWithdrawal']);
 route('GET', '/api/agent/wallet', ['WalletController', 'show']);
 route('GET', '/api/agent/wallet/transactions', ['WalletController', 'transactions']);
 route('POST', '/api/agent/wallet/withdraw', ['WalletController', 'requestWithdrawal']);
