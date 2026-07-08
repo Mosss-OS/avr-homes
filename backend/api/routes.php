@@ -263,3 +263,15 @@ route('GET', '/api/agent/blog', ['BlogController', 'agentIndex']);
 route('POST', '/api/agent/blog', ['BlogController', 'store']);
 route('PUT', '/api/agent/blog/{id}', ['BlogController', 'update']);
 route('DELETE', '/api/agent/blog/{id}', ['BlogController', 'destroy']);
+
+/* ── Admin role & permission management ──────────────────── */
+route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);
+route('GET', '/api/admin/roles/{id}', ['RoleController', 'adminRoleDetail']);
+route('POST', '/api/admin/roles', ['RoleController', 'adminCreateRole']);
+route('PUT', '/api/admin/roles/{id}', ['RoleController', 'adminUpdateRole']);
+route('DELETE', '/api/admin/roles/{id}', ['RoleController', 'adminDeleteRole']);
+route('GET', '/api/admin/permissions', ['RoleController', 'adminPermissions']);
+route('PUT', '/api/admin/roles/{id}/permissions', ['RoleController', 'adminUpdateRolePermissions']);
+route('GET', '/api/admin/role-users', ['RoleController', 'adminRoleUsers']);
+route('PUT', '/api/admin/role-users/assign', ['RoleController', 'adminAssignRole']);
+route('GET', '/api/admin/my-permissions', ['RoleController', 'adminMyPermissions']);
