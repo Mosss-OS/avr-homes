@@ -36,7 +36,7 @@ class AuthMiddleware
     }
 
     $db = Database::getConnection();
-    $stmt = $db->prepare('SELECT id, name, email, role FROM users WHERE id = ? AND is_active = 1');
+    $stmt = $db->prepare('SELECT id, name, email, role, admin_role_id FROM users WHERE id = ? AND is_active = 1');
     $stmt->execute([$payload['user_id']]);
     $user = $stmt->fetch();
 
@@ -200,6 +200,41 @@ class AuthMiddleware
    * @param string $data URL-safe base64 encoded string.
    * @return string Decoded raw binary data.
    */
+  /**
+   * Require a specific permission for the current admin user.
+   * Superadmin always passes. Falls back to role-based permission check.
+   */
+  public static function requirePermission(string $permissionSlug): void
+  {
+    $user = self::authenticate();
+    if ($user['role'] === 'superadmin') return;
+
+    $db = Database::getConnection();
+
+    // Check via admin_role_id if set
+    if (!empty($user['admin_role_id'])) {
+      $stmt = $db->prepare(
+        "SELECT COUNT(*) FROM admin_role_permissions rp
+         INNER JOIN admin_permissions p ON p.id = rp.permission_id
+         WHERE rp.role_id = ? AND p.slug = ?"
+      );
+      $stmt->execute([$user['admin_role_id'], $permissionSlug]);
+      if ((int)$stmt->fetchColumn() > 0) return;
+    }
+
+    // Fallback: check by role name
+    $stmt = $db->prepare(
+      "SELECT COUNT(*) FROM admin_role_permissions rp
+       INNER JOIN admin_permissions p ON p.id = rp.permission_id
+       INNER JOIN admin_roles r ON r.id = rp.role_id
+       WHERE r.slug = ? AND p.slug = ?"
+    );
+    $stmt->execute([$user['role'], $permissionSlug]);
+    if ((int)$stmt->fetchColumn() > 0) return;
+
+    Response::error('Insufficient permissions: ' . $permissionSlug . ' required', 403);
+  }
+
   private static function base64UrlDecode(string $data): string
   {
     return base64_decode(strtr($data, '-_', '+/'));

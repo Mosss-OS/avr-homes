@@ -38,6 +38,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminSavedSearchesRouteImport } from './routes/admin.saved-searches'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
@@ -212,6 +213,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
 const AdminSavedSearchesRoute = AdminSavedSearchesRouteImport.update({
   id: '/saved-searches',
   path: '/saved-searches',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
@@ -403,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
@@ -464,6 +471,7 @@ export interface FileRoutesByTo {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
@@ -526,6 +534,7 @@ export interface FileRoutesById {
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/saved-searches': typeof AdminSavedSearchesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
@@ -589,6 +598,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/roles'
     | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
@@ -650,6 +660,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/roles'
     | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
@@ -711,6 +722,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/properties'
     | '/admin/referrals'
+    | '/admin/roles'
     | '/admin/saved-searches'
     | '/admin/settings'
     | '/admin/subscriptions'
@@ -965,6 +977,13 @@ declare module '@tanstack/react-router' {
       path: '/saved-searches'
       fullPath: '/admin/saved-searches'
       preLoaderRoute: typeof AdminSavedSearchesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/referrals': {
@@ -1236,6 +1255,7 @@ interface AdminRouteChildren {
   AdminModerationRoute: typeof AdminModerationRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminReferralsRoute: typeof AdminReferralsRoute
+  AdminRolesRoute: typeof AdminRolesRoute
   AdminSavedSearchesRoute: typeof AdminSavedSearchesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
@@ -1262,6 +1282,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminModerationRoute: AdminModerationRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminReferralsRoute: AdminReferralsRoute,
+  AdminRolesRoute: AdminRolesRoute,
   AdminSavedSearchesRoute: AdminSavedSearchesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
