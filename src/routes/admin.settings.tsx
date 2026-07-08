@@ -51,6 +51,7 @@ useEffect(() => {
 
   const FIELDS = [
     { key: "site_name", label: "Site Name", type: "text" },
+    { key: "site_tagline", label: "Site Tagline", type: "text" },
     { key: "contact_email", label: "Contact Email", type: "email" },
     { key: "contact_phone", label: "Contact Phone", type: "text" },
     { key: "address", label: "Address", type: "text" },

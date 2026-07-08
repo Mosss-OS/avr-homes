@@ -10,6 +10,7 @@ import { api } from "./api-client";
 /** Global application settings returned by the /api/settings endpoint. */
 export interface AppSettings {
   site_name: string;
+  site_tagline: string;
   contact_email: string;
   contact_phone: string;
   whatsapp_number: string;

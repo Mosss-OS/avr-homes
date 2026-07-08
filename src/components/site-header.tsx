@@ -68,10 +68,14 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<number | null>(null);
   const [shared, setShared] = useState(false);
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const isPropertyPage = pathname.startsWith("/properties/") && pathname.split("/").length === 3;
+
+  useEffect(() => { fetchSettings().then(setSettings); }, []);
 
   function handleLogout() {
     logout();
@@ -118,7 +122,7 @@ export function SiteHeader() {
               AVR Homes<span className="text-[var(--gold)]">.</span>
             </span>
             <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">
-              Lagos Luxury, Verified.
+              {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
             </span>
           </span>
         </Link>
@@ -247,25 +251,36 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-border bg-background lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
-            {MEGA_MENU.flatMap((group) =>
-              group.items.map((item) => {
-                if (item.to) {
-                  return (
-                    <MobileLink key={item.label} to={item.to} search={item.search} onClick={() => setOpen(false)}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      {item.label}
-                    </MobileLink>
-                  );
-                }
-                return (
-                  <a key={item.label} href={item.href || "#"} onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-secondary">
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                    {item.label}
-                  </a>
-                );
-              })
-            )}
+            {MEGA_MENU.map((group) => {
+              const isOpen = expandedGroups[group.label] ?? false;
+              return (
+                <div key={group.label}>
+                  <button onClick={() => setExpandedGroups((prev) => ({ ...prev, [group.label]: !isOpen }))}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary">
+                    {group.icon && <group.icon className="h-4 w-4" />}
+                    {group.label}
+                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {isOpen && group.items.map((item) => {
+                    if (item.to) {
+                      return (
+                        <MobileLink key={item.label} to={item.to} search={item.search} onClick={() => setOpen(false)}>
+                          {item.icon && <item.icon className="h-4 w-4" />}
+                          {item.label}
+                        </MobileLink>
+                      );
+                    }
+                    return (
+                      <a key={item.label} href={item.href || "#"} onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-medium text-foreground/80 hover:bg-secondary">
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        {item.label}
+                      </a>
+                    );
+                  })}
+                </div>
+              );
+            })}
             <hr className="my-2 border-border" />
             {user && isAgent ? (
               <>
@@ -342,7 +357,7 @@ export function SiteFooter() {
             <span className="font-display text-xl font-semibold">AVR Homes.</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            Lagos Luxury, Verified. — Lekki, Ikoyi, Victoria Island, Banana Island & Eko Atlantic.
+            {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
           </p>
           <address className="mt-4 not-italic text-sm text-muted-foreground">
             <div className="font-medium text-foreground">Visit us</div>
