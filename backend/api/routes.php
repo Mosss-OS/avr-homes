@@ -267,6 +267,13 @@ route('POST', '/api/agent/blog', ['BlogController', 'store']);
 route('PUT', '/api/agent/blog/{id}', ['BlogController', 'update']);
 route('DELETE', '/api/agent/blog/{id}', ['BlogController', 'destroy']);
 
+/* ── Off-plan project progress routes ───────────────────── */
+route('GET', '/api/properties/{id}/progress', ['OffPlanController', 'index']);
+route('GET', '/api/agent/progress/{propertyId}', ['OffPlanController', 'agentIndex']);
+route('POST', '/api/agent/progress/{propertyId}', ['OffPlanController', 'store']);
+route('PUT', '/api/agent/progress/{id}', ['OffPlanController', 'update']);
+route('DELETE', '/api/agent/progress/{id}', ['OffPlanController', 'destroy']);
+
 /* ── Admin role & permission management ──────────────────── */
 route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);
 route('GET', '/api/admin/roles/{id}', ['RoleController', 'adminRoleDetail']);
