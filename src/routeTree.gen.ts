@@ -53,6 +53,7 @@ import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as AdminBookingCalendarRouteImport } from './routes/admin.booking-calendar'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAgentsRouteImport } from './routes/admin.agents'
 import { Route as AdminActivityRouteImport } from './routes/admin.activity'
@@ -292,6 +293,11 @@ const AdminBlogRoute = AdminBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -407,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -471,6 +478,7 @@ export interface FileRoutesByTo {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -536,6 +544,7 @@ export interface FileRoutesById {
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/booking-calendar': typeof AdminBookingCalendarRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -602,6 +611,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
+    | '/admin/announcements'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -666,6 +676,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
+    | '/admin/announcements'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
+    | '/admin/announcements'
     | '/admin/blog'
     | '/admin/booking-calendar'
     | '/admin/bookings'
@@ -1108,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/analytics': {
       id: '/admin/analytics'
       path: '/analytics'
@@ -1279,6 +1298,7 @@ interface AdminRouteChildren {
   AdminActivityRoute: typeof AdminActivityRoute
   AdminAgentsRoute: typeof AdminAgentsRouteWithChildren
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminBlogRoute: typeof AdminBlogRoute
   AdminBookingCalendarRoute: typeof AdminBookingCalendarRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
@@ -1306,6 +1326,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminActivityRoute: AdminActivityRoute,
   AdminAgentsRoute: AdminAgentsRouteWithChildren,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminBlogRoute: AdminBlogRoute,
   AdminBookingCalendarRoute: AdminBookingCalendarRoute,
   AdminBookingsRoute: AdminBookingsRoute,
