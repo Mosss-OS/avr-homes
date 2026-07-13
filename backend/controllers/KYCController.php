@@ -92,4 +92,91 @@ class KYCController
       Response::success(null, 'KYC submitted', 201);
     }
   }
+
+  /* ── Admin: List KYC records ─────────────────────────────── */
+  public static function adminList(): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+    $status  = $_GET['status'] ?? null;
+
+    $db = Database::getConnection();
+    $conditions = ['1=1'];
+    $binds = [];
+
+    if ($status && in_array($status, ['pending', 'verified', 'rejected'])) {
+      $conditions[] = 'k.status = ?';
+      $binds[] = $status;
+    }
+
+    $where = implode(' AND ', $conditions);
+
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM kyc_records k WHERE {$where}");
+    $countStmt->execute($binds);
+    $total = (int)$countStmt->fetchColumn();
+
+    $offset = ($page - 1) * $perPage;
+    $stmt = $db->prepare(
+      "SELECT k.*, u.name AS user_name, u.email AS user_email
+       FROM kyc_records k
+       JOIN users u ON u.id = k.user_id
+       WHERE {$where}
+       ORDER BY k.created_at DESC LIMIT {$perPage} OFFSET {$offset}"
+    );
+    $stmt->execute($binds);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as &$r) {
+      $r['id'] = (int)$r['id'];
+      $r['user_id'] = (int)$r['user_id'];
+      $r['bvn_verified'] = (bool)$r['bvn_verified'];
+      $r['id_verified'] = (bool)$r['id_verified'];
+      $r['accredited_investor'] = (bool)$r['accredited_investor'];
+    }
+
+    Response::success([
+      'data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage,
+      'total_pages' => (int)ceil($total / $perPage),
+    ]);
+  }
+
+  /* ── Admin: Verify KYC record ────────────────────────────── */
+  public static function adminVerify(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) Response::error('KYC record ID is required', 400);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("UPDATE kyc_records SET status = 'verified', verified_at = NOW() WHERE id = ? AND status = 'pending'");
+    $stmt->execute([$id]);
+
+    if ($stmt->rowCount() === 0) {
+      Response::error('KYC record not found or already processed', 404);
+    }
+
+    Response::success(null, 'KYC verified');
+  }
+
+  /* ── Admin: Reject KYC record ────────────────────────────── */
+  public static function adminReject(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) Response::error('KYC record ID is required', 400);
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("UPDATE kyc_records SET status = 'rejected' WHERE id = ? AND status = 'pending'");
+    $stmt->execute([$id]);
+
+    if ($stmt->rowCount() === 0) {
+      Response::error('KYC record not found or already processed', 404);
+    }
+
+    Response::success(null, 'KYC rejected');
+  }
 }

@@ -47,6 +47,8 @@ import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminMaintenanceRouteImport } from './routes/admin.maintenance'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminKycReviewRouteImport } from './routes/admin.kyc-review'
+import { Route as AdminInvestmentsRouteImport } from './routes/admin.investments'
 import { Route as AdminInquiriesRouteImport } from './routes/admin.inquiries'
 import { Route as AdminImportExportRouteImport } from './routes/admin.import-export'
 import { Route as AdminGalleryRouteImport } from './routes/admin.gallery'
@@ -70,9 +72,11 @@ import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboar
 import { Route as AgentDashboardHelpRouteImport } from './routes/agent.dashboard.help'
 import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
 import { Route as AdminPropertiesCreateRouteImport } from './routes/admin.properties.create'
+import { Route as AdminInvestmentsNewRouteImport } from './routes/admin.investments.new'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
 import { Route as AdminUsersIdEditRouteImport } from './routes/admin.users.$id.edit'
 import { Route as AdminPropertiesIdEditRouteImport } from './routes/admin.properties.$id.edit'
+import { Route as AdminInvestmentsIdEditRouteImport } from './routes/admin.investments_.$id.edit'
 import { Route as AdminAgentsIdEditRouteImport } from './routes/admin.agents.$id.edit'
 import { Route as AgentDashboardListingsIdEditRouteImport } from './routes/agent.dashboard.listings.$id.edit'
 
@@ -266,6 +270,16 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKycReviewRoute = AdminKycReviewRouteImport.update({
+  id: '/kyc-review',
+  path: '/kyc-review',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInvestmentsRoute = AdminInvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
   id: '/inquiries',
   path: '/inquiries',
@@ -383,6 +397,11 @@ const AdminPropertiesCreateRoute = AdminPropertiesCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => AdminPropertiesRoute,
 } as any)
+const AdminInvestmentsNewRoute = AdminInvestmentsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminInvestmentsRoute,
+} as any)
 const AgentDashboardListingsCreateRoute =
   AgentDashboardListingsCreateRouteImport.update({
     id: '/create',
@@ -398,6 +417,11 @@ const AdminPropertiesIdEditRoute = AdminPropertiesIdEditRouteImport.update({
   id: '/$id/edit',
   path: '/$id/edit',
   getParentRoute: () => AdminPropertiesRoute,
+} as any)
+const AdminInvestmentsIdEditRoute = AdminInvestmentsIdEditRouteImport.update({
+  id: '/investments_/$id/edit',
+  path: '/investments/$id/edit',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAgentsIdEditRoute = AdminAgentsIdEditRouteImport.update({
   id: '/$id/edit',
@@ -443,6 +467,8 @@ export interface FileRoutesByFullPath {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
+  '/admin/investments': typeof AdminInvestmentsRouteWithChildren
+  '/admin/kyc-review': typeof AdminKycReviewRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
@@ -463,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
@@ -474,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/investments/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
   '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
@@ -511,6 +539,8 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
+  '/admin/investments': typeof AdminInvestmentsRouteWithChildren
+  '/admin/kyc-review': typeof AdminKycReviewRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
@@ -531,6 +561,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
@@ -542,6 +573,7 @@ export interface FileRoutesByTo {
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/investments/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
   '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
@@ -580,6 +612,8 @@ export interface FileRoutesById {
   '/admin/gallery': typeof AdminGalleryRoute
   '/admin/import-export': typeof AdminImportExportRoute
   '/admin/inquiries': typeof AdminInquiriesRoute
+  '/admin/investments': typeof AdminInvestmentsRouteWithChildren
+  '/admin/kyc-review': typeof AdminKycReviewRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
@@ -600,6 +634,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
@@ -611,6 +646,7 @@ export interface FileRoutesById {
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
+  '/admin/investments_/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
   '/admin/users/$id/edit': typeof AdminUsersIdEditRoute
   '/agent/dashboard/listings/create': typeof AgentDashboardListingsCreateRoute
@@ -650,6 +686,8 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/import-export'
     | '/admin/inquiries'
+    | '/admin/investments'
+    | '/admin/kyc-review'
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
@@ -670,6 +708,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/invest/$id'
     | '/properties/$id'
+    | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/help'
@@ -681,6 +720,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/admin/agents/$id/edit'
+    | '/admin/investments/$id/edit'
     | '/admin/properties/$id/edit'
     | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
@@ -718,6 +758,8 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/import-export'
     | '/admin/inquiries'
+    | '/admin/investments'
+    | '/admin/kyc-review'
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
@@ -738,6 +780,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/invest/$id'
     | '/properties/$id'
+    | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/help'
@@ -749,6 +792,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/admin/agents/$id/edit'
+    | '/admin/investments/$id/edit'
     | '/admin/properties/$id/edit'
     | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
@@ -786,6 +830,8 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/import-export'
     | '/admin/inquiries'
+    | '/admin/investments'
+    | '/admin/kyc-review'
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
@@ -806,6 +852,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/invest/$id'
     | '/properties/$id'
+    | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
     | '/agent/dashboard/help'
@@ -817,6 +864,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
     | '/admin/agents/$id/edit'
+    | '/admin/investments_/$id/edit'
     | '/admin/properties/$id/edit'
     | '/admin/users/$id/edit'
     | '/agent/dashboard/listings/create'
@@ -1116,6 +1164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/kyc-review': {
+      id: '/admin/kyc-review'
+      path: '/kyc-review'
+      fullPath: '/admin/kyc-review'
+      preLoaderRoute: typeof AdminKycReviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/investments': {
+      id: '/admin/investments'
+      path: '/investments'
+      fullPath: '/admin/investments'
+      preLoaderRoute: typeof AdminInvestmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/inquiries': {
       id: '/admin/inquiries'
       path: '/inquiries'
@@ -1277,6 +1339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPropertiesCreateRouteImport
       parentRoute: typeof AdminPropertiesRoute
     }
+    '/admin/investments/new': {
+      id: '/admin/investments/new'
+      path: '/new'
+      fullPath: '/admin/investments/new'
+      preLoaderRoute: typeof AdminInvestmentsNewRouteImport
+      parentRoute: typeof AdminInvestmentsRoute
+    }
     '/agent/dashboard/listings/create': {
       id: '/agent/dashboard/listings/create'
       path: '/create'
@@ -1297,6 +1366,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/properties/$id/edit'
       preLoaderRoute: typeof AdminPropertiesIdEditRouteImport
       parentRoute: typeof AdminPropertiesRoute
+    }
+    '/admin/investments_/$id/edit': {
+      id: '/admin/investments_/$id/edit'
+      path: '/investments/$id/edit'
+      fullPath: '/admin/investments/$id/edit'
+      preLoaderRoute: typeof AdminInvestmentsIdEditRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/agents/$id/edit': {
       id: '/admin/agents/$id/edit'
@@ -1326,6 +1402,17 @@ const AdminAgentsRouteChildren: AdminAgentsRouteChildren = {
 const AdminAgentsRouteWithChildren = AdminAgentsRoute._addFileChildren(
   AdminAgentsRouteChildren,
 )
+
+interface AdminInvestmentsRouteChildren {
+  AdminInvestmentsNewRoute: typeof AdminInvestmentsNewRoute
+}
+
+const AdminInvestmentsRouteChildren: AdminInvestmentsRouteChildren = {
+  AdminInvestmentsNewRoute: AdminInvestmentsNewRoute,
+}
+
+const AdminInvestmentsRouteWithChildren =
+  AdminInvestmentsRoute._addFileChildren(AdminInvestmentsRouteChildren)
 
 interface AdminPropertiesRouteChildren {
   AdminPropertiesCreateRoute: typeof AdminPropertiesCreateRoute
@@ -1367,6 +1454,8 @@ interface AdminRouteChildren {
   AdminGalleryRoute: typeof AdminGalleryRoute
   AdminImportExportRoute: typeof AdminImportExportRoute
   AdminInquiriesRoute: typeof AdminInquiriesRoute
+  AdminInvestmentsRoute: typeof AdminInvestmentsRouteWithChildren
+  AdminKycReviewRoute: typeof AdminKycReviewRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMaintenanceRoute: typeof AdminMaintenanceRoute
   AdminModerationRoute: typeof AdminModerationRoute
@@ -1379,6 +1468,7 @@ interface AdminRouteChildren {
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   AdminWalletRoute: typeof AdminWalletRoute
+  AdminInvestmentsIdEditRoute: typeof AdminInvestmentsIdEditRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -1395,6 +1485,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminGalleryRoute: AdminGalleryRoute,
   AdminImportExportRoute: AdminImportExportRoute,
   AdminInquiriesRoute: AdminInquiriesRoute,
+  AdminInvestmentsRoute: AdminInvestmentsRouteWithChildren,
+  AdminKycReviewRoute: AdminKycReviewRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMaintenanceRoute: AdminMaintenanceRoute,
   AdminModerationRoute: AdminModerationRoute,
@@ -1407,6 +1499,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminVerificationsRoute: AdminVerificationsRoute,
   AdminWalletRoute: AdminWalletRoute,
+  AdminInvestmentsIdEditRoute: AdminInvestmentsIdEditRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
