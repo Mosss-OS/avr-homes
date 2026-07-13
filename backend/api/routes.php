@@ -296,6 +296,21 @@ route('POST', '/api/investments/{id}/sell', ['InvestmentController', 'sell']);
 route('GET', '/api/kyc/status', ['KYCController', 'status']);
 route('POST', '/api/kyc/submit', ['KYCController', 'submit']);
 
+/* ── Admin investment management ───────────────────────── */
+route('GET',    '/api/admin/investments',          ['InvestmentController', 'adminList']);
+route('GET',    '/api/admin/investments/{id}',     ['InvestmentController', 'adminShow']);
+route('POST',   '/api/admin/investments',          ['InvestmentController', 'adminCreate']);
+route('PUT',    '/api/admin/investments/{id}',     ['InvestmentController', 'adminUpdate']);
+route('PUT',    '/api/admin/investments/{id}/status', ['InvestmentController', 'adminUpdateStatus']);
+route('DELETE', '/api/admin/investments/{id}',     ['InvestmentController', 'adminDelete']);
+route('POST',   '/api/admin/investments/dividends', ['InvestmentController', 'adminDeclareDividend']);
+route('PUT',    '/api/admin/investments/dividends/{id}/pay', ['InvestmentController', 'adminPayDividend']);
+
+/* ── Admin KYC review ────────────────────────────────── */
+route('GET',  '/api/admin/kyc',              ['KYCController', 'adminList']);
+route('PUT',  '/api/admin/kyc/{id}/verify',  ['KYCController', 'adminVerify']);
+route('PUT',  '/api/admin/kyc/{id}/reject',  ['KYCController', 'adminReject']);
+
 /* ── Admin role & permission management ──────────────────── */
 route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);
 route('GET', '/api/admin/roles/{id}', ['RoleController', 'adminRoleDetail']);
