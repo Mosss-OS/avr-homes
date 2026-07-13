@@ -7,6 +7,7 @@ import { fetchProperties, properties } from "@/lib/properties";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import type { Property } from "@/lib/properties";
+import { ScrollableSection } from "@/components/scrollable-section";
 import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote, Search, Play, Heart, Building2, MapPin, LandPlot, Gem, ChevronRight } from "lucide-react";
 import heroLekki from "@/assets/hero-lekki.jpg";
 
@@ -106,7 +107,7 @@ function HomePage() {
 
       {/* Quick category tiles */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
+        <ScrollableSection className="-mx-4 flex gap-3 px-4 pb-2 sm:mx-0 sm:px-0">
           {CATEGORIES.map((cat) => (
             <Link key={cat.label} to="/properties" search={cat.search as never}
               className="group flex w-[180px] shrink-0 items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-56">
@@ -119,7 +120,7 @@ function HomePage() {
               </div>
             </Link>
           ))}
-        </div>
+        </ScrollableSection>
       </section>
 
       {/* Browse sections */}
@@ -219,7 +220,7 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Neighbourhood Guide</p>
           <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Explore cities across Nigeria</h2>
-          <div className="mt-8 -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
+          <ScrollableSection className="-mx-4 flex gap-4 px-4 pb-2 sm:mx-0 sm:px-0">
             {CITIES.map((c) => (
               <Link key={c.name} to="/properties" search={{ city: c.name } as never}
                 className="group relative w-[260px] shrink-0 overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-72">
@@ -232,7 +233,7 @@ function HomePage() {
                 </div>
               </Link>
             ))}
-          </div>
+          </ScrollableSection>
         </div>
       </section>
 

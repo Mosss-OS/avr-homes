@@ -18,6 +18,7 @@ import {
 } from "@/lib/properties";
 import type { Property } from "@/lib/properties";
 import { addSavedSearch } from "@/lib/saved";
+import { ScrollableSection } from "@/components/scrollable-section";
 import { BookmarkPlus, SlidersHorizontal, Building2, LandPlot, Search, Home } from "lucide-react";
 
 /** Zod schema for URL search params — purpose, query, city, type, price range, beds. */
@@ -250,7 +251,7 @@ const CATEGORIES = [
 
 function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
   return (
-    <div className="mt-6 -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <ScrollableSection className="-mx-4 flex gap-3 px-4 pb-2">
       {CATEGORIES.map((cat) => {
         const isActive =
           cat.search.purpose === current.purpose &&
@@ -278,7 +279,7 @@ function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
           </Link>
         );
       })}
-    </div>
+    </ScrollableSection>
   );
 }
 
