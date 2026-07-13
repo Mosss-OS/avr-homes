@@ -5,9 +5,10 @@
  * mortgage calculator, agent sidebar, short-let booking or inquiry form, and similar listings.
  */
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon } from "lucide-react";
+import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon, HardHat, Clock } from "lucide-react";
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { formatAED, formatNightlyPrice, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
+import { ProgressTimeline } from "@/components/progress-timeline";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
 import type { Property } from "@/lib/properties";
@@ -215,6 +216,11 @@ function Detail() {
                 <BadgeCheck className="h-3.5 w-3.5" /> Verified
               </span>
             )}
+            {(p as any).is_off_plan && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 px-3 py-1 text-xs font-medium text-white">
+                <HardHat className="h-3.5 w-3.5" /> Off-Plan
+              </span>
+            )}
             <span className="text-xs text-muted-foreground">Listed {(p.posted_days_ago ?? p.postedDaysAgo) === 0 ? "today" : `${(p.posted_days_ago ?? p.postedDaysAgo)}d ago`}</span>
           </div>
           <h1 className="mt-3 font-display text-2xl font-semibold sm:text-4xl">{p.title}</h1>
@@ -244,6 +250,12 @@ function Detail() {
             <p className="mt-3 leading-relaxed text-foreground/80">{p.description}</p>
           </section>
 
+          {(p as any).is_off_plan && (
+            <section className="mt-8">
+              <ProgressTimeline propertyId={Number(p.id)} />
+            </section>
+          )}
+
           <section className="mt-8">
             <h2 className="font-display text-2xl font-semibold">Property details</h2>
             <dl className="mt-3 grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
@@ -252,6 +264,9 @@ function Detail() {
               <Detail2 icon={<Calendar className="h-4 w-4" />} label="Listed" value={p.postedDaysAgo === 0 ? "Today" : `${p.postedDaysAgo} days ago`} />
               <Detail2 icon={<MapPin className="h-4 w-4" />} label="Community" value={p.community} />
               <Detail2 icon={<Maximize2 className="h-4 w-4" />} label="Plot area" value={`${p.area.toLocaleString()} sqm`} />
+              {(p as any).is_off_plan && (p as any).completion_date && (
+                <Detail2 icon={<Clock className="h-4 w-4" />} label="Est. Completion" value={new Date((p as any).completion_date).toLocaleDateString("en-US", { month: "long", year: "numeric" })} />
+              )}
               <Detail2 icon={<BedDouble className="h-4 w-4" />} label="Furnishing" value={p.amenities.includes("Furnished") ? "Furnished" : "Unfurnished"} />
               {p.purpose === "shortlet" && (
                 <Detail2 icon={<Calendar className="h-4 w-4" />} label="Min stay" value={`${p.min_stay || 1} night${(p.min_stay || 1) > 1 ? "s" : ""}${p.max_stay ? ` — max ${p.max_stay} nights` : ""}`} />

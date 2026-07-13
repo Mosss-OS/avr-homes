@@ -60,6 +60,7 @@ import { Route as AgentDashboardVerificationRouteImport } from './routes/agent.d
 import { Route as AgentDashboardSubscriptionsRouteImport } from './routes/agent.dashboard.subscriptions'
 import { Route as AgentDashboardReferralsRouteImport } from './routes/agent.dashboard.referrals'
 import { Route as AgentDashboardProfileRouteImport } from './routes/agent.dashboard.profile'
+import { Route as AgentDashboardOffplanRouteImport } from './routes/agent.dashboard.offplan'
 import { Route as AgentDashboardListingsRouteImport } from './routes/agent.dashboard.listings'
 import { Route as AgentDashboardLeadsRouteImport } from './routes/agent.dashboard.leads'
 import { Route as AgentDashboardHelpRouteImport } from './routes/agent.dashboard.help'
@@ -328,6 +329,11 @@ const AgentDashboardProfileRoute = AgentDashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AgentDashboardRoute,
 } as any)
+const AgentDashboardOffplanRoute = AgentDashboardOffplanRouteImport.update({
+  id: '/offplan',
+  path: '/offplan',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
 const AgentDashboardListingsRoute = AgentDashboardListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
@@ -434,6 +440,7 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
+  '/agent/dashboard/offplan': typeof AgentDashboardOffplanRoute
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
@@ -497,6 +504,7 @@ export interface FileRoutesByTo {
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
+  '/agent/dashboard/offplan': typeof AgentDashboardOffplanRoute
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
@@ -561,6 +569,7 @@ export interface FileRoutesById {
   '/agent/dashboard/help': typeof AgentDashboardHelpRoute
   '/agent/dashboard/leads': typeof AgentDashboardLeadsRoute
   '/agent/dashboard/listings': typeof AgentDashboardListingsRouteWithChildren
+  '/agent/dashboard/offplan': typeof AgentDashboardOffplanRoute
   '/agent/dashboard/profile': typeof AgentDashboardProfileRoute
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
@@ -626,6 +635,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
+    | '/agent/dashboard/offplan'
     | '/agent/dashboard/profile'
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
@@ -689,6 +699,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
+    | '/agent/dashboard/offplan'
     | '/agent/dashboard/profile'
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
@@ -752,6 +763,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/help'
     | '/agent/dashboard/leads'
     | '/agent/dashboard/listings'
+    | '/agent/dashboard/offplan'
     | '/agent/dashboard/profile'
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
@@ -1145,6 +1157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDashboardProfileRouteImport
       parentRoute: typeof AgentDashboardRoute
     }
+    '/agent/dashboard/offplan': {
+      id: '/agent/dashboard/offplan'
+      path: '/offplan'
+      fullPath: '/agent/dashboard/offplan'
+      preLoaderRoute: typeof AgentDashboardOffplanRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
     '/agent/dashboard/listings': {
       id: '/agent/dashboard/listings'
       path: '/listings'
@@ -1366,6 +1385,7 @@ interface AgentDashboardRouteChildren {
   AgentDashboardHelpRoute: typeof AgentDashboardHelpRoute
   AgentDashboardLeadsRoute: typeof AgentDashboardLeadsRoute
   AgentDashboardListingsRoute: typeof AgentDashboardListingsRouteWithChildren
+  AgentDashboardOffplanRoute: typeof AgentDashboardOffplanRoute
   AgentDashboardProfileRoute: typeof AgentDashboardProfileRoute
   AgentDashboardReferralsRoute: typeof AgentDashboardReferralsRoute
   AgentDashboardSubscriptionsRoute: typeof AgentDashboardSubscriptionsRoute
@@ -1377,6 +1397,7 @@ const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
   AgentDashboardHelpRoute: AgentDashboardHelpRoute,
   AgentDashboardLeadsRoute: AgentDashboardLeadsRoute,
   AgentDashboardListingsRoute: AgentDashboardListingsRouteWithChildren,
+  AgentDashboardOffplanRoute: AgentDashboardOffplanRoute,
   AgentDashboardProfileRoute: AgentDashboardProfileRoute,
   AgentDashboardReferralsRoute: AgentDashboardReferralsRoute,
   AgentDashboardSubscriptionsRoute: AgentDashboardSubscriptionsRoute,
