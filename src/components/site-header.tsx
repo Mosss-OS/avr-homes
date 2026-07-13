@@ -3,6 +3,7 @@ import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linked
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { fetchSettings, type AppSettings } from "@/lib/settings";
+import { NotificationBell } from "@/components/notification-bell";
 const LOGO_URL = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
 
 interface MegaItem {
@@ -204,6 +205,7 @@ export function SiteHeader() {
               {shared ? "Copied" : "Share"}
             </button>
           )}
+          {user && <NotificationBell />}
           {user && isAgent ? (
             <>
               <Link

@@ -274,6 +274,18 @@ route('POST', '/api/agent/progress/{propertyId}', ['OffPlanController', 'store']
 route('PUT', '/api/agent/progress/{id}', ['OffPlanController', 'update']);
 route('DELETE', '/api/agent/progress/{id}', ['OffPlanController', 'destroy']);
 
+/* ── Admin announcement / notification management ───────── */
+route('GET', '/api/admin/announcements', ['AdminAnnouncementController', 'index']);
+route('GET', '/api/admin/announcements/{id}', ['AdminAnnouncementController', 'show']);
+route('POST', '/api/admin/announcements', ['AdminAnnouncementController', 'store']);
+route('DELETE', '/api/admin/announcements/{id}', ['AdminAnnouncementController', 'destroy']);
+
+/* ── User-facing notification routes ───────────────────── */
+route('GET', '/api/notifications', ['NotificationController', 'index']);
+route('GET', '/api/notifications/unread-count', ['NotificationController', 'unreadCount']);
+route('PUT', '/api/notifications/{id}/read', ['NotificationController', 'markAsRead']);
+route('PUT', '/api/notifications/read-all', ['NotificationController', 'markAllAsRead']);
+
 /* ── Admin role & permission management ──────────────────── */
 route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);
 route('GET', '/api/admin/roles/{id}', ['RoleController', 'adminRoleDetail']);
