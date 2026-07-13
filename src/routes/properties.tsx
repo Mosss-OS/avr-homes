@@ -56,7 +56,7 @@ export const Route = createFileRoute("/properties")({
 /** List page that fetches/filters properties from search params and renders the grid. */
 function List() {
   const matches = useMatches();
-  const hasDetailChild = matches.some((m) => m.routeId === "/properties/$id");
+  const hasDetailChild = matches.some((m) => m.routeId === "/$id");
 
   const search = Route.useSearch();
   const [saved, setSaved] = useState(false);
