@@ -286,6 +286,16 @@ route('GET', '/api/notifications/unread-count', ['NotificationController', 'unre
 route('PUT', '/api/notifications/{id}/read', ['NotificationController', 'markAsRead']);
 route('PUT', '/api/notifications/read-all', ['NotificationController', 'markAllAsRead']);
 
+/* ── Investment / KYC routes ────────────────────────────── */
+route('GET', '/api/investments/opportunities', ['InvestmentController', 'opportunities']);
+route('GET', '/api/investments/{id}', ['InvestmentController', 'show']);
+route('POST', '/api/investments/buy', ['InvestmentController', 'buy']);
+route('GET', '/api/investments/portfolio', ['InvestmentController', 'portfolio']);
+route('POST', '/api/investments/{id}/sell', ['InvestmentController', 'sell']);
+
+route('GET', '/api/kyc/status', ['KYCController', 'status']);
+route('POST', '/api/kyc/submit', ['KYCController', 'submit']);
+
 /* ── Admin role & permission management ──────────────────── */
 route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);
 route('GET', '/api/admin/roles/{id}', ['RoleController', 'adminRoleDetail']);

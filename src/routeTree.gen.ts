@@ -16,6 +16,8 @@ import { Route as PropertiesRouteImport } from './routes/properties'
 import { Route as MarketInsightsRouteImport } from './routes/market-insights'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as LandRouteImport } from './routes/land'
+import { Route as KycRouteImport } from './routes/kyc'
+import { Route as InvestRouteImport } from './routes/invest'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as DiasporaRouteImport } from './routes/diaspora'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -26,6 +28,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as InvestIdRouteImport } from './routes/invest.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiAiSearchRouteImport } from './routes/api/ai-search'
 import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
@@ -108,6 +111,16 @@ const LandRoute = LandRouteImport.update({
   path: '/land',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KycRoute = KycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestRoute = InvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
@@ -157,6 +170,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => PropertiesRoute,
+} as any)
+const InvestIdRoute = InvestIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => InvestRoute,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -403,6 +421,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
+  '/invest': typeof InvestRouteWithChildren
+  '/kyc': typeof KycRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
@@ -441,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -468,6 +489,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
+  '/invest': typeof InvestRouteWithChildren
+  '/kyc': typeof KycRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
@@ -506,6 +529,7 @@ export interface FileRoutesByTo {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -534,6 +558,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/diaspora': typeof DiasporaRoute
   '/insights': typeof InsightsRoute
+  '/invest': typeof InvestRouteWithChildren
+  '/kyc': typeof KycRoute
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
@@ -572,6 +598,7 @@ export interface FileRoutesById {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -601,6 +628,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/diaspora'
     | '/insights'
+    | '/invest'
+    | '/kyc'
     | '/land'
     | '/map'
     | '/market-insights'
@@ -639,6 +668,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/invest/$id'
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -666,6 +696,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/diaspora'
     | '/insights'
+    | '/invest'
+    | '/kyc'
     | '/land'
     | '/map'
     | '/market-insights'
@@ -704,6 +736,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/invest/$id'
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -731,6 +764,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/diaspora'
     | '/insights'
+    | '/invest'
+    | '/kyc'
     | '/land'
     | '/map'
     | '/market-insights'
@@ -769,6 +804,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/invest/$id'
     | '/properties/$id'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -797,6 +833,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DiasporaRoute: typeof DiasporaRoute
   InsightsRoute: typeof InsightsRoute
+  InvestRoute: typeof InvestRouteWithChildren
+  KycRoute: typeof KycRoute
   LandRoute: typeof LandRoute
   MapRoute: typeof MapRoute
   MarketInsightsRoute: typeof MarketInsightsRoute
@@ -859,6 +897,20 @@ declare module '@tanstack/react-router' {
       path: '/land'
       fullPath: '/land'
       preLoaderRoute: typeof LandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kyc': {
+      id: '/kyc'
+      path: '/kyc'
+      fullPath: '/kyc'
+      preLoaderRoute: typeof KycRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invest': {
+      id: '/invest'
+      path: '/invest'
+      fullPath: '/invest'
+      preLoaderRoute: typeof InvestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insights': {
@@ -930,6 +982,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/properties/$id'
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof PropertiesRoute
+    }
+    '/invest/$id': {
+      id: '/invest/$id'
+      path: '/$id'
+      fullPath: '/invest/$id'
+      preLoaderRoute: typeof InvestIdRouteImport
+      parentRoute: typeof InvestRoute
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -1373,6 +1432,17 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface InvestRouteChildren {
+  InvestIdRoute: typeof InvestIdRoute
+}
+
+const InvestRouteChildren: InvestRouteChildren = {
+  InvestIdRoute: InvestIdRoute,
+}
+
+const InvestRouteWithChildren =
+  InvestRoute._addFileChildren(InvestRouteChildren)
+
 interface PropertiesRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
@@ -1439,6 +1509,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DiasporaRoute: DiasporaRoute,
   InsightsRoute: InsightsRoute,
+  InvestRoute: InvestRouteWithChildren,
+  KycRoute: KycRoute,
   LandRoute: LandRoute,
   MapRoute: MapRoute,
   MarketInsightsRoute: MarketInsightsRoute,

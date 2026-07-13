@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2, LogIn, LayoutDashboard, LogOut, ChevronDown, Home, Search, ShieldCheck, BarChart3, Info, Phone, Globe, GraduationCap, BookOpen, DollarSign, Send, Sparkles } from "lucide-react";
+import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2, LogIn, LayoutDashboard, LogOut, ChevronDown, Home, Search, ShieldCheck, BarChart3, Info, Phone, Globe, GraduationCap, BookOpen, DollarSign, Send, Sparkles, TrendingUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { fetchSettings, type AppSettings } from "@/lib/settings";
@@ -58,7 +58,8 @@ const MEGA_MENU: MegaGroup[] = [
     items: [
       { label: "Saved Properties", to: "/saved", icon: Heart, desc: "Your saved listings" },
       { label: "Blog", to: "/blog", icon: BookOpen, desc: "Guides, tips & market analysis" },
-      { label: "Investor Programs", to: "/diaspora", icon: DollarSign, desc: "Fractional investment" },
+      { label: "Invest", to: "/invest", icon: TrendingUp, desc: "Fractional property investment" },
+      { label: "Diaspora Guide", to: "/diaspora", icon: Globe, desc: "Invest from abroad" },
       { label: "Newsletter", href: "#", icon: Send, desc: "Monthly market updates" },
     ],
   },
@@ -383,6 +384,7 @@ export function SiteFooter() {
               <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">Map View</Link>
               <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">Agents</Link>
               <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">Market Insights</Link>
+              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">Fractional Investment</Link>
             </div>
           </div>
 
@@ -413,6 +415,7 @@ export function SiteFooter() {
               <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link>
               <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link>
               <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
+              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">Fractional Investment</Link>
               <Link to="/agent/register" className="text-sm text-muted-foreground hover:text-foreground">Become an Agent</Link>
               <Link to="/agent/login" className="text-sm text-muted-foreground hover:text-foreground">Agent Login</Link>
             </div>
