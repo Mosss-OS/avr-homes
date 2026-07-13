@@ -42,6 +42,8 @@ export interface PropertyData {
   agent_id: number | null;
   featured: boolean;
   is_verified: boolean;
+  is_off_plan: boolean;
+  completion_date: string | null;
   posted_days_ago: number;
   images: PropertyImage[];
   agent_name?: string;

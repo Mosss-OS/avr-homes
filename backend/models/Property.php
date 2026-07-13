@@ -132,6 +132,7 @@ class Property
       $property['area'] = (int)$property['area'];
       $property['featured'] = (bool)$property['featured'];
       $property['is_verified'] = (bool)$property['is_verified'];
+      $property['is_off_plan'] = (bool)$property['is_off_plan'];
       $property['post_days_ago'] = (int)$property['posted_days_ago'];
       $property['amenities'] = json_decode($property['amenities'] ?? '[]', true);
       $property['agent_languages'] = json_decode($property['agent_languages'] ?? '[]', true);
@@ -182,6 +183,7 @@ class Property
     $property['area'] = (int)$property['area'];
     $property['featured'] = (bool)$property['featured'];
     $property['is_verified'] = (bool)$property['is_verified'];
+    $property['is_off_plan'] = (bool)$property['is_off_plan'];
     $property['post_days_ago'] = (int)$property['posted_days_ago'];
     $property['amenities'] = json_decode($property['amenities'] ?? '[]', true);
     $property['agent_languages'] = json_decode($property['agent_languages'] ?? '[]', true);

@@ -106,10 +106,10 @@ function HomePage() {
 
       {/* Quick category tiles */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 sm:pb-0">
           {CATEGORIES.map((cat) => (
             <Link key={cat.label} to="/properties" search={cat.search as never}
-              className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+              className="group flex w-[180px] shrink-0 items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-auto">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ background: cat.bg }}>
                 <cat.icon className="h-6 w-6" style={{ color: cat.color }} />
               </div>

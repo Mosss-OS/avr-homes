@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users,
+  LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users, HardHat,
   Menu, LogOut, ChevronRight, FileText, PanelLeftClose, PanelLeft,
 } from "lucide-react";
 
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { icon: CreditCard, label: "Subscriptions", to: "/agent/dashboard/subscriptions" },
   { icon: UserCircle, label: "Profile", to: "/agent/dashboard/profile" },
   { icon: ShieldCheck, label: "Verification", to: "/agent/dashboard/verification" },
+  { icon: HardHat, label: "Off-Plan", to: "/agent/dashboard/offplan" },
   { icon: FileText, label: "Blog", to: "/agent/dashboard/blog" },
   { icon: HelpCircle, label: "Help & Support", to: "/agent/dashboard/help" },
 ];

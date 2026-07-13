@@ -4,7 +4,7 @@
  */
 
 import { Link } from "@tanstack/react-router";
-import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart, Play } from "lucide-react";
+import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart, Play, HardHat } from "lucide-react";
 import { useState } from "react";
 import { formatPrice, type Currency, type Property } from "@/lib/properties";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
@@ -38,10 +38,15 @@ export function PropertyCard({ p }: { p: Property }) {
             </div>
           </div>
         )}
-        <div className="absolute left-3 top-3 flex gap-2">
+        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
           {(p.verified || p.is_verified) && (
             <span className="inline-flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 text-xs font-medium text-primary">
               <BadgeCheck className="h-3.5 w-3.5" /> Verified
+            </span>
+          )}
+          {(p as any).is_off_plan && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 px-2.5 py-1 text-xs font-medium text-white">
+              <HardHat className="h-3.5 w-3.5" /> Off-Plan
             </span>
           )}
           <span className="rounded-full bg-primary/90 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-primary-foreground">
