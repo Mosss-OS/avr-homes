@@ -18,7 +18,7 @@ import {
 } from "@/lib/properties";
 import type { Property } from "@/lib/properties";
 import { addSavedSearch } from "@/lib/saved";
-import { BookmarkPlus, SlidersHorizontal } from "lucide-react";
+import { BookmarkPlus, SlidersHorizontal, Building2, LandPlot, Search, Home } from "lucide-react";
 
 /** Zod schema for URL search params — purpose, query, city, type, price range, beds. */
 const schema = z.object({
@@ -136,6 +136,8 @@ function List() {
         </button>
       </div>
 
+      <CategoryCards current={search} />
+
       <Filters current={search} />
 
       {results.length === 0 ? (
@@ -234,6 +236,48 @@ function Filters({ current }: { current: z.infer<typeof schema> }) {
           ))}
         </Pill>
       </div>
+    </div>
+  );
+}
+
+/** Category cards — horizontally scrollable quick-links for Buy, Rent, Shortlet, Land. */
+const CATEGORIES = [
+  { label: "Buy", desc: "Homes for purchase", icon: Home, search: { purpose: "buy" } },
+  { label: "Rent", desc: "Premium rentals", icon: Search, search: { purpose: "rent" } },
+  { label: "Shortlet", desc: "Short stays", icon: Building2, search: { purpose: "shortlet" } },
+  { label: "Land", desc: "Plots & acres", icon: LandPlot, search: { type: "land", purpose: "buy" } },
+] as const;
+
+function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
+  return (
+    <div className="mt-6 -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {CATEGORIES.map((cat) => {
+        const isActive =
+          cat.search.purpose === current.purpose &&
+          (!("type" in cat.search) || (cat.search as any).type === current.type);
+        return (
+          <Link
+            key={cat.label}
+            to="/properties"
+            search={{ ...current, ...cat.search } as never}
+            className={`group flex w-[170px] shrink-0 items-center gap-3 rounded-2xl border p-4 transition ${
+              isActive
+                ? "border-primary bg-primary/5"
+                : "border-border bg-card hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
+            }`}
+          >
+            <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${
+              isActive ? "bg-primary text-primary-foreground" : "text-primary bg-primary/10"
+            }`}>
+              <cat.icon className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">{cat.label}</div>
+              <div className="text-[11px] text-muted-foreground">{cat.desc}</div>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
