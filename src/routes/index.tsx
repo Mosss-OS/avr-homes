@@ -225,7 +225,7 @@ function HomePage() {
               <Link key={c.name} to="/properties" search={{ city: c.name } as never}
                 className="group relative w-[260px] shrink-0 overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-72">
                 <div className="aspect-[16/9] overflow-hidden">
-                  <div className="h-full w-full bg-gradient-to-br transition duration-500 group-hover:scale-105" style={{ background: c.gradient }} />
+                  <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="absolute inset-0 flex flex-col justify-end p-4" style={{ background: "linear-gradient(transparent 40%, rgba(0,0,0,0.7))" }}>
                   <h3 className="font-display text-xl font-bold text-white">{c.name}</h3>
@@ -332,20 +332,20 @@ const CATEGORIES = [
 ];
 
 const CITIES = [
-  { name: "Lagos", desc: "Lekki, Ikoyi, VI, Banana Island", gradient: "linear-gradient(135deg, #0A1628, #1B2E4B)" },
-  { name: "Abuja", desc: "Maitama, Wuse, Asokoro, Gwarinpa", gradient: "linear-gradient(135deg, #1a3a2a, #2d5a3e)" },
-  { name: "Port Harcourt", desc: "GRA, Old GRA, Elelenwo", gradient: "linear-gradient(135deg, #3a1a1a, #5a2d2d)" },
-  { name: "Ibadan", desc: "Bodija, Jericho, Ibadan North", gradient: "linear-gradient(135deg, #2a1a3a, #4a2d5a)" },
-  { name: "Benin City", desc: "GRA, Oredo, Ikpoba Okha", gradient: "linear-gradient(135deg, #1a3a2a, #2d5a3e)" },
-  { name: "Enugu", desc: "Enugu City, Nsukka, Awgu", gradient: "linear-gradient(135deg, #3a2a1a, #5a4a2d)" },
-  { name: "Asaba", desc: "Cable Point, Okpanam, Ibusa", gradient: "linear-gradient(135deg, #1a2a3a, #2d4a5a)" },
-  { name: "Owerri", desc: "Worlomasi, Aladinma, Ikenegbu", gradient: "linear-gradient(135deg, #2a1a3a, #4a2d5a)" },
-  { name: "Awka", desc: "Agu Awka, Amawbia, Umuawulu", gradient: "linear-gradient(135deg, #3a1a2a, #5a2d4a)" },
-  { name: "Abeokuta", desc: "Ibara, Adigbe, Lantoro", gradient: "linear-gradient(135deg, #1a3a3a, #2d5a5a)" },
-  { name: "Warri", desc: "Effurun, Udu, Osubi", gradient: "linear-gradient(135deg, #2a3a1a, #4a5a2d)" },
-  { name: "Onitsha", desc: "Fegge, Inland Town, Nkpor", gradient: "linear-gradient(135deg, #3a3a1a, #5a5a2d)" },
-  { name: "Calabar", desc: "Marina, State Housing, Ekorinim", gradient: "linear-gradient(135deg, #0a2a1a, #1a4a3a)" },
-  { name: "Kaduna", desc: "Kaduna South, Kaduna North, Zaria", gradient: "linear-gradient(135deg, #2a1a1a, #4a2d2d)" },
+  { name: "Lagos", desc: "Lekki, Ikoyi, VI, Banana Island", image: "/assets/cities/lagos.jpg" },
+  { name: "Abuja", desc: "Maitama, Wuse, Asokoro, Gwarinpa", image: "/assets/cities/abuja.jpg" },
+  { name: "Port Harcourt", desc: "GRA, Old GRA, Elelenwo", image: "/assets/cities/ph.jpg" },
+  { name: "Ibadan", desc: "Bodija, Jericho, Ibadan North", image: "/assets/cities/ibadan.jpg" },
+  { name: "Benin City", desc: "GRA, Oredo, Ikpoba Okha", image: "/assets/cities/benin-city.jpg" },
+  { name: "Enugu", desc: "Enugu City, Nsukka, Awgu", image: "/assets/cities/enugu.jpg" },
+  { name: "Asaba", desc: "Cable Point, Okpanam, Ibusa", image: "/assets/cities/asaba.jpg" },
+  { name: "Owerri", desc: "Worlomasi, Aladinma, Ikenegbu", image: "/assets/cities/owerri.jpg" },
+  { name: "Awka", desc: "Agu Awka, Amawbia, Umuawulu", image: "/assets/cities/awka.jpg" },
+  { name: "Abeokuta", desc: "Ibara, Adigbe, Lantoro", image: "/assets/cities/abeokuta.jpg" },
+  { name: "Warri", desc: "Effurun, Udu, Osubi", image: "/assets/cities/warri.jpg" },
+  { name: "Onitsha", desc: "Fegge, Inland Town, Nkpor", image: "/assets/cities/onitsha.jpg" },
+  { name: "Calabar", desc: "Marina, State Housing, Ekorinim", image: "/assets/cities/calabar.jpg" },
+  { name: "Kaduna", desc: "Kaduna South, Kaduna North, Zaria", image: "/assets/cities/kaduna.jpg" },
 ];
 
 const TESTIMONIALS = [
