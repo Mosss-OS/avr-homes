@@ -241,9 +241,13 @@ class AgentListingController
 
     $stmt = $db->prepare(
       "INSERT INTO properties (title, slug, description, type, purpose, price, nightly_price, min_stay, max_stay, beds, baths,
-       area, city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url, amenities, agent_id, featured, is_verified, is_active, posted_days_ago, created_at, updated_at)
+       area, city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url,
+       is_off_plan, completion_date,
+       amenities, agent_id, featured, is_verified, is_active, posted_days_ago, created_at, updated_at)
        VALUES (:title, :slug, :description, :type, :purpose, :price, :nightly_price, :min_stay, :max_stay, :beds, :baths,
-       :area, :city, :community, :address, :lat, :lng, :image, :video_url, :virtual_tour_url, :floor_plan_url, :amenities, :agent_id, :featured, :is_verified, :is_active, 0, NOW(), NOW())"
+       :area, :city, :community, :address, :lat, :lng, :image, :video_url, :virtual_tour_url, :floor_plan_url,
+       :is_off_plan, :completion_date,
+       :amenities, :agent_id, :featured, :is_verified, :is_active, 0, NOW(), NOW())"
     );
 
     $stmt->execute([
@@ -268,6 +272,8 @@ class AgentListingController
       ':video_url'        => $data['video_url'] ?? null,
       ':virtual_tour_url' => $data['virtual_tour_url'] ?? null,
       ':floor_plan_url'   => $data['floor_plan_url'] ?? null,
+      ':is_off_plan'      => !empty($data['is_off_plan']) ? 1 : 0,
+      ':completion_date'  => $data['completion_date'] ?? null,
       ':amenities'        => json_encode($data['amenities'] ?? []),
       ':agent_id'    => $agentId,
       ':featured'    => !empty($data['featured']) ? 1 : 0,
@@ -356,14 +362,14 @@ class AgentListingController
 
     $allowed = ['title', 'description', 'type', 'purpose', 'price', 'nightly_price', 'min_stay', 'max_stay', 'beds', 'baths',
       'area', 'city', 'community', 'address', 'lat', 'lng', 'image', 'video_url',
-      'virtual_tour_url', 'floor_plan_url', 'amenities', 'featured'];
+      'virtual_tour_url', 'floor_plan_url', 'amenities', 'featured', 'is_off_plan', 'completion_date'];
 
     foreach ($allowed as $field) {
       if (array_key_exists($field, $input)) {
         if ($field === 'amenities') {
           $fields[] = "{$field} = :{$field}";
           $updateParams[":{$field}"] = json_encode($input[$field]);
-        } elseif (in_array($field, ['featured'])) {
+        } elseif (in_array($field, ['featured', 'is_off_plan'])) {
           $fields[] = "{$field} = :{$field}";
           $updateParams[":{$field}"] = !empty($input[$field]) ? 1 : 0;
         } elseif (in_array($field, ['price', 'beds', 'baths', 'area'])) {

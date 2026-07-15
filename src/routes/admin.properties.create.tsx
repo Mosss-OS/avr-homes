@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
 import { MediaField } from "@/components/media-field";
 import { Loader2, ChevronLeft, ChevronRight, Check, Upload, X } from "lucide-react";
@@ -36,7 +37,8 @@ interface FormData {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string; status: string;
+  image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  is_off_plan: boolean; completion_date: string; status: string;
 }
 
 /** Multi-step property creation wizard. Manages form state, validation, and submission across 5 steps. */
@@ -53,7 +55,8 @@ function AdminCreateProperty() {
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "", status: "published",
+    image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    is_off_plan: false, completion_date: "", status: "published",
   });
 
   /** Update a single form field and clear its validation error. */
@@ -108,6 +111,7 @@ function AdminCreateProperty() {
       Object.entries(form).forEach(([key, val]) => {
         if (key === "amenities") fd.append(key, JSON.stringify(val));
         else if (key === "image" && val instanceof File) fd.append(key, val);
+        else if (key === "is_off_plan") fd.append(key, val ? "1" : "0");
         else fd.append(key, String(val));
       });
       await api.post("/api/admin/properties", fd);
@@ -336,6 +340,16 @@ function AdminCreateProperty() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="mt-4 flex items-center gap-3">
+                <Switch checked={form.is_off_plan} onCheckedChange={(v) => update("is_off_plan", v)} />
+                <Label>Off-plan development</Label>
+              </div>
+              {form.is_off_plan && (
+                <div className="mt-2">
+                  <Label htmlFor="completion_date">Est. Completion Date</Label>
+                  <Input id="completion_date" type="date" value={form.completion_date} onChange={(e) => update("completion_date", e.target.value)} />
+                </div>
+              )}
             </div>
             {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
           </div>
