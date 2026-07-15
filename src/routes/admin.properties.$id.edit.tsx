@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2, ChevronLeft } from "lucide-react";
+import { MediaField } from "@/components/media-field";
 
 export const Route = createFileRoute("/admin/properties/$id/edit")({
   head: () => ({ meta: [{ title: "Edit Property — Admin — AVR Homes" }] }),
@@ -113,12 +114,9 @@ function AdminEditProperty() {
     setSaving(true);
     setError("");
     try {
-      const payload = { ...form, image: undefined };
-      payload.featured = undefined as any;
-      payload.is_verified = undefined as any;
-      payload.is_active = undefined as any;
-      const status = form.is_active === 1 ? "published" : form.is_active === 2 ? "archived" : "draft";
-      (payload as any).status = status;
+      const { featured, is_verified, is_active, ...payload }: any = form;
+      const status = is_active === 1 ? "published" : is_active === 2 ? "archived" : "draft";
+      payload.status = status;
       await api.put(`/api/admin/properties/${id}`, payload);
       toast.success("Property updated successfully");
       navigate({ to: "/admin/properties" });
@@ -256,26 +254,41 @@ function AdminEditProperty() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
           <h3 className="font-display text-lg font-semibold">Media</h3>
-          {form.image && (
-            <div>
-              <Label>Current Image</Label>
-              <img src={form.image} alt="Current" className="mt-1 h-40 w-60 rounded-xl object-cover" />
-            </div>
-          )}
-          <div>
-            <Label htmlFor="video_url">Video Tour URL</Label>
-            <Input id="video_url" value={form.video_url} onChange={(e) => update("video_url", e.target.value)} />
-          </div>
+          <MediaField
+            label="Featured Image"
+            value={form.image || ""}
+            onChange={(v) => update("image", v)}
+            mediaType="image"
+            accept="image/*"
+            folder="avr-homes/properties"
+            placeholder="Upload or paste image URL"
+          />
+          <MediaField
+            label="Video Tour"
+            value={form.video_url}
+            onChange={(v) => update("video_url", v)}
+            mediaType="video"
+            accept="video/*"
+            folder="avr-homes/videos"
+            placeholder="YouTube or Vimeo link, or upload a video file"
+            helpText="MP4, WebM, or paste a YouTube/Vimeo URL"
+          />
           <div>
             <Label htmlFor="virtual_tour_url">Virtual Tour URL</Label>
-            <Input id="virtual_tour_url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)} />
+            <Input id="virtual_tour_url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)} placeholder="Matterport, Kuula, or 3D tour link" />
           </div>
-          <div>
-            <Label htmlFor="floor_plan_url">Floor Plan URL</Label>
-            <Input id="floor_plan_url" value={form.floor_plan_url} onChange={(e) => update("floor_plan_url", e.target.value)} />
-          </div>
+          <MediaField
+            label="Floor Plan"
+            value={form.floor_plan_url}
+            onChange={(v) => update("floor_plan_url", v)}
+            mediaType="document"
+            accept="image/*,.pdf"
+            folder="avr-homes/floorplans"
+            placeholder="Upload floor plan or paste URL"
+            helpText="PNG, JPG, PDF"
+          />
         </div>
 
         {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
