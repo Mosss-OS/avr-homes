@@ -180,6 +180,17 @@ class AdminController
     ]);
 
     $newId = (int)$db->lastInsertId();
+
+    if ($imageUrl) {
+      $imgStmt = $db->prepare(
+        'INSERT INTO property_images (property_id, file_path, file_name, file_size, mime_type, is_primary)
+         VALUES (?, ?, ?, ?, ?, 1)'
+      );
+      $imgStmt->execute([
+        $newId, $imageUrl, 'main', $result['bytes'] ?? 0, 'image/jpeg',
+      ]);
+    }
+
     Response::success(['id' => $newId], 'Property created successfully', 201);
   }
 
@@ -349,6 +360,18 @@ class AdminController
 
     $sql = "UPDATE properties SET " . implode(', ', $fields) . " WHERE id = ?";
     $db->prepare($sql)->execute($binds);
+
+    if (array_key_exists('image', $input) && $input['image']) {
+      $existing = $db->prepare('SELECT id FROM property_images WHERE property_id = ? AND is_primary = 1');
+      $existing->execute([$id]);
+      $primaryImage = $existing->fetch();
+      if ($primaryImage) {
+        $db->prepare('UPDATE property_images SET file_path = ? WHERE id = ?')->execute([$input['image'], $primaryImage['id']]);
+      } else {
+        $db->prepare('INSERT INTO property_images (property_id, file_path, file_name, file_size, mime_type, is_primary) VALUES (?, ?, ?, ?, ?, 1)')
+          ->execute([$id, $input['image'], 'main', 0, 'image/jpeg']);
+      }
+    }
 
     Response::success(['id' => $id], 'Property updated');
   }
