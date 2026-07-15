@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2, ChevronLeft } from "lucide-react";
 import { MediaField } from "@/components/media-field";
@@ -39,7 +40,7 @@ interface PropertyData {
   beds: number; baths: number; area: number; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
   image: string | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
-  is_active: number; featured: boolean; is_verified: boolean;
+  is_active: number; featured: boolean; is_verified: boolean; is_off_plan: boolean; completion_date: string | null;
 }
 
 /** Single-page property editor. Loads existing data, allows editing all fields, and saves via PUT. */
@@ -59,7 +60,7 @@ function AdminEditProperty() {
     beds: 0, baths: 0, area: 0, amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
     image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "",
-    is_active: 1, featured: false, is_verified: false,
+    is_active: 1, featured: false, is_verified: false, is_off_plan: false, completion_date: null,
   });
 
   /* Load property data on mount / id change */
@@ -78,6 +79,7 @@ function AdminEditProperty() {
           image: p.image || null, video_url: p.video_url || "",
           virtual_tour_url: p.virtual_tour_url || "", floor_plan_url: p.floor_plan_url || "",
           is_active: p.is_active, featured: p.featured, is_verified: p.is_verified,
+          is_off_plan: p.is_off_plan, completion_date: p.completion_date || null,
         });
       } catch (err) {
         setFetchError(err instanceof ApiError ? err.message : "Failed to load property");
@@ -224,6 +226,20 @@ function AdminEditProperty() {
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+          <h3 className="font-display text-lg font-semibold">Off-Plan</h3>
+          <div className="flex items-center gap-3">
+            <Switch checked={form.is_off_plan} onCheckedChange={(v) => update("is_off_plan", v)} />
+            <Label>This property is an off-plan development</Label>
+          </div>
+          {form.is_off_plan && (
+            <div>
+              <Label htmlFor="completion_date">Estimated Completion Date</Label>
+              <Input id="completion_date" type="date" value={form.completion_date || ""} onChange={(e) => update("completion_date", e.target.value || null)} />
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">

@@ -206,9 +206,9 @@ class Property
 
     $stmt = $db->prepare(
       "INSERT INTO properties (title, slug, description, type, purpose, price, nightly_price, min_stay, max_stay, beds, baths, 
-       area, city, community, address, lat, lng, amenities, agent_id, featured, is_verified, posted_days_ago)
+       area, city, community, address, lat, lng, amenities, agent_id, featured, is_verified, is_off_plan, completion_date, posted_days_ago)
        VALUES (:title, :slug, :description, :type, :purpose, :price, :nightly_price, :min_stay, :max_stay, :beds, :baths, 
-       :area, :city, :community, :address, :lat, :lng, :amenities, :agent_id, :featured, :is_verified, 0)"
+       :area, :city, :community, :address, :lat, :lng, :amenities, :agent_id, :featured, :is_verified, :is_off_plan, :completion_date, 0)"
     );
 
     $stmt->execute([
@@ -233,6 +233,8 @@ class Property
       ':agent_id'    => !empty($data['agent_id']) ? (int)$data['agent_id'] : null,
       ':featured'    => !empty($data['featured']) ? 1 : 0,
       ':is_verified' => !empty($data['is_verified']) ? 1 : 0,
+      ':is_off_plan' => !empty($data['is_off_plan']) ? 1 : 0,
+      ':completion_date' => $data['completion_date'] ?? null,
     ]);
 
     return (int)$db->lastInsertId();
@@ -254,14 +256,15 @@ class Property
 
     $allowed = ['title', 'description', 'type', 'purpose', 'price', 'nightly_price', 'min_stay', 'max_stay', 'beds', 'baths',
       'area', 'city', 'community', 'address', 'lat', 'lng', 'image',
-      'agent_id', 'featured', 'is_verified'];
+      'video_url', 'virtual_tour_url', 'floor_plan_url',
+      'agent_id', 'featured', 'is_verified', 'is_off_plan', 'completion_date'];
 
     foreach ($allowed as $field) {
       if (array_key_exists($field, $data)) {
         if ($field === 'amenities') {
           $fields[] = "{$field} = :{$field}";
           $params[":{$field}"] = json_encode($data[$field]);
-        } elseif (in_array($field, ['featured', 'is_verified'])) {
+        } elseif (in_array($field, ['featured', 'is_verified', 'is_off_plan'])) {
           $fields[] = "{$field} = :{$field}";
           $params[":{$field}"] = !empty($data[$field]) ? 1 : 0;
         } elseif (in_array($field, ['price', 'beds', 'baths', 'area', 'agent_id'])) {

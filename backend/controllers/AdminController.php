@@ -164,8 +164,9 @@ class AdminController
 
     $stmt = $db->prepare('
       INSERT INTO properties (title, description, type, purpose, price, beds, baths, area, amenities,
-        city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url,
+        is_off_plan, completion_date, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ');
     $stmt->execute([
       $data['title'], $data['description'], $input['type'] ?? 'apartment', $input['purpose'] ?? 'buy',
@@ -173,6 +174,8 @@ class AdminController
       $amenities, $input['city'] ?? '', $input['community'] ?? '', $input['address'] ?? '',
       (float)($input['lat'] ?? 0), (float)($input['lng'] ?? 0), $imageUrl,
       $input['video_url'] ?? '', $input['virtual_tour_url'] ?? '', $input['floor_plan_url'] ?? '',
+      !empty($input['is_off_plan']) ? 1 : 0,
+      $input['completion_date'] ?? null,
       ($input['status'] ?? 'published') === 'published' ? 1 : 0,
     ]);
 
@@ -299,6 +302,7 @@ class AdminController
     $row['amenities'] = json_decode($row['amenities'] ?? '[]', true);
     $row['featured'] = (bool)$row['featured'];
     $row['is_verified'] = (bool)$row['is_verified'];
+    $row['is_off_plan'] = (bool)$row['is_off_plan'];
     $row['is_active'] = (int)$row['is_active'];
 
     Response::success(['property' => $row]);
@@ -323,10 +327,10 @@ class AdminController
 
     $fields = [];
     $binds = [];
-    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','image','video_url','virtual_tour_url','floor_plan_url'] as $f) {
+    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','image','video_url','virtual_tour_url','floor_plan_url','is_off_plan','completion_date'] as $f) {
       if (array_key_exists($f, $input)) {
         $fields[] = "$f = ?";
-        $binds[] = $input[$f];
+        $binds[] = $f === 'is_off_plan' ? (!empty($input[$f]) ? 1 : 0) : $input[$f];
       }
     }
     if (array_key_exists('amenities', $input)) {

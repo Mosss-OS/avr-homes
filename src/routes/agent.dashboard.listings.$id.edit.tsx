@@ -9,8 +9,10 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { MediaField } from "@/components/media-field";
 
@@ -28,6 +30,7 @@ interface EditForm {
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
   image: string | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  is_off_plan: boolean; completion_date: string | null;
 }
 
 /** Edit listing page component — loads listing data and renders a multi-step edit form. */
@@ -44,7 +47,7 @@ function EditListingPage() {
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
     video_url: "", virtual_tour_url: "", floor_plan_url: "",
-    image: null,
+    image: null, is_off_plan: false, completion_date: null,
   });
 
   useEffect(() => {
@@ -70,6 +73,8 @@ function EditListingPage() {
           virtual_tour_url: p.virtual_tour_url || "",
           floor_plan_url: p.floor_plan_url || "",
           image: p.image || null,
+          is_off_plan: p.is_off_plan || false,
+          completion_date: p.completion_date || null,
         });
       })
       .catch(() => navigate({ to: "/agent/dashboard/listings" }))
@@ -106,6 +111,7 @@ function EditListingPage() {
         video_url: form.video_url || null,
         virtual_tour_url: form.virtual_tour_url || null,
         floor_plan_url: form.floor_plan_url || null,
+        completion_date: form.completion_date || null,
       });
       navigate({ to: "/agent/dashboard/listings" });
     } catch (err) {
@@ -278,16 +284,28 @@ function EditListingPage() {
             )}
 
           {step === 3 && (
-            <div className="rounded-lg bg-accent/50 p-4 space-y-2">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <span className="text-muted-foreground">Title:</span><span className="font-medium">{form.title}</span>
-                <span className="text-muted-foreground">Price:</span><span className="font-medium">₦{Number(form.price).toLocaleString()}</span>
-                <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds}/{form.baths}</span>
-                <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
-                {form.video_url && <><span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span></>}
-                {form.virtual_tour_url && <><span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span></>}
-                {form.floor_plan_url && <><span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span></>}
+            <div className="space-y-4">
+              <div className="rounded-lg bg-accent/50 p-4 space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-muted-foreground">Title:</span><span className="font-medium">{form.title}</span>
+                  <span className="text-muted-foreground">Price:</span><span className="font-medium">₦{Number(form.price).toLocaleString()}</span>
+                  <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds}/{form.baths}</span>
+                  <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
+                  {form.video_url && <><span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span></>}
+                  {form.virtual_tour_url && <><span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span></>}
+                  {form.floor_plan_url && <><span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span></>}
+                </div>
               </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={form.is_off_plan} onCheckedChange={(v) => update("is_off_plan", v)} />
+                <Label>Off-plan development</Label>
+              </div>
+              {form.is_off_plan && (
+                <div>
+                  <Label htmlFor="completion_date">Est. Completion Date</Label>
+                  <Input id="completion_date" type="date" value={form.completion_date || ""} onChange={(e) => update("completion_date", e.target.value || null)} />
+                </div>
+              )}
             </div>
           )}
 
