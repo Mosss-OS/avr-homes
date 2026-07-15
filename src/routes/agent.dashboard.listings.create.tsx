@@ -7,13 +7,14 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { api, ApiError } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, ChevronLeft, ChevronRight, Check, Upload } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Check, Upload, X } from "lucide-react";
 import { MediaField } from "@/components/media-field";
 
 export const Route = createFileRoute("/agent/dashboard/listings/create")({
@@ -34,7 +35,7 @@ interface ListingForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  images: File[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
   is_off_plan: boolean; completion_date: string; status: string;
 }
 
@@ -45,13 +46,13 @@ function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const [form, setForm] = useState<ListingForm>({
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    images: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
     is_off_plan: false, completion_date: "", status: "draft",
   });
 
@@ -71,13 +72,21 @@ function CreateListingPage() {
     }));
   }
 
-  /** Handle file selection for the main property image and show a preview. */
-  function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, image: file }));
-      setImagePreview(URL.createObjectURL(file));
-    }
+  /** Handle file selection for property images and show previews. */
+  function handleImages(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...newFiles] }));
+    setImagePreviews((prev) => [...prev, ...newFiles.map((f) => URL.createObjectURL(f))]);
+  }
+
+  function removeImage(index: number) {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+    setImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
   }
 
   /** Validate the current step's required fields. Returns true if valid. */
@@ -101,8 +110,9 @@ function CreateListingPage() {
     setLoading(true);
     setError("");
     try {
+      const { images, ...rest } = form;
       const payload: Record<string, any> = {
-        ...form,
+        ...rest,
         price: Number(form.price),
         beds: Number(form.beds),
         baths: Number(form.baths),
@@ -110,18 +120,39 @@ function CreateListingPage() {
         lat: form.lat ? Number(form.lat) : 6.45,
         lng: form.lng ? Number(form.lng) : 3.42,
         status: publish ? "published" : "draft",
-        image: null,
       };
-      delete payload.image;
 
       const res = await api.post<{ id: number }>("/api/agent/listings", payload);
+      const propertyId = res.data?.id;
 
-      // Upload image if selected
-      if (form.image && res.data?.id) {
-        const imgData = new FormData();
-        imgData.append("image", form.image);
-        imgData.append("property_id", String(res.data.id));
-        await api.post("/api/upload", imgData).catch(() => {});
+      // Upload images after property creation
+      if (images.length > 0 && propertyId) {
+        // Upload first image as primary
+        const primaryFd = new FormData();
+        primaryFd.append("file", images[0]);
+        primaryFd.append("property_id", String(propertyId));
+        primaryFd.append("is_primary", "1");
+
+        try {
+          await api.post("/api/upload", primaryFd);
+        } catch (uploadErr) {
+          toast.error("Failed to upload primary image");
+        }
+
+        // Upload remaining images as gallery
+        if (images.length > 1) {
+          const galleryFd = new FormData();
+          for (let i = 1; i < images.length; i++) {
+            galleryFd.append("files", images[i]);
+          }
+          galleryFd.append("property_id", String(propertyId));
+
+          try {
+            await api.post("/api/upload/gallery", galleryFd);
+          } catch {
+            toast.error("Failed to upload gallery images");
+          }
+        }
       }
 
       navigate({ to: "/agent/dashboard/listings" });
@@ -265,24 +296,31 @@ function CreateListingPage() {
           {step === 3 && (
             <div className="space-y-6">
               <div className="space-y-4">
-                <Label>Main Image</Label>
+                <Label>Property Images (first image = main photo)</Label>
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img src={imagePreview} alt="Preview" className="max-h-48 rounded-lg object-cover" />
-                      <button type="button" onClick={() => { setForm((p) => ({ ...p, image: null })); setImagePreview(null); }}
-                        className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-white text-xs">✕</button>
+                  {imagePreviews.length > 0 ? (
+                    <div className="flex w-full flex-wrap gap-3">
+                      {imagePreviews.map((preview, i) => (
+                        <div key={i} className="relative">
+                          <img src={preview} alt={`Preview ${i + 1}`} className="h-24 w-32 rounded-lg object-cover" />
+                          <button type="button" onClick={() => removeImage(i)}
+                            className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground text-xs">
+                            <X className="h-3 w-3" />
+                          </button>
+                          {i === 0 && <span className="absolute bottom-1 left-1 rounded bg-primary/80 px-1.5 py-0.5 text-[10px] text-primary-foreground">Main</span>}
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <>
                       <Upload className="mb-2 h-8 w-8 text-muted-foreground/60" />
-                      <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
-                      <p className="text-xs text-muted-foreground">PNG, JPG or WebP (max 10MB)</p>
+                      <p className="text-sm text-muted-foreground">Click to upload images</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG or WebP — first image is the main photo</p>
                     </>
                   )}
-                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImage} className="hidden" id="image-upload" />
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImages} className="hidden" id="image-upload" multiple />
                   <label htmlFor="image-upload" className="mt-3 cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
-                    {imagePreview ? "Change image" : "Select image"}
+                    {imagePreviews.length > 0 ? "Add more images" : "Select images"}
                   </label>
                 </div>
               </div>
@@ -327,6 +365,7 @@ function CreateListingPage() {
                   <span className="text-muted-foreground">Purpose:</span><span className="font-medium capitalize">{form.purpose}</span>
                   <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds} / {form.baths}</span>
                   <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
+                  {form.images.length > 0 && <> <span className="text-muted-foreground">Images:</span><span className="font-medium truncate">{form.images.length} file(s)</span> </>}
                   {form.video_url && <> <span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span> </>}
                   {form.virtual_tour_url && <> <span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span> </>}
                   {form.floor_plan_url && <> <span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span> </>}
