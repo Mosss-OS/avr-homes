@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
+import { MediaField } from "@/components/media-field";
 import { Loader2, ChevronLeft, ChevronRight, Check, Upload, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/properties/create")({
@@ -265,7 +266,7 @@ function AdminCreateProperty() {
         )}
 
         {step === 3 && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
               <Label>Featured Image</Label>
               <div className="mt-1">
@@ -286,18 +287,30 @@ function AdminCreateProperty() {
                 )}
               </div>
             </div>
-            <div>
-              <Label htmlFor="video_url">Video Tour URL</Label>
-              <Input id="video_url" value={form.video_url} onChange={(e) => update("video_url", e.target.value)} placeholder="YouTube or Vimeo link" />
-            </div>
+            <MediaField
+              label="Video Tour"
+              value={form.video_url}
+              onChange={(v) => update("video_url", v)}
+              mediaType="video"
+              accept="video/*"
+              folder="avr-homes/videos"
+              placeholder="YouTube or Vimeo link, or upload a video file"
+              helpText="MP4, WebM, or paste a YouTube/Vimeo URL"
+            />
             <div>
               <Label htmlFor="virtual_tour_url">Virtual Tour URL</Label>
-              <Input id="virtual_tour_url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)} placeholder="3D tour link" />
+              <Input id="virtual_tour_url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)} placeholder="3D tour link (Matterport, Kuula)" />
             </div>
-            <div>
-              <Label htmlFor="floor_plan_url">Floor Plan URL</Label>
-              <Input id="floor_plan_url" value={form.floor_plan_url} onChange={(e) => update("floor_plan_url", e.target.value)} placeholder="Floor plan image link" />
-            </div>
+            <MediaField
+              label="Floor Plan"
+              value={form.floor_plan_url}
+              onChange={(v) => update("floor_plan_url", v)}
+              mediaType="document"
+              accept="image/*,.pdf"
+              folder="avr-homes/floorplans"
+              placeholder="Upload floor plan or paste URL"
+              helpText="PNG, JPG, PDF"
+            />
           </div>
         )}
 

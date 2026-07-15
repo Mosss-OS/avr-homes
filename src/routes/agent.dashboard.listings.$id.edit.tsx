@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { MediaField } from "@/components/media-field";
 
 export const Route = createFileRoute("/agent/dashboard/listings/$id/edit")({
   head: () => ({ meta: [{ title: "Edit Listing — AVR Homes" }] }),
@@ -26,7 +27,7 @@ interface EditForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  image: string | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
 }
 
 /** Edit listing page component — loads listing data and renders a multi-step edit form. */
@@ -43,6 +44,7 @@ function EditListingPage() {
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
     video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -67,6 +69,7 @@ function EditListingPage() {
           video_url: p.video_url || "",
           virtual_tour_url: p.virtual_tour_url || "",
           floor_plan_url: p.floor_plan_url || "",
+          image: p.image || null,
         });
       })
       .catch(() => navigate({ to: "/agent/dashboard/listings" }))
@@ -99,6 +102,7 @@ function EditListingPage() {
         area: Number(form.area),
         lat: form.lat ? Number(form.lat) : 6.45,
         lng: form.lng ? Number(form.lng) : 3.42,
+        image: form.image || null,
         video_url: form.video_url || null,
         virtual_tour_url: form.virtual_tour_url || null,
         floor_plan_url: form.floor_plan_url || null,
@@ -237,21 +241,38 @@ function EditListingPage() {
                 </div>
                 <div className="mt-6 space-y-4 border-t border-border pt-6">
                   <h3 className="text-sm font-medium text-muted-foreground">Media</h3>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Video Walkthrough URL</label>
-                    <Input type="url" value={form.video_url} onChange={(e) => update("video_url", e.target.value)}
-                      placeholder="https://youtube.com/watch?v=..." />
-                  </div>
+                  <MediaField
+                    label="Main Image"
+                    value={form.image || ""}
+                    onChange={(url) => update("image", url)}
+                    mediaType="image"
+                    accept="image/png,image/jpeg,image/webp"
+                    folder="avr-homes/images"
+                    placeholder="Upload main property image"
+                  />
+                  <MediaField
+                    label="Video Walkthrough"
+                    value={form.video_url}
+                    onChange={(url) => update("video_url", url)}
+                    mediaType="video"
+                    accept="video/*"
+                    folder="avr-homes/videos"
+                    placeholder="Upload a video walkthrough"
+                  />
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Virtual Tour URL</label>
                     <Input type="url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)}
                       placeholder="https://my.matterport.com/show/..." />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Floor Plan URL</label>
-                    <Input type="url" value={form.floor_plan_url} onChange={(e) => update("floor_plan_url", e.target.value)}
-                      placeholder="https://example.com/floor-plan.jpg" />
-                  </div>
+                  <MediaField
+                    label="Floor Plan"
+                    value={form.floor_plan_url}
+                    onChange={(url) => update("floor_plan_url", url)}
+                    mediaType="document"
+                    accept="image/*,.pdf"
+                    folder="avr-homes/floorplans"
+                    placeholder="Upload a floor plan"
+                  />
                 </div>
               </div>
             )}

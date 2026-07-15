@@ -154,12 +154,9 @@ class AdminController
 
     $imageUrl = null;
     if (!empty($_FILES['image']['tmp_name'])) {
-      $uploads = __DIR__ . '/../public/uploads/properties';
-      if (!is_dir($uploads)) mkdir($uploads, 0755, true);
-      $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-      $filename = 'prop_' . uniqid() . '.' . $ext;
-      if (move_uploaded_file($_FILES['image']['tmp_name'], "$uploads/$filename")) {
-        $imageUrl = '/uploads/properties/' . $filename;
+      $result = CloudinaryService::uploadFromFile($_FILES['image'], 'image', ['folder' => 'avr-homes/properties']);
+      if ($result['success']) {
+        $imageUrl = $result['url'];
       }
     }
 
@@ -326,7 +323,7 @@ class AdminController
 
     $fields = [];
     $binds = [];
-    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','video_url','virtual_tour_url','floor_plan_url'] as $f) {
+    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','image','video_url','virtual_tour_url','floor_plan_url'] as $f) {
       if (array_key_exists($f, $input)) {
         $fields[] = "$f = ?";
         $binds[] = $input[$f];
@@ -1322,13 +1319,9 @@ class AdminController
 
     $db = Database::getConnection();
 
-    // Get current max sort order
     $stmt = $db->prepare("SELECT COALESCE(MAX(sort_order), 0) FROM property_images WHERE property_id = ?");
     $stmt->execute([$propertyId]);
     $sortOrder = (int)$stmt->fetchColumn();
-
-    $uploadsDir = __DIR__ . '/../public/uploads/properties';
-    if (!is_dir($uploadsDir)) mkdir($uploadsDir, 0755, true);
 
     $uploaded = 0;
     $insertStmt = $db->prepare("INSERT INTO property_images (property_id, file_path, file_name, file_size, mime_type, sort_order, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -1336,25 +1329,29 @@ class AdminController
     foreach ($_FILES['files']['tmp_name'] as $i => $tmpName) {
       if (empty($tmpName) || $_FILES['files']['error'][$i] !== UPLOAD_ERR_OK) continue;
 
-      $ext = pathinfo($_FILES['files']['name'][$i], PATHINFO_EXTENSION);
-      $filename = 'prop_' . $propertyId . '_' . uniqid() . '.' . $ext;
-      $filePath = '/uploads/properties/' . $filename;
+      $file = [
+        'name'     => $_FILES['files']['name'][$i],
+        'type'     => $_FILES['files']['type'][$i] ?? 'image/jpeg',
+        'tmp_name' => $tmpName,
+        'error'    => $_FILES['files']['error'][$i],
+        'size'     => $_FILES['files']['size'][$i] ?? 0,
+      ];
 
-      if (move_uploaded_file($tmpName, "$uploadsDir/$filename")) {
-        $sortOrder++;
-        $isPrimary = 0;
-        // Set as primary if no primary exists
-        $check = $db->prepare("SELECT COUNT(*) FROM property_images WHERE property_id = ? AND is_primary = 1");
-        $check->execute([$propertyId]);
-        if ((int)$check->fetchColumn() === 0) $isPrimary = 1;
+      $result = CloudinaryService::uploadFromFile($file, 'image', ['folder' => 'avr-homes/properties']);
+      if (!$result['success']) continue;
 
-        $insertStmt->execute([
-          $propertyId, $filePath, $_FILES['files']['name'][$i],
-          filesize("$uploadsDir/$filename"), $_FILES['files']['type'][$i] ?? 'image/jpeg',
-          $sortOrder, $isPrimary,
-        ]);
-        $uploaded++;
-      }
+      $sortOrder++;
+      $isPrimary = 0;
+      $check = $db->prepare("SELECT COUNT(*) FROM property_images WHERE property_id = ? AND is_primary = 1");
+      $check->execute([$propertyId]);
+      if ((int)$check->fetchColumn() === 0) $isPrimary = 1;
+
+      $insertStmt->execute([
+        $propertyId, $result['url'], $file['name'],
+        $result['bytes'], $file['type'],
+        $sortOrder, $isPrimary,
+      ]);
+      $uploaded++;
     }
 
     Response::success(['uploaded' => $uploaded], "{$uploaded} image(s) uploaded");
@@ -1417,9 +1414,6 @@ class AdminController
     $stmt->execute([$id]);
     $img = $stmt->fetch();
     if (!$img) Response::error('Image not found', 404);
-
-    $filePath = __DIR__ . '/../public' . $img['file_path'];
-    if (file_exists($filePath)) unlink($filePath);
 
     $db->prepare("DELETE FROM property_images WHERE id = ?")->execute([$id]);
 

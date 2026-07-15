@@ -226,6 +226,7 @@ route('DELETE', '/api/admin/blog/{id}', ['BlogController', 'destroy']);
 /* ── Upload routes ────────────────────────────────────────── */
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
+route('POST', '/api/upload/media', ['UploadController', 'uploadMedia']);
 route('DELETE', '/api/upload/{id}', ['UploadController', 'destroy']);
 
 /* ── Settings routes ──────────────────────────────────────── */

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ChevronLeft, ChevronRight, Check, Upload } from "lucide-react";
+import { MediaField } from "@/components/media-field";
 
 export const Route = createFileRoute("/agent/dashboard/listings/create")({
   head: () => ({ meta: [{ title: "Add Listing — AVR Homes" }] }),
@@ -284,13 +285,15 @@ function CreateListingPage() {
               </div>
               <div className="space-y-4">
                 <h3 className="text-sm font-medium text-muted-foreground">Additional Media</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="video_url">Video Walkthrough URL</Label>
-                  <Input id="video_url" type="url" value={form.video_url}
-                    onChange={(e) => update("video_url", e.target.value)}
-                    placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
-                  <p className="text-xs text-muted-foreground">YouTube or Vimeo link</p>
-                </div>
+                <MediaField
+                  label="Video Walkthrough"
+                  value={form.video_url}
+                  onChange={(url) => update("video_url", url)}
+                  mediaType="video"
+                  accept="video/*"
+                  folder="avr-homes/videos"
+                  placeholder="Upload a video walkthrough"
+                />
                 <div className="space-y-2">
                   <Label htmlFor="virtual_tour_url">Virtual Tour URL</Label>
                   <Input id="virtual_tour_url" type="url" value={form.virtual_tour_url}
@@ -298,13 +301,15 @@ function CreateListingPage() {
                     placeholder="https://my.matterport.com/show/..." />
                   <p className="text-xs text-muted-foreground">Matterport, Kuula, or any 3D tour link</p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="floor_plan_url">Floor Plan URL</Label>
-                  <Input id="floor_plan_url" type="url" value={form.floor_plan_url}
-                    onChange={(e) => update("floor_plan_url", e.target.value)}
-                    placeholder="https://example.com/floor-plan.jpg" />
-                  <p className="text-xs text-muted-foreground">Link to an image of the floor plan</p>
-                </div>
+                <MediaField
+                  label="Floor Plan"
+                  value={form.floor_plan_url}
+                  onChange={(url) => update("floor_plan_url", url)}
+                  mediaType="document"
+                  accept="image/*,.pdf"
+                  folder="avr-homes/floorplans"
+                  placeholder="Upload a floor plan"
+                />
               </div>
             </div>
           )}
