@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
-import { ApiError } from "@/lib/api-client";
+import { api, ApiError } from "@/lib/api-client";
 
 interface MediaFieldProps {
   label: string;
@@ -30,7 +30,7 @@ export function MediaField({
   const [preview, setPreview] = useState<string | null>(value || null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -38,48 +38,63 @@ export function MediaField({
     setProgress(0);
     const loadingId = toast.loading(`Uploading ${file.name}...`);
 
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", folder);
+    try {
+      // 1. Get signed upload params from the backend
+      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+      const signRes = await api.get<{
+        cloud_name: string; api_key: string; timestamp: number;
+        signature: string; folder: string;
+      }>(`/api/upload/sign?folder=${encodeURIComponent(folder)}`);
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-    const xhr = new XMLHttpRequest();
+      const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
 
-    xhr.upload.onprogress = (evt) => {
-      if (evt.lengthComputable) {
-        const pct = Math.round((evt.loaded / evt.total) * 100);
-        setProgress(pct);
-      }
-    };
+      // 2. Upload directly to Cloudinary (bypasses PHP proxy — much faster for large files)
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
 
-    xhr.onload = () => {
-      setUploading(false);
-      try {
-        const res = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300 && res.success) {
-          const url = res.data.url;
-          setPreview(url);
-          onChange(url);
-          toast.success(`${file.name} uploaded`, { id: loadingId });
-        } else {
-          console.error("Media upload error:", res);
-          toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("api_key", api_key);
+      fd.append("timestamp", String(timestamp));
+      fd.append("signature", signature);
+      fd.append("folder", cloudFolder);
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          setProgress(pct);
         }
-      } catch {
-        toast.error(`Could not upload ${file.name}. Server returned an unexpected response.`, { id: loadingId });
-      }
-    };
+      };
 
-    xhr.onerror = () => {
-      setUploading(false);
-      console.error("Media upload network error");
+      const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        xhr.onload = () => {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
+              resolve(data);
+            } else {
+              reject(new Error(data.error?.message || "Cloudinary upload failed"));
+            }
+          } catch {
+            reject(new Error("Invalid response from Cloudinary"));
+          }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.open("POST", cloudinaryUrl);
+        xhr.send(fd);
+      });
+
+      const url = result.secure_url;
+      setPreview(url);
+      onChange(url);
+      toast.success(`${file.name} uploaded`, { id: loadingId });
+    } catch (err) {
+      console.error("Upload error:", err);
       toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
-    };
+    }
 
-    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
-    xhr.open("POST", `${apiUrl}/api/upload/media`);
-    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-    xhr.send(fd);
+    setUploading(false);
   }
 
   function handleUrlChange(val: string) {
