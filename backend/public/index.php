@@ -18,9 +18,12 @@ require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../utils/Validator.php';
 require_once __DIR__ . '/../middleware/Cors.php';
 
-// Autoload models, middleware, and services
+// Autoload models, services, and middleware
 foreach (glob(__DIR__ . '/../models/*.php') as $modelFile) {
     require_once $modelFile;
+}
+foreach (glob(__DIR__ . '/../services/*.php') as $serviceFile) {
+    require_once $serviceFile;
 }
 foreach (glob(__DIR__ . '/../middleware/*.php') as $middlewareFile) {
     require_once $middlewareFile;
