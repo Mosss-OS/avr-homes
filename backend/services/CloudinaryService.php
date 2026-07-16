@@ -44,8 +44,11 @@ class CloudinaryService
       return $filePath;
     }
 
-    // Check that FFmpeg is available
-    exec('which ffmpeg 2>/dev/null', $whichOut, $whichCode);
+    // Check that exec() and FFmpeg are available
+    if (!function_exists('exec')) {
+      return $filePath;
+    }
+    @exec('which ffmpeg 2>/dev/null', $whichOut, $whichCode);
     if ($whichCode !== 0) {
       return $filePath;
     }
@@ -60,7 +63,7 @@ class CloudinaryService
       escapeshellarg($outPath)
     );
 
-    exec($cmd, $_, $returnCode);
+    @exec($cmd, $_, $returnCode);
 
     if ($returnCode === 0 && file_exists($outPath) && filesize($outPath) > 0) {
       return $outPath;

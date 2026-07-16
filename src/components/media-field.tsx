@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
+import { compressImage, compressVideo, sizeHint } from "@/lib/media-utils";
 
 interface MediaFieldProps {
   label: string;
@@ -71,18 +72,31 @@ export function MediaField({
 
     setUploading(true);
     setProgress(0);
+    const isVideo = mediaType === "video" || file.type.startsWith("video/");
     const loadingId = toast.loading(file.size > 50 * 1024 * 1024 ? `Preparing ${file.name} (${(file.size / 1024 / 1024).toFixed(0)} MB)...` : `Uploading ${file.name}...`);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+      let processedFile = file;
+
+      // Compress if needed
+      if (isVideo && file.size > 80 * 1024 * 1024) {
+        toast.loading("Compressing video (this may take a moment)...", { id: loadingId });
+        processedFile = await compressVideo(file, (pct) => setProgress(pct));
+        toast.loading(`Compressed to ${(processedFile.size / 1024 / 1024).toFixed(0)} MB, uploading...`, { id: loadingId });
+      } else if (!isVideo && file.size > 5 * 1024 * 1024) {
+        toast.loading("Compressing image...", { id: loadingId });
+        processedFile = await compressImage(file);
+        toast.loading(`Compressed to ${(processedFile.size / 1024 / 1024).toFixed(1)} MB, uploading...`, { id: loadingId });
+      }
+
       let url: string;
 
-      // Videos route through the PHP proxy (handles auto-compression for large files)
-      if (mediaType === "video" || file.type.startsWith("video/")) {
-        toast.loading("Uploading via server...", { id: loadingId });
-        url = await uploadViaProxy(file, loadingId);
+      // Videos route through the PHP proxy
+      if (isVideo) {
+        url = await uploadViaProxy(processedFile, loadingId);
       } else {
-        // Images & documents: try direct Cloudinary upload first
+        // Images: try direct Cloudinary upload first
         try {
           const signRes = await api.get<{
             cloud_name: string; api_key: string; timestamp: number;
@@ -94,7 +108,7 @@ export function MediaField({
           const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
 
           const fd = new FormData();
-          fd.append("file", file);
+          fd.append("file", processedFile);
           fd.append("api_key", api_key);
           fd.append("timestamp", String(timestamp));
           fd.append("signature", signature);
@@ -126,7 +140,7 @@ export function MediaField({
         } catch (directErr) {
           console.warn("Direct upload failed, falling back to proxy:", directErr);
           toast.loading("Switching to server proxy...", { id: loadingId });
-          url = await uploadViaProxy(file, loadingId);
+          url = await uploadViaProxy(processedFile, loadingId);
         }
       }
 
@@ -233,6 +247,7 @@ export function MediaField({
                   <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
                 )}
                 <span className="text-sm text-muted-foreground">Click to upload</span>
+                <span className="mt-1 text-xs text-muted-foreground/70">{sizeHint(mediaType)}</span>
                 {helpText && <span className="mt-1 text-xs text-muted-foreground">{helpText}</span>}
               </>
             )}
