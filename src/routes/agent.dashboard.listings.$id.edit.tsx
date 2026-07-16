@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { toast } from "sonner";
 import { MediaField } from "@/components/media-field";
 
 export const Route = createFileRoute("/agent/dashboard/listings/$id/edit")({
@@ -113,9 +114,12 @@ function EditListingPage() {
         floor_plan_url: form.floor_plan_url || null,
         completion_date: form.completion_date || null,
       });
+      toast.success("Listing updated");
       navigate({ to: "/agent/dashboard/listings" });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save");
+      const msg = err instanceof ApiError ? err.message : "Failed to save";
+      toast.error(msg);
+      setError(msg);
     } finally {
       setSaving(false);
     }
