@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
-import { api } from "@/lib/api-client";
+import { api, ApiError } from "@/lib/api-client";
 
 interface MediaFieldProps {
   label: string;
@@ -33,6 +34,8 @@ export function MediaField({
     if (!file) return;
 
     setUploading(true);
+    const loadingId = toast.loading(`Uploading ${file.name}...`);
+
     try {
       const fd = new FormData();
       fd.append("file", file);
@@ -41,9 +44,12 @@ export function MediaField({
       const url = res.data.url;
       setPreview(url);
       onChange(url);
-    } catch {
-      // fallback
+      toast.success(`${file.name} uploaded`, { id: loadingId });
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Upload failed";
+      toast.error(`${file.name}: ${msg}`, { id: loadingId });
     }
+
     setUploading(false);
   }
 
