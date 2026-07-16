@@ -275,4 +275,106 @@ class UploadController
       'folder'     => $folder,
     ], 'Upload signature generated');
   }
+
+  /**
+   * Upload multiple videos for a property (video gallery).
+   *
+   * Accepts a 'files' array and a required 'property_id'.
+   *
+   * @param array $params Route parameters (unused).
+   */
+  public static function uploadVideoGallery(array $params): void
+  {
+    $user = AuthMiddleware::authenticate();
+
+    if (!isset($_FILES['files'])) {
+      Response::error('No files uploaded', 400);
+    }
+
+    $propertyId = !empty($_POST['property_id']) ? (int)$_POST['property_id'] : null;
+    if (!$propertyId) {
+      Response::error('Property ID is required', 400);
+    }
+
+    $files = $_FILES['files'];
+    $uploaded = [];
+    $errors = [];
+
+    $fileCount = is_array($files['name']) ? count($files['name']) : 1;
+
+    for ($i = 0; $i < $fileCount; $i++) {
+      $file = [
+        'name'     => is_array($files['name']) ? $files['name'][$i] : $files['name'],
+        'type'     => is_array($files['type']) ? $files['type'][$i] : $files['type'],
+        'tmp_name' => is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'],
+        'error'    => is_array($files['error']) ? $files['error'][$i] : $files['error'],
+        'size'     => is_array($files['size']) ? $files['size'][$i] : $files['size'],
+      ];
+
+      if ($file['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "File {$file['name']}: upload error";
+        continue;
+      }
+
+      $result = CloudinaryService::uploadFromFile($file, 'video', ['folder' => 'avr-homes/videos']);
+      if (!$result['success']) {
+        $errors[] = "File {$file['name']}: {$result['error']}";
+        continue;
+      }
+
+      $db = Database::getConnection();
+      $stmt = $db->prepare(
+        'INSERT INTO property_videos (property_id, file_path, file_name, file_size, mime_type, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?)'
+      );
+      $stmt->execute([
+        $propertyId,
+        $result['url'],
+        $file['name'],
+        $result['bytes'],
+        $file['type'],
+        $i,
+      ]);
+      $videoId = (int)$db->lastInsertId();
+
+      $uploaded[] = [
+        'id'        => $videoId,
+        'url'       => $result['url'],
+        'file_name' => $file['name'],
+      ];
+    }
+
+    Response::success([
+      'uploaded' => $uploaded,
+      'errors'   => $errors,
+    ], count($uploaded) . ' video(s) uploaded successfully');
+  }
+
+  /**
+   * Delete a property video.
+   *
+   * @param array $params Route parameters containing 'id' (video ID).
+   */
+  public static function destroyVideo(array $params): void
+  {
+    $user = AuthMiddleware::authenticate();
+
+    $id = (int)($params['id'] ?? 0);
+    if ($id <= 0) {
+      Response::error('Invalid video ID', 400);
+    }
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT id FROM property_videos WHERE id = ?');
+    $stmt->execute([$id]);
+    $video = $stmt->fetch();
+
+    if (!$video) {
+      Response::error('Video not found', 404);
+    }
+
+    $db->prepare('DELETE FROM property_videos WHERE id = ?')->execute([$id]);
+
+    Response::success(null, 'Video deleted successfully');
+  }
 }

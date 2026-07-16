@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Check, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MediaField } from "@/components/media-field";
 
@@ -51,6 +51,9 @@ function EditListingPage() {
     image: null, is_off_plan: false, completion_date: null,
   });
 
+  const [existingVideos, setExistingVideos] = useState<{ id: number; url: string; file_name?: string }[]>([]);
+  const [newVideoFiles, setNewVideoFiles] = useState<File[]>([]);
+
   useEffect(() => {
     api.get<any>(`/api/agent/listings/${id}`)
       .then((res) => {
@@ -77,6 +80,7 @@ function EditListingPage() {
           is_off_plan: p.is_off_plan || false,
           completion_date: p.completion_date || null,
         });
+        if (Array.isArray(p.videos)) setExistingVideos(p.videos);
       })
       .catch(() => navigate({ to: "/agent/dashboard/listings" }))
       .finally(() => setLoading(false));
@@ -95,7 +99,16 @@ function EditListingPage() {
     }));
   }
 
-  /** Save changes to the API, then navigate back to the listings index. */
+  async function deleteVideo(videoId: number) {
+    try {
+      await api.delete(`/api/upload/video/${videoId}`);
+      setExistingVideos((prev) => prev.filter((v) => v.id !== videoId));
+      toast.success("Video removed");
+    } catch {
+      toast.error("Failed to delete video");
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
     setError("");
@@ -114,6 +127,19 @@ function EditListingPage() {
         floor_plan_url: form.floor_plan_url || null,
         completion_date: form.completion_date || null,
       });
+      // Upload new videos after save
+      if (newVideoFiles.length > 0) {
+        const videoFd = new FormData();
+        for (const v of newVideoFiles) {
+          videoFd.append("files", v);
+        }
+        videoFd.append("property_id", String(id));
+        try {
+          await api.post("/api/upload/video-gallery", videoFd);
+          toast.success("Video(s) uploaded");
+        } catch { /* non-blocking */ }
+      }
+
       toast.success("Listing updated");
       navigate({ to: "/agent/dashboard/listings" });
     } catch (err) {
@@ -269,6 +295,45 @@ function EditListingPage() {
                     folder="avr-homes/videos"
                     placeholder="Upload a video walkthrough"
                   />
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">Video Gallery</label>
+                    {existingVideos.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {existingVideos.map((v) => (
+                          <div key={v.id} className="group relative">
+                            <video src={v.url} className="h-20 w-28 rounded-lg object-cover" />
+                            <button type="button" onClick={() => deleteVideo(v.id)}
+                              className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition">
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {newVideoFiles.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {newVideoFiles.map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                            <span className="truncate max-w-[120px]">{f.name}</span>
+                            <button type="button" onClick={() => setNewVideoFiles((p) => p.filter((_, j) => j !== i))}>
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-4">
+                      <p className="text-xs text-muted-foreground mb-2">Add more video files (saved after update)</p>
+                      <input type="file" accept="video/*" multiple onChange={(e) => {
+                        const files = e.target.files;
+                        if (files) setNewVideoFiles((p) => [...p, ...Array.from(files)]);
+                        e.target.value = "";
+                      }} className="hidden" id="edit-video-upload" />
+                      <label htmlFor="edit-video-upload" className="cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
+                        Select videos
+                      </label>
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Virtual Tour URL</label>
                     <Input type="url" value={form.virtual_tour_url} onChange={(e) => update("virtual_tour_url", e.target.value)}

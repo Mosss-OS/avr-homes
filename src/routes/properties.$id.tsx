@@ -78,9 +78,11 @@ function Detail() {
     [p.id, p.community, p.type]
   );
 
+  const videoCount = p.videos?.length ?? (p.video_url ? 1 : 0);
+
   const mediaTabs = [
     { key: "photos" as const, icon: ImageIcon, label: "Photos", count: p.gallery.length },
-    { key: "video" as const, icon: Video, label: "Video", disabled: !p.video_url },
+    { key: "video" as const, icon: Video, label: "Video", count: videoCount, disabled: videoCount === 0 },
     { key: "tour" as const, icon: Globe, label: "Virtual Tour", disabled: !p.virtual_tour_url },
     { key: "plan" as const, icon: FileImage, label: "Floor Plan", disabled: !p.floor_plan_url },
   ].filter((t) => !(t as any).disabled || t.key === "photos");
@@ -156,10 +158,18 @@ function Detail() {
             </div>
           )}
 
-          {mediaTab === "video" && p.video_url && (
-            <div className="aspect-video overflow-hidden rounded-2xl bg-black">
-              <iframe src={embedUrl(p.video_url)} title="Property video" className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          {mediaTab === "video" && videoCount > 0 && (
+            <div className="space-y-3">
+              {(p.videos && p.videos.length > 0 ? p.videos : [{ url: p.video_url! }]).map((v, i) => (
+                <div key={i} className="aspect-video overflow-hidden rounded-2xl bg-black">
+                  {v.url.includes("youtube.com") || v.url.includes("youtu.be") || v.url.includes("vimeo.com") ? (
+                    <iframe src={embedUrl(v.url)} title={`Property video ${i + 1}`} className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                  ) : (
+                    <video src={v.url} controls className="h-full w-full" />
+                  )}
+                </div>
+              ))}
             </div>
           )}
 
@@ -346,7 +356,7 @@ function Detail() {
                   <a href={`mailto:${agent.email}?subject=Inquiry about ${encodeURIComponent(p.title)}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary">
                     <Mail className="h-4 w-4" /> Email agent
                   </a>
-                  <a href={`https://wa.me/${agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${agent.name}, I'm interested in ${p.title} (${String(p.id)}).`)}`}
+                  <a href={`https://wa.me/${agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${agent.name}, I'm interested in ${p.title}.\n\nView listing: ${typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${p.id}`}`)}`}
                     target="_blank" rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-secondary">
                     WhatsApp
@@ -619,12 +629,15 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
     setError("");
     const form = new FormData(e.currentTarget);
     try {
+      const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
+      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
       await submitInquiry({
         name: form.get("name") as string,
         email: form.get("email") as string,
         phone: form.get("phone") as string,
-        message: form.get("message") as string,
+        message: msg,
         property_id: propertyId,
+        property_url: propertyUrl,
       });
       setSent(true);
     } catch {

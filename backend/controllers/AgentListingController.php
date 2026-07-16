@@ -182,6 +182,7 @@ class AgentListingController
     $property['is_verified'] = (bool)$property['is_verified'];
     $property['amenities'] = json_decode($property['amenities'] ?? '[]', true);
     $property['images'] = Property::getImages($id);
+    $property['videos'] = Property::getVideos($id);
 
     Response::success($property, 'Listing retrieved successfully');
   }
