@@ -7,6 +7,7 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,9 @@ function AgentLoginPage() {
       await login(email, password);
       navigate({ to: "/agent/dashboard" });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      console.error("Login error:", err);
+      setError("Invalid email or password. Please try again.");
+      toast.error("Invalid email or password");
     } finally {
       setLoading(false);
     }

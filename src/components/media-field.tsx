@@ -46,8 +46,8 @@ export function MediaField({
       onChange(url);
       toast.success(`${file.name} uploaded`, { id: loadingId });
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Upload failed";
-      toast.error(`${file.name}: ${msg}`, { id: loadingId });
+      console.error("Media upload error:", err);
+      toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
     }
 
     setUploading(false);
