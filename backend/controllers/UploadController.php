@@ -230,4 +230,49 @@ class UploadController
       'resource_type' => $resourceType,
     ], 'Media uploaded successfully', 201);
   }
+
+  /**
+   * Return signed upload parameters for direct browser-to-Cloudinary upload.
+   *
+   * The frontend uses these params to POST directly to
+   * https://api.cloudinary.com/v1_1/{cloud_name}/auto/upload,
+   * bypassing the PHP proxy for large files (especially videos).
+   *
+   * @param array $params Route parameters (unused).
+   */
+  public static function sign(array $params): void
+  {
+    $user = AuthMiddleware::authenticate();
+
+    $cloudName = $_ENV['CLOUDINARY_CLOUD_NAME'] ?? '';
+    $apiKey    = $_ENV['CLOUDINARY_API_KEY'] ?? '';
+    $apiSecret = $_ENV['CLOUDINARY_API_SECRET'] ?? '';
+
+    if (!$cloudName || !$apiKey || !$apiSecret) {
+      Response::error('Cloudinary not configured', 500);
+    }
+
+    $folder    = $_GET['folder'] ?? 'avr-homes/media';
+    $timestamp = time();
+
+    $paramsToSign = [
+      'timestamp' => $timestamp,
+      'folder'    => $folder,
+    ];
+    ksort($paramsToSign);
+    $signStr = '';
+    foreach ($paramsToSign as $k => $v) {
+      $signStr .= "{$k}={$v}&";
+    }
+    $signStr = rtrim($signStr, '&') . $apiSecret;
+    $signature = sha1($signStr);
+
+    Response::success([
+      'cloud_name' => $cloudName,
+      'api_key'    => $apiKey,
+      'timestamp'  => $timestamp,
+      'signature'  => $signature,
+      'folder'     => $folder,
+    ], 'Upload signature generated');
+  }
 }
