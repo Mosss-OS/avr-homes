@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, X, Loader2, Video, File, Image as ImageIcon } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { compressImage, compressVideo, sizeHint } from "@/lib/media-utils";
 
 interface FileGalleryItem {
   id?: number;
@@ -47,6 +48,20 @@ export function FileGallery({
 
     for (const file of fileArray) {
       try {
+        // Compress if needed
+        let processedFile = file;
+        if (mediaType === "video" || file.type.startsWith("video/")) {
+          if (file.size > 80 * 1024 * 1024) {
+            toast.loading(`Compressing ${file.name}...`);
+            setProgress((p) => ({ ...p, [file.name]: 0 }));
+            processedFile = await compressVideo(file, (pct) => setProgress((p) => ({ ...p, [file.name]: pct })));
+          }
+        } else {
+          if (file.size > 5 * 1024 * 1024) {
+            processedFile = await compressImage(file);
+          }
+        }
+
         const signRes = await api.get<{
           cloud_name: string; api_key: string; timestamp: number;
           signature: string; folder: string;
@@ -55,7 +70,7 @@ export function FileGallery({
         const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
 
         const fd = new FormData();
-        fd.append("file", file);
+        fd.append("file", processedFile);
         fd.append("api_key", api_key);
         fd.append("timestamp", String(timestamp));
         fd.append("signature", signature);
@@ -175,6 +190,7 @@ export function FileGallery({
                   <ImageIcon className="mb-1 h-5 w-5 text-muted-foreground" />
                 )}
                 <span className="text-xs text-muted-foreground">Drop files or click to upload</span>
+                <span className="mt-1 text-xs text-muted-foreground/70">{sizeHint(mediaType)}</span>
               </>
             )}
             <input ref={fileRef} type="file" multiple accept={accept} onChange={(e) => e.target.files && uploadFiles(e.target.files)} className="hidden" />
