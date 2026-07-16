@@ -52,7 +52,7 @@ class InquiryController
 
     $db = Database::getConnection();
     $stmt = $db->prepare(
-      'INSERT INTO inquiries (property_id, name, email, phone, message) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO inquiries (property_id, name, email, phone, message, property_url) VALUES (?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
       !empty($data['property_id']) ? (int)$data['property_id'] : null,
@@ -60,6 +60,7 @@ class InquiryController
       $data['email'],
       $data['phone'],
       $data['message'],
+      $data['property_url'] ?? null,
     ]);
 
     Response::success([

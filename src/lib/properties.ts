@@ -49,6 +49,7 @@ export interface Property {
   lng: number;
   image: any;
   video_url: string | null;
+  videos?: { url: string; id?: number; file_name?: string }[];
   virtual_tour_url: string | null;
   floor_plan_url: string | null;
   gallery: string[];
@@ -85,6 +86,7 @@ export function propertyFromApi(p: PropertyData): Property {
     virtual_tour_url: p.virtual_tour_url ?? null,
     floor_plan_url: p.floor_plan_url ?? null,
     gallery: p.images?.map((i) => i.url) || [],
+    videos: p.videos,
     agent_id: p.agent_id ?? null,
     posted_days_ago: p.posted_days_ago,
     nightly_price: p.nightly_price ?? null,

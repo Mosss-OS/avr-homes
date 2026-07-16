@@ -188,6 +188,7 @@ class Property
     $property['amenities'] = json_decode($property['amenities'] ?? '[]', true);
     $property['agent_languages'] = json_decode($property['agent_languages'] ?? '[]', true);
     $property['images'] = self::getImages($id);
+    $property['videos'] = self::getVideos($id);
 
     return $property;
   }
@@ -331,6 +332,27 @@ class Property
     }
 
     return $images;
+  }
+
+  /**
+   * Retrieve all videos for a property, ordered by sort_order / id.
+   */
+  public static function getVideos(int $propertyId): array
+  {
+    $db = Database::getConnection();
+    $stmt = $db->prepare(
+      'SELECT id, file_path, file_name, sort_order, created_at
+       FROM property_videos WHERE property_id = ? ORDER BY sort_order ASC, id ASC'
+    );
+    $stmt->execute([$propertyId]);
+    $videos = $stmt->fetchAll();
+
+    foreach ($videos as &$video) {
+      $video['id'] = (int)$video['id'];
+      $video['url'] = self::imageUrl($video['file_path']);
+    }
+
+    return $videos;
   }
 
   /**

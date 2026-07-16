@@ -30,17 +30,60 @@ export function MediaField({
   const [preview, setPreview] = useState<string | null>(value || null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+
+  async function uploadViaProxy(file: File, loadingId: string | number): Promise<string> {
+    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", folder);
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.onprogress = (evt) => {
+      if (evt.lengthComputable) {
+        setProgress(Math.round((evt.loaded / evt.total) * 100));
+      }
+    };
+
+    return new Promise<string>((resolve, reject) => {
+      xhr.onload = () => {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const url = data.data?.url || data.data?.secure_url || data.url || data.secure_url;
+            if (url) resolve(url);
+            else reject(new Error("Server did not return a URL"));
+          } else {
+            reject(new Error(data.message || data.error || "Upload failed"));
+          }
+        } catch {
+          reject(new Error("Invalid response from server"));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.open("POST", `${apiUrl}/api/upload`);
+      xhr.send(fd);
+    });
+  }
+
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max 100 MB. Try the URL option for larger files.`);
+      return;
+    }
 
     setUploading(true);
     setProgress(0);
     const loadingId = toast.loading(`Uploading ${file.name}...`);
 
     try {
-      // 1. Get signed upload params from the backend
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+
+      // Try direct Cloudinary upload first (faster, no server load)
       const signRes = await api.get<{
         cloud_name: string; api_key: string; timestamp: number;
         signature: string; folder: string;
@@ -48,7 +91,6 @@ export function MediaField({
 
       const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
 
-      // 2. Upload directly to Cloudinary (bypasses PHP proxy — much faster for large files)
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
 
       const fd = new FormData();
@@ -58,40 +100,45 @@ export function MediaField({
       fd.append("signature", signature);
       fd.append("folder", cloudFolder);
 
-      const xhr = new XMLHttpRequest();
+      let url: string;
 
-      xhr.upload.onprogress = (evt) => {
-        if (evt.lengthComputable) {
-          const pct = Math.round((evt.loaded / evt.total) * 100);
-          setProgress(pct);
-        }
-      };
-
-      const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
-        xhr.onload = () => {
-          try {
-            const data = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
-              resolve(data);
-            } else {
-              reject(new Error(data.error?.message || "Cloudinary upload failed"));
+      try {
+        url = await new Promise<string>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.upload.onprogress = (evt) => {
+            if (evt.lengthComputable) {
+              setProgress(Math.round((evt.loaded / evt.total) * 100));
             }
-          } catch {
-            reject(new Error("Invalid response from Cloudinary"));
-          }
-        };
-        xhr.onerror = () => reject(new Error("Network error"));
-        xhr.open("POST", cloudinaryUrl);
-        xhr.send(fd);
-      });
+          };
+          xhr.onload = () => {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
+                resolve(data.secure_url);
+              } else {
+                reject(new Error(data.error?.message || "Cloudinary rejected the file"));
+              }
+            } catch {
+              reject(new Error("Invalid response from Cloudinary"));
+            }
+          };
+          xhr.onerror = () => reject(new Error("Network error"));
+          xhr.open("POST", cloudinaryUrl);
+          xhr.send(fd);
+        });
+      } catch (directErr) {
+        console.warn("Direct Cloudinary upload failed, falling back to proxy:", directErr);
+        toast.loading("Switching to server proxy...", { id: loadingId });
+        url = await uploadViaProxy(file, loadingId);
+      }
 
-      const url = result.secure_url;
       setPreview(url);
       onChange(url);
       toast.success(`${file.name} uploaded`, { id: loadingId });
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(`${msg}. Try pasting a URL instead.`, { id: loadingId });
     }
 
     setUploading(false);

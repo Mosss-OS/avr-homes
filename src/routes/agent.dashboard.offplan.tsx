@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { api } from "@/lib/api-client";
 import { HardHat, Plus, Loader2, Image as ImageIcon, Video, Trash2, ChevronDown, ChevronUp, Check, X } from "lucide-react";
+import { FileGallery } from "@/components/file-gallery";
 
 interface ProgressItem {
   id: number;
@@ -43,9 +44,9 @@ function OffPlanManager() {
     month_number: "",
     title: "",
     description: "",
-    images: "",
-    videos: "",
   });
+  const [formImages, setFormImages] = useState<{ url: string; file_name?: string }[]>([]);
+  const [formVideos, setFormVideos] = useState<{ url: string; file_name?: string }[]>([]);
 
   useEffect(() => {
     api.get<{ data: ListingItem[] }>("/api/agent/listings?per_page=100")
@@ -72,7 +73,9 @@ function OffPlanManager() {
   }
 
   function resetForm() {
-    setForm({ month_number: "", title: "", description: "", images: "", videos: "" });
+    setForm({ month_number: "", title: "", description: "" });
+    setFormImages([]);
+    setFormVideos([]);
     setShowForm(false);
   }
 
@@ -87,8 +90,8 @@ function OffPlanManager() {
       const payload = {
         ...form,
         month_number: Number(form.month_number),
-        images: form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
-        videos: form.videos ? form.videos.split(",").map((s) => s.trim()).filter(Boolean) : [],
+        images: formImages.map((i) => i.url),
+        videos: formVideos.map((v) => v.url),
       };
       await api.post(`/api/agent/progress/${selectedId}`, payload);
       setMessage({ type: "success", text: "Progress update added" });
@@ -204,18 +207,28 @@ function OffPlanManager() {
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="text-xs font-medium">Image URLs (comma-separated)</label>
-                        <input value={form.images}
-                          onChange={(e) => setForm({ ...form, images: e.target.value })}
-                          className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none"
-                          placeholder="https://..." />
+                        <FileGallery
+                          label="Images"
+                          items={formImages}
+                          onChange={setFormImages}
+                          mediaType="image"
+                          accept="image/*"
+                          folder="avr-homes/progress"
+                          maxFiles={10}
+                          allowUrl
+                        />
                       </div>
                       <div>
-                        <label className="text-xs font-medium">Video URLs (comma-separated)</label>
-                        <input value={form.videos}
-                          onChange={(e) => setForm({ ...form, videos: e.target.value })}
-                          className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none"
-                          placeholder="https://..." />
+                        <FileGallery
+                          label="Videos"
+                          items={formVideos}
+                          onChange={setFormVideos}
+                          mediaType="video"
+                          accept="video/*"
+                          folder="avr-homes/progress"
+                          maxFiles={10}
+                          allowUrl
+                        />
                       </div>
                     </div>
                     <div className="flex gap-2 pt-1">

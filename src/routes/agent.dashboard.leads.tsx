@@ -314,7 +314,9 @@ function AgentLeadsPage() {
                     className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-input px-4 py-2 text-sm hover:bg-accent">
                     <Phone className="h-4 w-4" /> Call
                   </a>
-                  <a href={`https://wa.me/${selected.phone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`https://wa.me/${selected.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                    `Hi ${selected.name}, regarding "${selected.property_title || "your enquiry"}"\n\nhttps://avrusthomes.com/properties/${selected.property_id}`
+                  )}`} target="_blank" rel="noopener noreferrer"
                     className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-input px-4 py-2 text-sm hover:bg-accent">
                     <MessageSquare className="h-4 w-4" /> WhatsApp
                   </a>

@@ -35,6 +35,7 @@ export interface PropertyData {
   lng: number;
   image: string | null;
   video_url: string | null;
+  videos?: PropertyVideo[];
   virtual_tour_url: string | null;
   floor_plan_url: string | null;
   description: string;
@@ -53,6 +54,15 @@ export interface PropertyData {
   agent_avatar_hue?: number;
   agent_languages?: string[];
   agent_is_verified?: boolean;
+}
+
+/** A video associated with a property (video gallery). */
+export interface PropertyVideo {
+  id: number;
+  file_path: string;
+  file_name: string;
+  sort_order: number;
+  url: string;
 }
 
 /** An image associated with a property. */

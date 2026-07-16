@@ -23,6 +23,7 @@ export const Route = createFileRoute("/agent/dashboard/listings/create")({
 });
 
 const STEPS = ["Basic Info", "Details", "Location", "Media", "Review"];
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"];
 
 const PROPERTY_TYPES = [
   ["apartment", "Apartment"], ["villa", "Villa"], ["townhouse", "Townhouse"],
@@ -35,7 +36,7 @@ interface ListingForm {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  images: File[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  images: File[]; videos: File[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
   is_off_plan: boolean; completion_date: string; status: string;
 }
 
@@ -52,7 +53,7 @@ function CreateListingPage() {
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    images: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    images: [], videos: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
     is_off_plan: false, completion_date: "", status: "draft",
   });
 
@@ -110,7 +111,7 @@ function CreateListingPage() {
     setLoading(true);
     setError("");
     try {
-      const { images, ...rest } = form;
+      const { images, videos, ...rest } = form;
       const payload: Record<string, any> = {
         ...rest,
         price: Number(form.price),
@@ -164,6 +165,38 @@ function CreateListingPage() {
           } catch (galleryErr) {
             const msg = galleryErr instanceof ApiError ? galleryErr.message : "Server rejected the upload";
             toast.error(`Gallery upload failed: ${msg}`);
+          }
+        }
+      }
+
+      // Upload videos after images
+      if (videos.length > 0 && propertyId) {
+        const videoFd = new FormData();
+        const allowedVideoTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"];
+        for (const v of videos) {
+          if (allowedVideoTypes.includes(v.type)) {
+            videoFd.append("files", v);
+          }
+        }
+        if (videoFd.has("files")) {
+          videoFd.append("property_id", String(propertyId));
+          const videoLoadingId = toast.loading(`Uploading ${videoFd.getAll("files").length} video(s)...`);
+          try {
+            const videoRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/video-gallery", videoFd);
+            const uploaded = videoRes.data?.uploaded?.length ?? 0;
+            const failed = videoRes.data?.errors?.length ?? 0;
+            if (failed > 0 && uploaded > 0) {
+              toast.success(`${uploaded} video(s) uploaded, ${failed} failed`, { id: videoLoadingId });
+            } else if (uploaded > 0) {
+              toast.success(`${uploaded} video(s) uploaded`, { id: videoLoadingId });
+            } else if (failed > 0) {
+              toast.error(`${failed} video(s) failed`, { id: videoLoadingId });
+            } else {
+              toast.dismiss(videoLoadingId);
+            }
+          } catch (videoErr) {
+            const msg = videoErr instanceof ApiError ? videoErr.message : "Video upload failed";
+            toast.error(msg, { id: videoLoadingId });
           }
         }
       }
@@ -350,6 +383,33 @@ function CreateListingPage() {
                   placeholder="Upload a video walkthrough"
                 />
                 <div className="space-y-2">
+                  <Label>Additional Videos (upload after listing is created)</Label>
+                  <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-6">
+                    {form.videos.length > 0 ? (
+                      <div className="flex w-full flex-wrap gap-2">
+                        {form.videos.map((v, i) => (
+                          <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                            <span className="truncate max-w-[140px]">{v.name}</span>
+                            <button type="button" onClick={() => setForm((p) => ({ ...p, videos: p.videos.filter((_, j) => j !== i) }))}>
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Select MP4, MOV, or WebM files</p>
+                    )}
+                    <input type="file" accept="video/mp4,video/quicktime,video/webm" onChange={(e) => {
+                      const files = e.target.files;
+                      if (files) setForm((p) => ({ ...p, videos: [...p.videos, ...Array.from(files)] }));
+                      e.target.value = "";
+                    }} className="hidden" id="video-upload" multiple />
+                    <label htmlFor="video-upload" className="mt-3 cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
+                      {form.videos.length > 0 ? "Add more videos" : "Select videos"}
+                    </label>
+                  </div>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="virtual_tour_url">Virtual Tour URL</Label>
                   <Input id="virtual_tour_url" type="url" value={form.virtual_tour_url}
                     onChange={(e) => update("virtual_tour_url", e.target.value)}
@@ -380,7 +440,7 @@ function CreateListingPage() {
                   <span className="text-muted-foreground">Beds/Baths:</span><span className="font-medium">{form.beds} / {form.baths}</span>
                   <span className="text-muted-foreground">Location:</span><span className="font-medium">{form.city}, {form.community}</span>
                   {form.images.length > 0 && <> <span className="text-muted-foreground">Images:</span><span className="font-medium truncate">{form.images.length} file(s)</span> </>}
-                  {form.video_url && <> <span className="text-muted-foreground">Video:</span><span className="font-medium truncate">Yes</span> </>}
+                  {form.video_url || form.videos.length > 0 ? <><span className="text-muted-foreground">Video{(form.video_url ? 1 : 0) + form.videos.length > 1 ? "s" : ""}:</span><span className="font-medium truncate">{(form.video_url ? 1 : 0) + form.videos.length} file(s)</span></> : null}
                   {form.virtual_tour_url && <> <span className="text-muted-foreground">Virtual Tour:</span><span className="font-medium truncate">Yes</span> </>}
                   {form.floor_plan_url && <> <span className="text-muted-foreground">Floor Plan:</span><span className="font-medium truncate">Yes</span> </>}
                 </div>
