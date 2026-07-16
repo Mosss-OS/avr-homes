@@ -13,14 +13,19 @@ declare(strict_types=1);
 
 /* ── Health check ─────────────────────────────────────────── */
 route('GET', '/api/health', function () {
-  exec('which ffmpeg 2>/dev/null', $ffOut, $ffCode);
-  exec('ffmpeg -version 2>/dev/null', $ffVer, $_);
+  $ffmpeg = null;
+  if (function_exists('exec')) {
+    exec('which ffmpeg 2>/dev/null', $ffOut, $ffCode);
+    $ffmpeg = $ffCode === 0 ? ($ffOut[0] ?? 'available') : 'not found';
+  } else {
+    $ffmpeg = 'exec() disabled';
+  }
   Response::success([
     'status'  => 'ok',
     'time'    => date('c'),
     'php'     => PHP_VERSION,
-    'ffmpeg'  => $ffCode === 0 ? ($ffOut[0] ?? 'available') : 'not found',
-    'ffmpeg_version' => $ffVer[0] ?? null,
+    'ffmpeg'  => $ffmpeg,
+    'disabled_functions' => ini_get('disable_functions'),
   ]);
 });
 
