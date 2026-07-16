@@ -54,7 +54,7 @@ class CloudinaryService
     $folder = $options['folder'] ?? 'avr-homes';
     $publicId = $options['public_id'] ?? pathinfo($originalName, PATHINFO_FILENAME) . '_' . $timestamp;
 
-    // Build signature params
+    // Build signature params (api_key is NOT included in the signature)
     $paramsToSign = [
       'timestamp' => $timestamp,
       'folder'    => $folder,
@@ -82,6 +82,8 @@ class CloudinaryService
       $body .= "Content-Disposition: form-data; name=\"{$k}\"\r\n\r\n{$v}\r\n";
     }
 
+    $body .= "--{$boundary}\r\n";
+    $body .= "Content-Disposition: form-data; name=\"api_key\"\r\n\r\n{$apiKey}\r\n";
     $body .= "--{$boundary}\r\n";
     $body .= "Content-Disposition: form-data; name=\"signature\"\r\n\r\n{$signature}\r\n";
     $body .= "--{$boundary}\r\n";
