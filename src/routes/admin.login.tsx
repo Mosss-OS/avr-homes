@@ -42,9 +42,9 @@ function AdminLoginPage() {
       toast.success("Welcome back, admin!");
       navigate({ to: "/admin" });
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Login failed";
-      setError(msg);
-      toast.error(msg);
+      console.error("Admin login error:", err);
+      setError("Invalid email or password. Please try again.");
+      toast.error("Invalid email or password");
     } finally {
       setLoading(false);
     }
