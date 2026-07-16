@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
-import { api, ApiError } from "@/lib/api-client";
+import { ApiError } from "@/lib/api-client";
 
 interface MediaFieldProps {
   label: string;
@@ -26,31 +26,60 @@ export function MediaField({
 }: MediaFieldProps) {
   const [mode, setMode] = useState<"url" | "upload">(value ? "url" : "upload");
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState<string | null>(value || null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
+    setProgress(0);
     const loadingId = toast.loading(`Uploading ${file.name}...`);
 
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("folder", folder);
-      const res = await api.post<{ url: string }>("/api/upload/media", fd);
-      const url = res.data.url;
-      setPreview(url);
-      onChange(url);
-      toast.success(`${file.name} uploaded`, { id: loadingId });
-    } catch (err) {
-      console.error("Media upload error:", err);
-      toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
-    }
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", folder);
 
-    setUploading(false);
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.onprogress = (evt) => {
+      if (evt.lengthComputable) {
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+        setProgress(pct);
+      }
+    };
+
+    xhr.onload = () => {
+      setUploading(false);
+      try {
+        const res = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && res.success) {
+          const url = res.data.url;
+          setPreview(url);
+          onChange(url);
+          toast.success(`${file.name} uploaded`, { id: loadingId });
+        } else {
+          console.error("Media upload error:", res);
+          toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
+        }
+      } catch {
+        toast.error(`Could not upload ${file.name}. Server returned an unexpected response.`, { id: loadingId });
+      }
+    };
+
+    xhr.onerror = () => {
+      setUploading(false);
+      console.error("Media upload network error");
+      toast.error(`Could not upload ${file.name}. Check your connection and try again.`, { id: loadingId });
+    };
+
+    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    xhr.open("POST", `${apiUrl}/api/upload/media`);
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.send(fd);
   }
 
   function handleUrlChange(val: string) {
@@ -106,10 +135,13 @@ export function MediaField({
       {(preview || uploading) && (
         <div className="relative inline-block">
           {uploading ? (
-            <div className="flex h-32 w-48 items-center justify-center rounded-xl border-2 border-dashed border-border bg-background">
-              <div className="text-center">
+            <div className="flex w-64 items-center justify-center rounded-xl border-2 border-dashed border-border bg-background p-4">
+              <div className="w-full text-center">
                 <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                <p className="mt-1 text-xs text-muted-foreground">Uploading...</p>
+                <p className="mt-1 text-xs text-muted-foreground">Uploading... {progress}%</p>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
               </div>
             </div>
           ) : (
@@ -126,7 +158,13 @@ export function MediaField({
         <div>
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-background p-6 text-center hover:border-primary transition-colors">
             {uploading ? (
-              <Loader2 className="mb-2 h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="w-full text-center">
+                <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Uploading... {progress}%</span>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
             ) : (
               <>
                 {mediaType === "video" ? (
@@ -134,9 +172,7 @@ export function MediaField({
                 ) : (
                   <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
                 )}
-                <span className="text-sm text-muted-foreground">
-                  {uploading ? "Uploading..." : "Click to upload"}
-                </span>
+                <span className="text-sm text-muted-foreground">Click to upload</span>
                 {helpText && <span className="mt-1 text-xs text-muted-foreground">{helpText}</span>}
               </>
             )}
