@@ -30,8 +30,6 @@ export function MediaField({
   const [preview, setPreview] = useState<string | null>(value || null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
-
   async function uploadViaProxy(file: File, loadingId: string | number): Promise<string> {
     const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
     const fd = new FormData();
@@ -71,65 +69,65 @@ export function MediaField({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max 100 MB. Try the URL option for larger files.`);
-      return;
-    }
-
     setUploading(true);
     setProgress(0);
-    const loadingId = toast.loading(`Uploading ${file.name}...`);
+    const loadingId = toast.loading(file.size > 50 * 1024 * 1024 ? `Preparing ${file.name} (${(file.size / 1024 / 1024).toFixed(0)} MB)...` : `Uploading ${file.name}...`);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
-
-      // Try direct Cloudinary upload first (faster, no server load)
-      const signRes = await api.get<{
-        cloud_name: string; api_key: string; timestamp: number;
-        signature: string; folder: string;
-      }>(`/api/upload/sign?folder=${encodeURIComponent(folder)}`);
-
-      const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
-
-      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
-
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("api_key", api_key);
-      fd.append("timestamp", String(timestamp));
-      fd.append("signature", signature);
-      fd.append("folder", cloudFolder);
-
       let url: string;
 
-      try {
-        url = await new Promise<string>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.upload.onprogress = (evt) => {
-            if (evt.lengthComputable) {
-              setProgress(Math.round((evt.loaded / evt.total) * 100));
-            }
-          };
-          xhr.onload = () => {
-            try {
-              const data = JSON.parse(xhr.responseText);
-              if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
-                resolve(data.secure_url);
-              } else {
-                reject(new Error(data.error?.message || "Cloudinary rejected the file"));
-              }
-            } catch {
-              reject(new Error("Invalid response from Cloudinary"));
-            }
-          };
-          xhr.onerror = () => reject(new Error("Network error"));
-          xhr.open("POST", cloudinaryUrl);
-          xhr.send(fd);
-        });
-      } catch (directErr) {
-        console.warn("Direct Cloudinary upload failed, falling back to proxy:", directErr);
-        toast.loading("Switching to server proxy...", { id: loadingId });
+      // Videos route through the PHP proxy (handles auto-compression for large files)
+      if (mediaType === "video" || file.type.startsWith("video/")) {
+        toast.loading("Uploading via server...", { id: loadingId });
         url = await uploadViaProxy(file, loadingId);
+      } else {
+        // Images & documents: try direct Cloudinary upload first
+        try {
+          const signRes = await api.get<{
+            cloud_name: string; api_key: string; timestamp: number;
+            signature: string; folder: string;
+          }>(`/api/upload/sign?folder=${encodeURIComponent(folder)}`);
+
+          const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
+
+          const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
+
+          const fd = new FormData();
+          fd.append("file", file);
+          fd.append("api_key", api_key);
+          fd.append("timestamp", String(timestamp));
+          fd.append("signature", signature);
+          fd.append("folder", cloudFolder);
+
+          url = await new Promise<string>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.upload.onprogress = (evt) => {
+              if (evt.lengthComputable) {
+                setProgress(Math.round((evt.loaded / evt.total) * 100));
+              }
+            };
+            xhr.onload = () => {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
+                  resolve(data.secure_url);
+                } else {
+                  reject(new Error(data.error?.message || "Cloudinary rejected the file"));
+                }
+              } catch {
+                reject(new Error("Invalid response from Cloudinary"));
+              }
+            };
+            xhr.onerror = () => reject(new Error("Network error"));
+            xhr.open("POST", cloudinaryUrl);
+            xhr.send(fd);
+          });
+        } catch (directErr) {
+          console.warn("Direct upload failed, falling back to proxy:", directErr);
+          toast.loading("Switching to server proxy...", { id: loadingId });
+          url = await uploadViaProxy(file, loadingId);
+        }
       }
 
       setPreview(url);
