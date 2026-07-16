@@ -127,6 +127,8 @@ function CreateListingPage() {
 
       // Upload images after property creation
       if (images.length > 0 && propertyId) {
+        const loadingId = toast.loading(`Uploading ${images.length} image(s)...`);
+
         // Upload first image as primary
         const primaryFd = new FormData();
         primaryFd.append("file", images[0]);
@@ -135,8 +137,10 @@ function CreateListingPage() {
 
         try {
           await api.post("/api/upload", primaryFd);
+          toast.success("Main image uploaded", { id: loadingId });
         } catch (uploadErr) {
-          toast.error("Failed to upload primary image");
+          const msg = uploadErr instanceof ApiError ? uploadErr.message : "Server rejected the file";
+          toast.error(`Main image failed: ${msg}`, { id: loadingId });
         }
 
         // Upload remaining images as gallery
@@ -148,13 +152,23 @@ function CreateListingPage() {
           galleryFd.append("property_id", String(propertyId));
 
           try {
-            await api.post("/api/upload/gallery", galleryFd);
-          } catch {
-            toast.error("Failed to upload gallery images");
+            const galleryRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/gallery", galleryFd);
+            const uploaded = galleryRes.data?.uploaded?.length ?? 0;
+            const failed = galleryRes.data?.errors?.length ?? 0;
+            if (failed > 0) {
+              toast.error(`${uploaded} uploaded, ${failed} failed`);
+              galleryRes.data.errors.forEach((e) => toast.error(e));
+            } else if (uploaded > 0) {
+              toast.success(`${uploaded} gallery image(s) uploaded`);
+            }
+          } catch (galleryErr) {
+            const msg = galleryErr instanceof ApiError ? galleryErr.message : "Server rejected the upload";
+            toast.error(`Gallery upload failed: ${msg}`);
           }
         }
       }
 
+      toast.success("Listing created");
       navigate({ to: "/agent/dashboard/listings" });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to create listing");
