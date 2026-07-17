@@ -10,7 +10,7 @@ import { api } from "@/lib/api-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users, HardHat,
-  Menu, LogOut, ChevronRight, FileText, PanelLeftClose, PanelLeft,
+  Menu, LogOut, ChevronRight, FileText, PanelLeftClose, PanelLeft, ExternalLink,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -104,7 +104,15 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
 
-        <div className="border-t border-border p-3">
+        <div className="border-t border-border p-3 space-y-2">
+          <a href="https://avrusthomes.com" target="_blank" rel="noreferrer"
+            className={`flex items-center rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ${
+              collapsed ? "justify-center px-2 py-3" : "gap-3 px-3 py-2.5"
+            }`}
+            title={collapsed ? "View Site" : undefined}>
+            <ExternalLink className="h-5 w-5 shrink-0" />
+            {!collapsed && "View Site"}
+          </a>
           <button onClick={logout}
             className={`flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors bg-red-600 hover:bg-red-700 ${
               collapsed ? "justify-center px-2" : "gap-3"
