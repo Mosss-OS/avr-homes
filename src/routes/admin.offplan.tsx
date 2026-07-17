@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminLayout } from "@/components/admin-layout";
 import { api } from "@/lib/api-client";
 import { HardHat, Plus, Loader2, Trash2, ChevronDown, ChevronUp, Video, Check, X } from "lucide-react";
 
@@ -108,8 +107,7 @@ function AdminOffPlan() {
   const selected = properties.find((p) => p.id === selectedId);
 
   return (
-    <AdminLayout>
-      <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <h1 className="font-display text-2xl font-semibold">Off-Plan Management</h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage construction progress across all off-plan properties</p>
@@ -270,6 +268,5 @@ function AdminOffPlan() {
           </div>
         </div>
       </div>
-    </AdminLayout>
   );
 }
