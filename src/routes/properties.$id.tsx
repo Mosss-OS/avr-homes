@@ -74,25 +74,54 @@ function Detail() {
   const [mediaTab, setMediaTab] = useState<"photos" | "video" | "tour" | "plan">("photos");
 
   useEffect(() => {
-    if (typeof window === "undefined" || !p.lat || !p.lng) return;
+    if (!p.lat || !p.lng) return;
+    let destroyed = false;
     let mapInstance: any;
-    (async () => {
-      const L = await import("leaflet");
-      await import("leaflet/dist/leaflet.css");
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+
+    function loadCSS() {
+      if (!document.getElementById("leaflet-css")) {
+        const link = document.createElement("link");
+        link.id = "leaflet-css";
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(link);
+      }
+    }
+
+    function loadL(): Promise<any> {
+      return new Promise((resolve) => {
+        if ((window as any).L) return resolve((window as any).L);
+        const s = document.createElement("script");
+        s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        s.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+        s.crossOrigin = "";
+        s.onload = () => {
+          const L = (window as any).L;
+          delete L.Icon.Default.prototype._getIconUrl;
+          L.Icon.Default.mergeOptions({
+            iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+            iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+            shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+          });
+          resolve(L);
+        };
+        document.head.appendChild(s);
       });
-      const el = document.getElementById("property-detail-map");
-      if (!el) return;
+    }
+
+    loadCSS();
+    const el = document.getElementById("property-detail-map");
+    if (!el) return;
+
+    loadL().then((L) => {
+      if (destroyed) return;
       mapInstance = L.map(el, { center: [p.lat, p.lng], zoom: 15, zoomControl: true });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(mapInstance);
       L.marker([p.lat, p.lng]).addTo(mapInstance).bindPopup(`<b>${p.title}</b><br/>${p.community}, ${p.city}`);
+      mapInstance.whenReady(() => setTimeout(() => mapInstance.invalidateSize(), 50));
 
       if (p.type === "land" && (p.area || 0) > 0) {
         const side = Math.sqrt(p.area);
@@ -111,8 +140,9 @@ function Detail() {
           .addTo(mapInstance)
           .bindTooltip(`${p.area.toLocaleString()} sqm`, { permanent: true, direction: "bottom" });
       }
-    })();
-    return () => { if (mapInstance) mapInstance.remove(); };
+    });
+
+    return () => { destroyed = true; if (mapInstance) mapInstance.remove(); };
   }, [p.id]);
 
   const similar = useMemo(
