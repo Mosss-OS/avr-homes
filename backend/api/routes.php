@@ -287,6 +287,11 @@ route('POST', '/api/agent/progress/{propertyId}', ['OffPlanController', 'store']
 route('PUT', '/api/agent/progress/{id}', ['OffPlanController', 'update']);
 route('DELETE', '/api/agent/progress/{id}', ['OffPlanController', 'destroy']);
 
+/* ── Admin off-plan management ─────────────────────────── */
+route('GET',    '/api/admin/offplan/progress/{propertyId}', ['OffPlanController', 'adminIndex']);
+route('POST',   '/api/admin/offplan/progress/{propertyId}', ['OffPlanController', 'adminStore']);
+route('DELETE', '/api/admin/offplan/progress/{id}',         ['OffPlanController', 'adminDestroy']);
+
 /* ── Admin announcement / notification management ───────── */
 route('GET', '/api/admin/announcements', ['AdminAnnouncementController', 'index']);
 route('GET', '/api/admin/announcements/{id}', ['AdminAnnouncementController', 'show']);

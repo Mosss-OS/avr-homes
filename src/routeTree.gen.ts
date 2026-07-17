@@ -44,6 +44,7 @@ import { Route as AdminSavedSearchesRouteImport } from './routes/admin.saved-sea
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminPropertiesRouteImport } from './routes/admin.properties'
+import { Route as AdminOffplanRouteImport } from './routes/admin.offplan'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminMaintenanceRouteImport } from './routes/admin.maintenance'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -253,6 +254,11 @@ const AdminReferralsRoute = AdminReferralsRouteImport.update({
 const AdminPropertiesRoute = AdminPropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOffplanRoute = AdminOffplanRouteImport.update({
+  id: '/offplan',
+  path: '/offplan',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminModerationRoute = AdminModerationRouteImport.update({
@@ -472,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/offplan': typeof AdminOffplanRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/offplan': typeof AdminOffplanRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -617,6 +625,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/offplan': typeof AdminOffplanRoute
   '/admin/properties': typeof AdminPropertiesRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -691,6 +700,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
+    | '/admin/offplan'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/roles'
@@ -763,6 +773,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
+    | '/admin/offplan'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/roles'
@@ -835,6 +846,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/maintenance'
     | '/admin/moderation'
+    | '/admin/offplan'
     | '/admin/properties'
     | '/admin/referrals'
     | '/admin/roles'
@@ -1141,6 +1153,13 @@ declare module '@tanstack/react-router' {
       path: '/properties'
       fullPath: '/admin/properties'
       preLoaderRoute: typeof AdminPropertiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/offplan': {
+      id: '/admin/offplan'
+      path: '/offplan'
+      fullPath: '/admin/offplan'
+      preLoaderRoute: typeof AdminOffplanRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/moderation': {
@@ -1459,6 +1478,7 @@ interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMaintenanceRoute: typeof AdminMaintenanceRoute
   AdminModerationRoute: typeof AdminModerationRoute
+  AdminOffplanRoute: typeof AdminOffplanRoute
   AdminPropertiesRoute: typeof AdminPropertiesRouteWithChildren
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminRolesRoute: typeof AdminRolesRoute
@@ -1490,6 +1510,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminMaintenanceRoute: AdminMaintenanceRoute,
   AdminModerationRoute: AdminModerationRoute,
+  AdminOffplanRoute: AdminOffplanRoute,
   AdminPropertiesRoute: AdminPropertiesRouteWithChildren,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminRolesRoute: AdminRolesRoute,
