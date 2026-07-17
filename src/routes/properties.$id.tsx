@@ -150,7 +150,7 @@ function Detail() {
     [p.id, p.community, p.type]
   );
 
-  const videoCount = p.videos?.length ?? (p.video_url ? 1 : 0);
+  const videoCount = (p.videos && p.videos.length > 0) ? p.videos.length : (p.video_url ? 1 : 0);
 
   const mediaTabs = [
     { key: "photos" as const, icon: ImageIcon, label: "Photos", count: p.gallery.length },
@@ -232,7 +232,7 @@ function Detail() {
 
           {mediaTab === "video" && videoCount > 0 && (
             <div className="space-y-3">
-              {(p.videos && p.videos.length > 0 ? p.videos : [{ url: p.video_url! }]).map((v, i) => (
+              {((p.videos && p.videos.length > 0) ? p.videos : (p.video_url ? [{ url: p.video_url! }] : [])).map((v, i) => (
                 <div key={i} className="aspect-video overflow-hidden rounded-2xl bg-black">
                   {v.url.includes("youtube.com") || v.url.includes("youtu.be") || v.url.includes("vimeo.com") ? (
                     <iframe src={embedUrl(v.url)} title={`Property video ${i + 1}`} className="h-full w-full"
