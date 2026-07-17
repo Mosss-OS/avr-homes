@@ -354,6 +354,26 @@ function Detail() {
                 Dashed outline shows approximate {p.area.toLocaleString()} sqm boundary.
               </p>
             )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition"
+              >
+                <MapPin className="h-4 w-4" />
+                Get directions (Google Maps)
+              </a>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition"
+              >
+                <MapPin className="h-4 w-4" />
+                View on Google Maps
+              </a>
+            </div>
           </section>
 
           {similar.length > 0 && (
