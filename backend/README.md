@@ -343,7 +343,7 @@ Accepted: `jpg`, `jpeg`, `png`, `webp` — max 10 MB per file. MIME validated se
 Default settings:
 - `site_name` — AVR Homes
 - `site_tagline` — Lagos Luxury, Verified.
-- `contact_email` — hello@avrhomes.ng
+- `contact_email` — info@avrusthomes.com
 - `contact_phone` — +234 800 000 0000
 - `currency_ngn_usd` — 0.00067
 - `currency_ngn_gbp` — 0.00053
