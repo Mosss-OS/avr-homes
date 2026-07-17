@@ -13,8 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
-import { Loader2, ChevronLeft } from "lucide-react";
+import { Loader2, ChevronLeft, Upload, X } from "lucide-react";
 import { MediaField } from "@/components/media-field";
+import { LocationPicker } from "@/components/location-picker";
 
 export const Route = createFileRoute("/admin/properties/$id/edit")({
   head: () => ({ meta: [{ title: "Edit Property — Admin — AVR Homes" }] }),
@@ -54,6 +55,10 @@ function AdminEditProperty() {
   const [saving, setSaving] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [error, setError] = useState("");
+  const [existingImages, setExistingImages] = useState<{ id: number; file_path: string; is_primary: boolean }[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [newVideoFiles, setNewVideoFiles] = useState<File[]>([]);
+  const [existingVideos, setExistingVideos] = useState<{ id: number; url: string; file_name?: string }[]>([]);
 
   const [form, setForm] = useState<PropertyData>({
     title: "", description: "", type: "apartment", purpose: "buy", price: 0,
@@ -81,6 +86,15 @@ function AdminEditProperty() {
           is_active: p.is_active, featured: p.featured, is_verified: p.is_verified,
           is_off_plan: p.is_off_plan, completion_date: p.completion_date || null,
         });
+        // Load gallery images and videos
+        try {
+          const imgRes = await api.get<{ id: number; file_path: string; is_primary: boolean }[]>(`/api/admin/properties/${id}/images`);
+          setExistingImages(imgRes.data || []);
+        } catch { /* ok */ }
+        try {
+          const agentRes = await api.get<any>(`/api/agent/listings/${id}`);
+          if (Array.isArray(agentRes.data?.videos)) setExistingVideos(agentRes.data.videos);
+        } catch { /* ok */ }
       } catch (err) {
         setFetchError(err instanceof ApiError ? err.message : "Failed to load property");
         toast.error("Failed to load property");
@@ -110,6 +124,22 @@ function AdminEditProperty() {
     }));
   }
 
+  async function deleteImage(imageId: number) {
+    try {
+      await api.delete(`/api/admin/properties/images/${imageId}`);
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast.success("Image removed");
+    } catch { toast.error("Failed to delete image"); }
+  }
+
+  async function deleteVideo(videoId: number) {
+    try {
+      await api.delete(`/api/upload/video/${videoId}`);
+      setExistingVideos((prev) => prev.filter((v) => v.id !== videoId));
+      toast.success("Video removed");
+    } catch { toast.error("Failed to delete video"); }
+  }
+
   /** Save changes — strips non-editable fields (featured, verified, is_active) before sending. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -120,6 +150,23 @@ function AdminEditProperty() {
       const status = is_active === 1 ? "published" : is_active === 2 ? "archived" : "draft";
       payload.status = status;
       await api.put(`/api/admin/properties/${id}`, payload);
+
+      // Upload new gallery images
+      if (newImageFiles.length > 0) {
+        const imgFd = new FormData();
+        for (const img of newImageFiles) imgFd.append("files", img);
+        imgFd.append("property_id", String(id));
+        try { await api.post("/api/admin/properties/upload-gallery", imgFd); } catch { /* non-blocking */ }
+      }
+
+      // Upload new videos
+      if (newVideoFiles.length > 0) {
+        const videoFd = new FormData();
+        for (const v of newVideoFiles) videoFd.append("files", v);
+        videoFd.append("property_id", String(id));
+        try { await api.post("/api/upload/video-gallery", videoFd); } catch { /* non-blocking */ }
+      }
+
       toast.success("Property updated successfully");
       navigate({ to: "/admin/properties" });
     } catch (err) {
@@ -258,14 +305,17 @@ function AdminEditProperty() {
             <Label htmlFor="address">Address</Label>
             <Input id="address" value={form.address} onChange={(e) => update("address", e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="lat">Latitude</Label>
-              <Input id="lat" value={form.lat} onChange={(e) => update("lat", e.target.value)} />
-            </div>
-            <div>
-              <Label htmlFor="lng">Longitude</Label>
-              <Input id="lng" value={form.lng} onChange={(e) => update("lng", e.target.value)} />
+          <div>
+            <Label>Location on Map</Label>
+            <div className="mt-1">
+              <LocationPicker
+                lat={form.lat}
+                lng={form.lng}
+                area={form.area || 0}
+                propertyType={form.type}
+                onLatChange={(v) => update("lat", v)}
+                onLngChange={(v) => update("lng", v)}
+              />
             </div>
           </div>
         </div>
@@ -281,8 +331,68 @@ function AdminEditProperty() {
             folder="avr-homes/properties"
             placeholder="Upload or paste image URL"
           />
+          <div>
+            <Label>Gallery Images</Label>
+            {existingImages.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {existingImages.filter((img) => !img.is_primary).map((img) => (
+                  <div key={img.id} className="group relative">
+                    <img src={img.file_path} alt="" className="h-20 w-24 rounded-lg object-cover" />
+                    <button type="button" onClick={() => deleteImage(img.id)}
+                      className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
+              <Upload className="h-4 w-4" />
+              Add images
+              <input type="file" accept="image/*" multiple onChange={(e) => {
+                if (e.target.files) setNewImageFiles((p) => [...p, ...Array.from(e.target.files!)]);
+                e.target.value = "";
+              }} className="hidden" />
+            </label>
+            {newImageFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {newImageFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                    <span className="truncate max-w-[160px]">{f.name}</span>
+                    <button type="button" onClick={() => setNewImageFiles((p) => p.filter((_, j) => j !== i))}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <Label>Video Gallery</Label>
+            {existingVideos.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {existingVideos.map((v) => (
+                  <div key={v.id} className="group relative">
+                    <video src={v.url} className="h-20 w-28 rounded-lg object-cover" />
+                    <button type="button" onClick={() => deleteVideo(v.id)}
+                      className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
+              <Upload className="h-4 w-4" />
+              Add videos
+              <input type="file" accept="video/*" multiple onChange={(e) => {
+                if (e.target.files) setNewVideoFiles((p) => [...p, ...Array.from(e.target.files!)]);
+                e.target.value = "";
+              }} className="hidden" />
+            </label>
+          </div>
           <MediaField
-            label="Video Tour"
+            label="Video Tour URL"
             value={form.video_url}
             onChange={(v) => update("video_url", v)}
             mediaType="video"

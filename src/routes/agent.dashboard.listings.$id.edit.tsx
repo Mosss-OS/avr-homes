@@ -13,9 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, ChevronLeft, ChevronRight, Check, X, Trash2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Check, X, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { MediaField } from "@/components/media-field";
+import { LocationPicker } from "@/components/location-picker";
 
 export const Route = createFileRoute("/agent/dashboard/listings/$id/edit")({
   head: () => ({ meta: [{ title: "Edit Listing — AVR Homes" }] }),
@@ -51,6 +52,8 @@ function EditListingPage() {
     image: null, is_off_plan: false, completion_date: null,
   });
 
+  const [existingImages, setExistingImages] = useState<{ id: number; file_path: string; is_primary: boolean }[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [existingVideos, setExistingVideos] = useState<{ id: number; url: string; file_name?: string }[]>([]);
   const [newVideoFiles, setNewVideoFiles] = useState<File[]>([]);
 
@@ -80,6 +83,7 @@ function EditListingPage() {
           is_off_plan: p.is_off_plan || false,
           completion_date: p.completion_date || null,
         });
+        if (Array.isArray(p.images)) setExistingImages(p.images);
         if (Array.isArray(p.videos)) setExistingVideos(p.videos);
       })
       .catch(() => navigate({ to: "/agent/dashboard/listings" }))
@@ -97,6 +101,14 @@ function EditListingPage() {
       ...prev,
       amenities: prev.amenities.includes(a) ? prev.amenities.filter((x) => x !== a) : [...prev.amenities, a],
     }));
+  }
+
+  async function deleteImage(imageId: number) {
+    try {
+      await api.delete(`/api/upload/${imageId}`);
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast.success("Image removed");
+    } catch { toast.error("Failed to delete image"); }
   }
 
   async function deleteVideo(videoId: number) {
@@ -127,6 +139,14 @@ function EditListingPage() {
         floor_plan_url: form.floor_plan_url || null,
         completion_date: form.completion_date || null,
       });
+      // Upload new gallery images after save
+      if (newImageFiles.length > 0) {
+        const imgFd = new FormData();
+        for (const img of newImageFiles) imgFd.append("files", img);
+        imgFd.append("property_id", String(id));
+        try { await api.post("/api/upload/gallery", imgFd); } catch { /* non-blocking */ }
+      }
+
       // Upload new videos after save
       if (newVideoFiles.length > 0) {
         const videoFd = new FormData();
@@ -265,15 +285,16 @@ function EditListingPage() {
                 <label className="text-sm font-medium">Address</label>
                 <Input value={form.address} onChange={(e) => update("address", e.target.value)} />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Latitude</label>
-                    <Input type="number" step="any" value={form.lat} onChange={(e) => update("lat", e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Longitude</label>
-                    <Input type="number" step="any" value={form.lng} onChange={(e) => update("lng", e.target.value)} />
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Location on Map</label>
+                  <LocationPicker
+                    lat={form.lat}
+                    lng={form.lng}
+                    area={Number(form.area) || 0}
+                    propertyType={form.type}
+                    onLatChange={(v) => update("lat", v)}
+                    onLngChange={(v) => update("lng", v)}
+                  />
                 </div>
                 <div className="mt-6 space-y-4 border-t border-border pt-6">
                   <h3 className="text-sm font-medium text-muted-foreground">Media</h3>
@@ -286,6 +307,45 @@ function EditListingPage() {
                     folder="avr-homes/images"
                     placeholder="Upload main property image"
                   />
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">Image Gallery</label>
+                    {existingImages.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {existingImages.filter((img) => !img.is_primary).map((img) => (
+                          <div key={img.id} className="group relative">
+                            <img src={img.file_path} alt="" className="h-20 w-24 rounded-lg object-cover" />
+                            <button type="button" onClick={() => deleteImage(img.id)}
+                              className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition">
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {newImageFiles.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {newImageFiles.map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                            <span className="truncate max-w-[120px]">{f.name}</span>
+                            <button type="button" onClick={() => setNewImageFiles((p) => p.filter((_, j) => j !== i))}>
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-4">
+                      <p className="text-xs text-muted-foreground mb-2">Add more images (saved after update)</p>
+                      <input type="file" accept="image/*" multiple onChange={(e) => {
+                        const files = e.target.files;
+                        if (files) setNewImageFiles((p) => [...p, ...Array.from(files)]);
+                        e.target.value = "";
+                      }} className="hidden" id="edit-image-upload" />
+                      <label htmlFor="edit-image-upload" className="cursor-pointer rounded-full border border-input px-4 py-1.5 text-sm hover:bg-accent">
+                        <Upload className="mr-1 inline h-3.5 w-3.5" />Select images
+                      </label>
+                    </div>
+                  </div>
                   <MediaField
                     label="Video Walkthrough"
                     value={form.video_url}

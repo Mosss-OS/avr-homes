@@ -73,6 +73,48 @@ function Detail() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [mediaTab, setMediaTab] = useState<"photos" | "video" | "tour" | "plan">("photos");
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !p.lat || !p.lng) return;
+    let mapInstance: any;
+    (async () => {
+      const L = await import("leaflet");
+      await import("leaflet/dist/leaflet.css");
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      });
+      const el = document.getElementById("property-detail-map");
+      if (!el) return;
+      mapInstance = L.map(el, { center: [p.lat, p.lng], zoom: 15, zoomControl: true });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(mapInstance);
+      L.marker([p.lat, p.lng]).addTo(mapInstance).bindPopup(`<b>${p.title}</b><br/>${p.community}, ${p.city}`);
+
+      if (p.type === "land" && (p.area || 0) > 0) {
+        const side = Math.sqrt(p.area);
+        const half = side / 2;
+        const latPerMeter = 1 / 111320;
+        const lngPerMeter = 1 / (111320 * Math.cos((p.lat * Math.PI) / 180));
+        const dLat = half * latPerMeter;
+        const dLng = half * lngPerMeter;
+        const corners: [[number, number], [number, number], [number, number], [number, number]] = [
+          [p.lat - dLat, p.lng - dLng],
+          [p.lat - dLat, p.lng + dLng],
+          [p.lat + dLat, p.lng + dLng],
+          [p.lat + dLat, p.lng - dLng],
+        ];
+        L.polygon(corners, { color: "#2563eb", fillColor: "#3b82f6", fillOpacity: 0.15, weight: 2, dashArray: "5, 5" })
+          .addTo(mapInstance)
+          .bindTooltip(`${p.area.toLocaleString()} sqm`, { permanent: true, direction: "bottom" });
+      }
+    })();
+    return () => { if (mapInstance) mapInstance.remove(); };
+  }, [p.id]);
+
   const similar = useMemo(
     () => properties.filter((x) => x.id !== p.id && (x.community === p.community || x.type === p.type)).slice(0, 3),
     [p.id, p.community, p.type]
@@ -304,24 +346,14 @@ function Detail() {
 
           <section className="mt-8">
             <h2 className="font-display text-2xl font-semibold">Location</h2>
-            <div className="mt-3 aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-secondary/50 sm:aspect-[16/7]">
-              <div className="relative h-full w-full"
-                style={{
-                  background: `radial-gradient(circle at 50% 50%, oklch(0.92 0.04 195) 0%, oklch(0.88 0.03 200) 60%, oklch(0.82 0.02 200) 100%)`,
-                }}>
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-elevated)]">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <div className="mt-2 rounded-md bg-background px-2 py-1 text-xs font-medium shadow">
-                    {p.community}
-                  </div>
-                </div>
-                <div className="absolute bottom-3 right-3 rounded-md bg-background/90 px-2 py-1 text-xs text-muted-foreground">
-                  {p.lat.toFixed(3)}, {p.lng.toFixed(3)}
-                </div>
-              </div>
+            <div className="mt-3 overflow-hidden rounded-2xl border border-border">
+              <div className="h-[350px] w-full" id="property-detail-map" />
             </div>
+            {p.type === "land" && p.area > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Dashed outline shows approximate {p.area.toLocaleString()} sqm boundary.
+              </p>
+            )}
           </section>
 
           {similar.length > 0 && (
