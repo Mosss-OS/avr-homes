@@ -14,20 +14,36 @@ interface LocationPickerProps {
   onLngChange: (v: string) => void;
 }
 
-let leafletModule: any = null;
-
-async function getLeaflet() {
-  if (!leafletModule) {
-    leafletModule = await import("leaflet");
-    await import("leaflet/dist/leaflet.css");
-    delete (leafletModule.Icon.Default.prototype as any)._getIconUrl;
-    leafletModule.Icon.Default.mergeOptions({
-      iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-      iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-      shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-    });
+function loadLeafletCSS() {
+  if (!document.getElementById("leaflet-css")) {
+    const link = document.createElement("link");
+    link.id = "leaflet-css";
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
   }
-  return leafletModule;
+}
+
+function loadLeafletJS(): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).L) return resolve((window as any).L);
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+    script.crossOrigin = "";
+    script.onload = () => {
+      const L = (window as any).L;
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      });
+      resolve(L);
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
 
 export function LocationPicker({ lat, lng, area, propertyType, address, city, community, onLatChange, onLngChange }: LocationPickerProps) {
@@ -35,7 +51,6 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const polygonRef = useRef<any>(null);
-  const LRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ lat: string; lon: string; display_name: string }[]>([]);
@@ -55,11 +70,14 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
   useEffect(() => {
     if (!mounted || !mapRef.current || mapInstanceRef.current) return;
 
-    (async () => {
-      const L = await getLeaflet();
-      LRef.current = L;
+    loadLeafletCSS();
+    const el = mapRef.current;
+    let destroyed = false;
 
-      const map = L.map(mapRef.current!, {
+    loadLeafletJS().then((L) => {
+      if (destroyed) return;
+
+      const map = L.map(el, {
         center: [latNum, lngNum],
         zoom: 15,
         zoomControl: true,
@@ -78,29 +96,48 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
         onLngChange(pos.lng.toFixed(6));
       });
 
-      map.on("click", (e: { latlng: { lat: number; lng: number } }) => {
+      map.on("click", (e: any) => {
         marker.setLatLng(e.latlng);
         onLatChange(e.latlng.lat.toFixed(6));
         onLngChange(e.latlng.lng.toFixed(6));
         map.setView(e.latlng, map.getZoom());
       });
 
-      map.whenReady(() => map.invalidateSize());
+      map.whenReady(() => {
+        setTimeout(() => map.invalidateSize(), 50);
+      });
 
       mapInstanceRef.current = map;
       markerRef.current = marker;
 
       if (isLand && area > 0) {
-        drawScalePolygon(map, marker, latNum, lngNum, area);
+        const side = Math.sqrt(area);
+        const half = side / 2;
+        const latPerMeter = 1 / 111320;
+        const lngPerMeter = 1 / (111320 * Math.cos((latNum * Math.PI) / 180));
+        const dLat = half * latPerMeter;
+        const dLng = half * lngPerMeter;
+        const corners = [
+          [latNum - dLat, lngNum - dLng],
+          [latNum - dLat, lngNum + dLng],
+          [latNum + dLat, lngNum + dLng],
+          [latNum + dLat, lngNum - dLng],
+        ];
+        const poly = L.polygon(corners, {
+          color: "#2563eb", fillColor: "#3b82f6", fillOpacity: 0.2, weight: 2, dashArray: "5, 5",
+        }).addTo(map);
+        poly.bindTooltip(`${area.toLocaleString()} sqm`, {
+          permanent: true, direction: "bottom", offset: L.point(0, 0),
+        }).openTooltip();
       }
-    })();
+    }).catch((err) => console.error("Leaflet load failed:", err));
 
     return () => {
+      destroyed = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
         markerRef.current = null;
-        LRef.current = null;
       }
     };
   }, [mounted]);
@@ -112,65 +149,7 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
       markerRef.current.setLatLng([newLat, newLng]);
       mapInstanceRef.current.setView([newLat, newLng], 15);
     }
-    if (isLand && area > 0) {
-      drawScalePolygon(mapInstanceRef.current, markerRef.current, newLat, newLng, area);
-    }
   }
-
-  function drawScalePolygon(map: any, marker: any, centerLat: number, centerLng: number, areaSqm: number) {
-    if (polygonRef.current) {
-      map.removeLayer(polygonRef.current);
-      polygonRef.current = null;
-    }
-
-    const side = Math.sqrt(areaSqm);
-    const halfSideMeters = side / 2;
-
-    const latPerMeter = 1 / 111320;
-    const lngPerMeter = 1 / (111320 * Math.cos((centerLat * Math.PI) / 180));
-
-    const dLat = halfSideMeters * latPerMeter;
-    const dLng = halfSideMeters * lngPerMeter;
-
-    const corners = [
-      [centerLat - dLat, centerLng - dLng],
-      [centerLat - dLat, centerLng + dLng],
-      [centerLat + dLat, centerLng + dLng],
-      [centerLat + dLat, centerLng - dLng],
-    ];
-
-    polygonRef.current = LRef.current.polygon(corners, {
-      color: "#2563eb",
-      fillColor: "#3b82f6",
-      fillOpacity: 0.2,
-      weight: 2,
-      dashArray: "5, 5",
-    }).addTo(map);
-
-    polygonRef.current.bindTooltip(`${areaSqm.toLocaleString()} sqm`, {
-      permanent: true,
-      direction: "bottom",
-      offset: LRef.current.point(0, 0),
-      className: "land-area-label",
-    }).openTooltip();
-  }
-
-  function removePolygon() {
-    if (polygonRef.current && mapInstanceRef.current) {
-      mapInstanceRef.current.removeLayer(polygonRef.current);
-      polygonRef.current = null;
-    }
-  }
-
-  useEffect(() => {
-    if (mapInstanceRef.current && markerRef.current) {
-      removePolygon();
-      if (isLand && area > 0) {
-        const pos = markerRef.current.getLatLng();
-        drawScalePolygon(mapInstanceRef.current, markerRef.current, pos.lat, pos.lng, area);
-      }
-    }
-  }, [area, propertyType]);
 
   const geocodeAddress = useCallback(async (addr: string) => {
     if (!addr || addr.length < 5) return;
@@ -181,16 +160,16 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1&accept-language=en`
         );
         const data = await res.json();
-        if (data && data[0]) {
+        if (data?.[0]) {
           updateLocation(parseFloat(data[0].lat), parseFloat(data[0].lon));
         }
       } catch { /* silent */ }
     }, 600);
-  }, [address, city, community]);
+  }, []);
 
   useEffect(() => {
     const fullAddress = [address, community, city].filter(Boolean).join(", ");
-    if (fullAddress.length > 5 && (!lat || lat === "0") && (!lng || lng === "0")) {
+    if (fullAddress.length > 5 && (!lat || lat === "0" || lat === "6.45") && (!lng || lng === "0" || lng === "3.42")) {
       geocodeAddress(fullAddress);
     }
   }, [address, city, community]);
@@ -198,25 +177,20 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
   async function handleSearch(query: string) {
     setSearchQuery(query);
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-
     if (query.length < 3) {
       setSearchResults([]);
       setShowResults(false);
       return;
     }
-
     searchTimeoutRef.current = setTimeout(async () => {
       setSearching(true);
       try {
         const res = await fetch(
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=en`
         );
-        const data = await res.json();
-        setSearchResults(data);
+        setSearchResults(await res.json());
         setShowResults(true);
-      } catch {
-        setSearchResults([]);
-      }
+      } catch { setSearchResults([]); }
       setSearching(false);
     }, 400);
   }
@@ -258,10 +232,10 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
           </div>
         )}
       </div>
-      <div ref={mapRef} className="h-[350px] w-full rounded-xl border border-border" />
+      <div ref={mapRef} className="h-[350px] w-full rounded-xl border border-border" style={{ minHeight: "350px" }} />
       {isLand && area > 0 && (
         <p className="text-xs text-muted-foreground">
-          Showing approximate {area.toLocaleString()} sqm boundary (dashed blue) — adjust marker position as needed.
+          Showing approximate {area.toLocaleString()} sqm boundary — adjust marker position as needed.
         </p>
       )}
       <p className="text-xs text-muted-foreground">
