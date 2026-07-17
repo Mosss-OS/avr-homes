@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
 import { MediaField } from "@/components/media-field";
+import { LocationPicker } from "@/components/location-picker";
 import { Loader2, ChevronLeft, ChevronRight, Check, Upload, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/properties/create")({
@@ -37,7 +38,7 @@ interface FormData {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  image: File | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  image: File | null; images: File[]; videos: File[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
   is_off_plan: boolean; completion_date: string; status: string;
 }
 
@@ -50,12 +51,13 @@ function AdminCreateProperty() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const [form, setForm] = useState<FormData>({
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    image: null, images: [], videos: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
     is_off_plan: false, completion_date: "", status: "published",
   });
 
@@ -82,6 +84,32 @@ function AdminCreateProperty() {
       setForm((prev) => ({ ...prev, image: file }));
       setImagePreview(URL.createObjectURL(file));
     }
+  }
+
+  function handleGalleryImages(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...newFiles] }));
+    setImagePreviews((prev) => [...prev, ...newFiles.map((f) => URL.createObjectURL(f))]);
+  }
+
+  function removeGalleryImage(index: number) {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+    setImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  function handleVideos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    setForm((prev) => ({ ...prev, videos: [...prev.videos, ...Array.from(files)] }));
+  }
+
+  function removeVideo(index: number) {
+    setForm((prev) => ({ ...prev, videos: prev.videos.filter((_, i) => i !== index) }));
   }
 
   /** Validate required fields for the current step. Returns true if no errors. */
@@ -112,9 +140,26 @@ function AdminCreateProperty() {
         if (key === "amenities") fd.append(key, JSON.stringify(val));
         else if (key === "image" && val instanceof File) fd.append(key, val);
         else if (key === "is_off_plan") fd.append(key, val ? "1" : "0");
-        else fd.append(key, String(val));
+        else if (key !== "images" && key !== "videos") fd.append(key, String(val));
       });
-      await api.post("/api/admin/properties", fd);
+      const res = await api.post<{ id: number }>("/api/admin/properties", fd);
+      const propertyId = res.data?.id;
+
+      if (propertyId) {
+        if (form.images.length > 0) {
+          const galleryFd = new FormData();
+          for (const img of form.images) galleryFd.append("files", img);
+          galleryFd.append("property_id", String(propertyId));
+          try { await api.post("/api/upload/gallery", galleryFd); } catch { /* non-blocking */ }
+        }
+        if (form.videos.length > 0) {
+          const videoFd = new FormData();
+          for (const v of form.videos) videoFd.append("files", v);
+          videoFd.append("property_id", String(propertyId));
+          try { await api.post("/api/upload/video-gallery", videoFd); } catch { /* non-blocking */ }
+        }
+      }
+
       toast.success("Property created successfully");
       navigate({ to: "/admin/properties" });
     } catch (err) {
@@ -256,14 +301,17 @@ function AdminCreateProperty() {
               <Label htmlFor="address">Address</Label>
               <Input id="address" value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Full street address" />
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="lat">Latitude</Label>
-                <Input id="lat" value={form.lat} onChange={(e) => update("lat", e.target.value)} placeholder="e.g. 6.4281" />
-              </div>
-              <div>
-                <Label htmlFor="lng">Longitude</Label>
-                <Input id="lng" value={form.lng} onChange={(e) => update("lng", e.target.value)} placeholder="e.g. 3.4219" />
+            <div>
+              <Label>Location on Map</Label>
+              <div className="mt-1">
+                <LocationPicker
+                  lat={form.lat}
+                  lng={form.lng}
+                  area={Number(form.area) || 0}
+                  propertyType={form.type}
+                  onLatChange={(v) => update("lat", v)}
+                  onLngChange={(v) => update("lng", v)}
+                />
               </div>
             </div>
           </div>
@@ -291,8 +339,47 @@ function AdminCreateProperty() {
                 )}
               </div>
             </div>
+            <div>
+              <Label>Gallery Images</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {imagePreviews.map((preview, i) => (
+                  <div key={i} className="group relative">
+                    <img src={preview} alt="" className="h-20 w-24 rounded-lg object-cover" />
+                    <button type="button" onClick={() => removeGalleryImage(i)}
+                      className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
+                <Upload className="h-4 w-4" />
+                Add more images
+                <input type="file" accept="image/*" multiple onChange={handleGalleryImages} className="hidden" />
+              </label>
+            </div>
+            <div>
+              <Label>Video Gallery</Label>
+              {form.videos.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {form.videos.map((f, i) => (
+                    <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                      <span className="truncate max-w-[160px]">{f.name}</span>
+                      <button type="button" onClick={() => removeVideo(i)}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
+                <Upload className="h-4 w-4" />
+                Add videos
+                <input type="file" accept="video/*" multiple onChange={handleVideos} className="hidden" />
+              </label>
+            </div>
             <MediaField
-              label="Video Tour"
+              label="Video Tour URL"
               value={form.video_url}
               onChange={(v) => update("video_url", v)}
               mediaType="video"

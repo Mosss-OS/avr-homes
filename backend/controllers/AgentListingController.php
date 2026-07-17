@@ -210,7 +210,7 @@ class AgentListingController
       ->required('title', 'Title')
       ->required('description', 'Description')
       ->required('type', 'Type')
-      ->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio'], 'Type')
+      ->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio', 'land', 'commercial'], 'Type')
       ->required('purpose', 'Purpose')
       ->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose')
       ->required('price', 'Price')

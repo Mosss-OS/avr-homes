@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Loader2, ChevronLeft, ChevronRight, Check, Upload, X } from "lucide-react";
 import { MediaField } from "@/components/media-field";
+import { LocationPicker } from "@/components/location-picker";
 
 export const Route = createFileRoute("/agent/dashboard/listings/create")({
   head: () => ({ meta: [{ title: "Add Listing — AVR Homes" }] }),
@@ -327,15 +328,16 @@ function CreateListingPage() {
                 <Label htmlFor="address">Address</Label>
                 <Input id="address" value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="Plot 10, Admiralty Way" />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="lat">Latitude</Label>
-                  <Input id="lat" type="number" step="any" value={form.lat} onChange={(e) => update("lat", e.target.value)} placeholder="6.45" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lng">Longitude</Label>
-                  <Input id="lng" type="number" step="any" value={form.lng} onChange={(e) => update("lng", e.target.value)} placeholder="3.42" />
-                </div>
+              <div className="space-y-2">
+                <Label>Location on Map</Label>
+                <LocationPicker
+                  lat={form.lat}
+                  lng={form.lng}
+                  area={Number(form.area) || 0}
+                  propertyType={form.type}
+                  onLatChange={(v) => update("lat", v)}
+                  onLngChange={(v) => update("lng", v)}
+                />
               </div>
             </div>
           )}
