@@ -370,7 +370,7 @@ export function SiteFooter() {
                 <>2 Lanre Olumide Street,<br />Idado Estate, Igbo-efon,<br />Lekki, Lagos, Nigeria.</>
               )}
             </address>
-            <p className="mt-3 text-xs text-muted-foreground">{settings?.contact_email || "hello@avrhomes.ng"}</p>
+            <p className="mt-3 text-xs text-muted-foreground">{settings?.contact_email || "info@avrusthomes.com"}</p>
             {settings?.contact_phone && <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>}
           </div>
 

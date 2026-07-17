@@ -54,7 +54,7 @@ const STRUCTURED_DATA = {
     "@type": "ContactPoint",
     telephone: "+234-XXX-XXX-XXXX",
     contactType: "customer service",
-    email: "hello@avrhomes.ng",
+    email: "info@avrusthomes.com",
   },
   sameAs: [
     "https://instagram.com/avrhomes.ng",

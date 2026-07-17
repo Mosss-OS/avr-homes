@@ -59,7 +59,7 @@ function Contact() {
             <a href="https://wa.me/2348000000000" className="hover:underline">+234 800 000 0000</a>
           </InfoRow>
           <InfoRow icon={<Mail className="h-4 w-4" />} title="Email">
-            <a href="mailto:hello@avrhomes.ng" className="hover:underline">hello@avrhomes.ng</a>
+            <a href="mailto:info@avrusthomes.com" className="hover:underline">info@avrusthomes.com</a>
           </InfoRow>
 
           <div className="overflow-hidden rounded-2xl border border-border">
