@@ -1,22 +1,41 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { MapPin, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 interface LocationPickerProps {
   lat: string;
   lng: string;
   area: number;
   propertyType: string;
+  address?: string;
+  city?: string;
+  community?: string;
   onLatChange: (v: string) => void;
   onLngChange: (v: string) => void;
 }
 
-export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLngChange }: LocationPickerProps) {
+let leafletModule: any = null;
+
+async function getLeaflet() {
+  if (!leafletModule) {
+    leafletModule = await import("leaflet");
+    await import("leaflet/dist/leaflet.css");
+    delete (leafletModule.Icon.Default.prototype as any)._getIconUrl;
+    leafletModule.Icon.Default.mergeOptions({
+      iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+      iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+      shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+    });
+  }
+  return leafletModule;
+}
+
+export function LocationPicker({ lat, lng, area, propertyType, address, city, community, onLatChange, onLngChange }: LocationPickerProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const polygonRef = useRef<any>(null);
+  const LRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ lat: string; lon: string; display_name: string }[]>([]);
@@ -27,6 +46,7 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
   const lngNum = parseFloat(lng) || 3.42;
   const isLand = propertyType === "land";
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const geoTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setMounted(true);
@@ -36,15 +56,8 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
     if (!mounted || !mapRef.current || mapInstanceRef.current) return;
 
     (async () => {
-      const L = await import("leaflet");
-      await import("leaflet/dist/leaflet.css");
-
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-      });
+      const L = await getLeaflet();
+      LRef.current = L;
 
       const map = L.map(mapRef.current!, {
         center: [latNum, lngNum],
@@ -72,6 +85,8 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
         map.setView(e.latlng, map.getZoom());
       });
 
+      map.whenReady(() => map.invalidateSize());
+
       mapInstanceRef.current = map;
       markerRef.current = marker;
 
@@ -85,6 +100,7 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
         markerRef.current = null;
+        LRef.current = null;
       }
     };
   }, [mounted]);
@@ -123,8 +139,7 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
       [centerLat + dLat, centerLng - dLng],
     ];
 
-    const L = (window as any).L;
-    polygonRef.current = L.polygon(corners, {
+    polygonRef.current = LRef.current.polygon(corners, {
       color: "#2563eb",
       fillColor: "#3b82f6",
       fillOpacity: 0.2,
@@ -132,11 +147,10 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
       dashArray: "5, 5",
     }).addTo(map);
 
-    const labelLat = centerLat + dLat + (3 * latPerMeter);
     polygonRef.current.bindTooltip(`${areaSqm.toLocaleString()} sqm`, {
       permanent: true,
       direction: "bottom",
-      offset: L.point(0, 0),
+      offset: LRef.current.point(0, 0),
       className: "land-area-label",
     }).openTooltip();
   }
@@ -157,6 +171,29 @@ export function LocationPicker({ lat, lng, area, propertyType, onLatChange, onLn
       }
     }
   }, [area, propertyType]);
+
+  const geocodeAddress = useCallback(async (addr: string) => {
+    if (!addr || addr.length < 5) return;
+    if (geoTimeoutRef.current) clearTimeout(geoTimeoutRef.current);
+    geoTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1&accept-language=en`
+        );
+        const data = await res.json();
+        if (data && data[0]) {
+          updateLocation(parseFloat(data[0].lat), parseFloat(data[0].lon));
+        }
+      } catch { /* silent */ }
+    }, 600);
+  }, [address, city, community]);
+
+  useEffect(() => {
+    const fullAddress = [address, community, city].filter(Boolean).join(", ");
+    if (fullAddress.length > 5 && (!lat || lat === "0") && (!lng || lng === "0")) {
+      geocodeAddress(fullAddress);
+    }
+  }, [address, city, community]);
 
   async function handleSearch(query: string) {
     setSearchQuery(query);

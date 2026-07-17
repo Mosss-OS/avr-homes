@@ -335,6 +335,9 @@ function CreateListingPage() {
                   lng={form.lng}
                   area={Number(form.area) || 0}
                   propertyType={form.type}
+                  address={form.address}
+                  city={form.city}
+                  community={form.community}
                   onLatChange={(v) => update("lat", v)}
                   onLngChange={(v) => update("lng", v)}
                 />
