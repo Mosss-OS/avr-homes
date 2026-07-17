@@ -114,7 +114,7 @@ class AgentListingController
     $offset = ($page - 1) * $perPage;
     $sql = "SELECT p.id, p.title, p.slug, p.type, p.purpose, p.price, p.image,
             p.beds, p.baths, p.area, p.city, p.community, p.is_active, p.featured,
-            p.is_verified, p.posted_days_ago, p.created_at, p.updated_at,
+            p.is_verified, p.is_off_plan, p.completion_date, p.posted_days_ago, p.created_at, p.updated_at,
             (SELECT COUNT(*) FROM inquiries WHERE property_id = p.id) as inquiry_count
             FROM properties p 
             WHERE {$where} 
@@ -133,6 +133,7 @@ class AgentListingController
       $listing['area'] = (int)$listing['area'];
       $listing['featured'] = (bool)$listing['featured'];
       $listing['is_verified'] = (bool)$listing['is_verified'];
+      $listing['is_off_plan'] = (bool)$listing['is_off_plan'];
       $listing['inquiry_count'] = (int)$listing['inquiry_count'];
       $listing['status'] = (int)$listing['is_active'] === 0 ? 'draft' : ((int)$listing['is_active'] === 2 ? 'archived' : 'published');
     }
