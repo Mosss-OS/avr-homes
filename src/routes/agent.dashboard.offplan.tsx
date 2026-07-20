@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { api } from "@/lib/api-client";
-import { HardHat, Plus, Loader2, Image as ImageIcon, Video, Trash2, ChevronDown, ChevronUp, Check, X } from "lucide-react";
+import { HardHat, Plus, Loader2, Image as ImageIcon, Video, Trash2, Pen, ChevronDown, ChevronUp, Check, X } from "lucide-react";
 import { FileGallery } from "@/components/file-gallery";
 
 interface ProgressItem {
@@ -40,6 +40,8 @@ function OffPlanManager() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
 
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   const [form, setForm] = useState({
     month_number: "",
     title: "",
@@ -72,10 +74,23 @@ function OffPlanManager() {
     loadProgress(id);
   }
 
+  function startEdit(item: ProgressItem) {
+    setForm({
+      month_number: String(item.month_number),
+      title: item.title,
+      description: item.description || "",
+    });
+    setFormImages(item.images.map((url) => ({ url })));
+    setFormVideos(item.videos.map((url) => ({ url })));
+    setEditingId(item.id);
+    setShowForm(true);
+  }
+
   function resetForm() {
     setForm({ month_number: "", title: "", description: "" });
     setFormImages([]);
     setFormVideos([]);
+    setEditingId(null);
     setShowForm(false);
   }
 
@@ -93,8 +108,13 @@ function OffPlanManager() {
         images: formImages.map((i) => i.url),
         videos: formVideos.map((v) => v.url),
       };
-      await api.post(`/api/agent/progress/${selectedId}`, payload);
-      setMessage({ type: "success", text: "Progress update added" });
+      if (editingId) {
+        await api.put(`/api/agent/progress/${editingId}`, payload);
+        setMessage({ type: "success", text: "Progress update updated" });
+      } else {
+        await api.post(`/api/agent/progress/${selectedId}`, payload);
+        setMessage({ type: "success", text: "Progress update added" });
+      }
       resetForm();
       loadProgress(selectedId);
     } catch (e: any) {
@@ -181,7 +201,7 @@ function OffPlanManager() {
 
                 {showForm && (
                   <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-                    <h3 className="text-sm font-medium">New Progress Update</h3>
+                    <h3 className="text-sm font-medium">{editingId ? "Edit Progress Update" : "New Progress Update"}</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
                         <label className="text-xs font-medium">Month Number *</label>
@@ -263,6 +283,12 @@ function OffPlanManager() {
                             <p className="mt-0.5 text-sm font-medium">{item.title}</p>
                           </div>
                           <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); startEdit(item); }}
+                              className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary transition"
+                            >
+                              <Pen className="h-3.5 w-3.5" />
+                            </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); deleteProgress(selectedId, item.id); }}
                               className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"

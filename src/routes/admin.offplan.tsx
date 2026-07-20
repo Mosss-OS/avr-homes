@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "@/lib/api-client";
-import { HardHat, Plus, Loader2, Trash2, ChevronDown, ChevronUp, Video, Check, X } from "lucide-react";
+import { HardHat, Plus, Loader2, Image as ImageIcon, Trash2, Pen, ChevronDown, ChevronUp, Video, Check, X } from "lucide-react";
+import { FileGallery } from "@/components/file-gallery";
 
 interface PropertyItem {
   id: number;
@@ -39,7 +40,10 @@ function AdminOffPlan() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
 
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({ month_number: "", title: "", description: "" });
+  const [formImages, setFormImages] = useState<{ url: string; file_name?: string }[]>([]);
+  const [formVideos, setFormVideos] = useState<{ url: string; file_name?: string }[]>([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -66,8 +70,23 @@ function AdminOffPlan() {
     loadProgress(id);
   }
 
+  function startEdit(item: ProgressItem) {
+    setForm({
+      month_number: String(item.month_number),
+      title: item.title,
+      description: item.description || "",
+    });
+    setFormImages(item.images.map((url) => ({ url })));
+    setFormVideos(item.videos.map((url) => ({ url })));
+    setEditingId(item.id);
+    setShowForm(true);
+  }
+
   function resetForm() {
     setForm({ month_number: "", title: "", description: "" });
+    setFormImages([]);
+    setFormVideos([]);
+    setEditingId(null);
     setShowForm(false);
   }
 
@@ -78,10 +97,19 @@ function AdminOffPlan() {
     }
     setSaving(true); setMessage(null);
     try {
-      await api.post(`/api/admin/offplan/progress/${selectedId}`, {
-        ...form, month_number: Number(form.month_number),
-      });
-      setMessage({ type: "success", text: "Progress update added" });
+      const payload = {
+        ...form,
+        month_number: Number(form.month_number),
+        images: formImages.map((i) => i.url),
+        videos: formVideos.map((v) => v.url),
+      };
+      if (editingId) {
+        await api.put(`/api/admin/offplan/progress/${editingId}`, payload);
+        setMessage({ type: "success", text: "Progress update updated" });
+      } else {
+        await api.post(`/api/admin/offplan/progress/${selectedId}`, payload);
+        setMessage({ type: "success", text: "Progress update added" });
+      }
       resetForm();
       loadProgress(selectedId);
     } catch (e: any) {
@@ -169,7 +197,7 @@ function AdminOffPlan() {
 
                 {showForm && (
                   <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-                    <h3 className="text-sm font-medium">New Progress Update</h3>
+                    <h3 className="text-sm font-medium">{editingId ? "Edit Progress Update" : "New Progress Update"}</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
                         <label className="text-xs font-medium">Month Number *</label>
@@ -191,6 +219,32 @@ function AdminOffPlan() {
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
                         className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none"
                         placeholder="Brief update on progress..." />
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <FileGallery
+                          label="Images"
+                          items={formImages}
+                          onChange={setFormImages}
+                          mediaType="image"
+                          accept="image/*"
+                          folder="avr-homes/progress"
+                          maxFiles={10}
+                          allowUrl
+                        />
+                      </div>
+                      <div>
+                        <FileGallery
+                          label="Videos"
+                          items={formVideos}
+                          onChange={setFormVideos}
+                          mediaType="video"
+                          accept="video/*"
+                          folder="avr-homes/progress"
+                          maxFiles={10}
+                          allowUrl
+                        />
+                      </div>
                     </div>
                     <div className="flex gap-2 pt-1">
                       <button onClick={save} disabled={saving}
@@ -221,6 +275,10 @@ function AdminOffPlan() {
                             <p className="mt-0.5 text-sm font-medium">{item.title}</p>
                           </div>
                           <div className="flex items-center gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); startEdit(item); }}
+                              className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary transition">
+                              <Pen className="h-3.5 w-3.5" />
+                            </button>
                             <button onClick={(e) => { e.stopPropagation(); deleteProgress(selectedId, item.id); }}
                               className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition">
                               <Trash2 className="h-3.5 w-3.5" />

@@ -329,4 +329,56 @@ class OffPlanController
 
     Response::success(null, 'Progress update deleted');
   }
+
+  /**
+   * Admin: update any progress update.
+   */
+  public static function adminUpdate(array $params): void
+  {
+    AuthMiddleware::authenticateAdmin();
+
+    $id = (int)($params['id'] ?? 0);
+    if (!$id) {
+      Response::error('Progress ID is required', 400);
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+
+    $db = Database::getConnection();
+
+    $stmt = $db->prepare('SELECT id FROM off_plan_progress WHERE id = ?');
+    $stmt->execute([$id]);
+    if (!$stmt->fetch()) {
+      Response::error('Progress update not found', 404);
+    }
+
+    $fields = [];
+    $bindings = [];
+
+    foreach (['month_number', 'title', 'description'] as $field) {
+      if (isset($input[$field])) {
+        $fields[] = "{$field} = ?";
+        $bindings[] = $input[$field];
+      }
+    }
+
+    if (isset($input['images'])) {
+      $fields[] = "images = ?";
+      $bindings[] = json_encode($input['images']);
+    }
+
+    if (isset($input['videos'])) {
+      $fields[] = "videos = ?";
+      $bindings[] = json_encode($input['videos']);
+    }
+
+    if (empty($fields)) {
+      Response::error('No fields to update', 400);
+    }
+
+    $bindings[] = $id;
+    $db->prepare("UPDATE off_plan_progress SET " . implode(', ', $fields) . " WHERE id = ?")->execute($bindings);
+
+    Response::success(['id' => $id], 'Progress update updated');
+  }
 }
