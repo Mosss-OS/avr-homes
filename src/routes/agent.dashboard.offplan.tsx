@@ -61,7 +61,7 @@ function OffPlanManager() {
   async function loadProgress(propertyId: number) {
     try {
       const res = await api.get<{ data: ProgressItem[] }>(`/api/agent/progress/${propertyId}`);
-      setProgress((prev) => ({ ...prev, [propertyId]: res.data.data || [] }));
+      setProgress((prev) => ({ ...prev, [propertyId]: res.data || [] }));
     } catch {}
   }
 
