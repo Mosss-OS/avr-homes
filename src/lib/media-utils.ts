@@ -100,7 +100,7 @@ export async function compressVideo(file: File, onProgress?: (pct: number) => vo
 }
 
 export function sizeHint(mediaType: "image" | "video" | "document"): string {
-  if (mediaType === "video") return "Max 100 MB. Large videos will be compressed automatically.";
-  if (mediaType === "image") return "Max 10 MB per image. Large images will be compressed.";
+  if (mediaType === "video") return "Max 100 MB per video.";
+  if (mediaType === "image") return "Max 10 MB per image.";
   return "";
 }

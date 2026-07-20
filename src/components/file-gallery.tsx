@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, X, Loader2, Video, File, Image as ImageIcon } from "lucide-react";
 import { api } from "@/lib/api-client";
-import { compressImage, compressVideo, sizeHint } from "@/lib/media-utils";
+import { sizeHint } from "@/lib/media-utils";
 
 interface FileGalleryItem {
   id?: number;
@@ -48,20 +48,6 @@ export function FileGallery({
 
     for (const file of fileArray) {
       try {
-        // Compress if needed
-        let processedFile = file;
-        if (mediaType === "video" || file.type.startsWith("video/")) {
-          if (file.size > 80 * 1024 * 1024) {
-            toast.loading(`Compressing ${file.name}...`);
-            setProgress((p) => ({ ...p, [file.name]: 0 }));
-            processedFile = await compressVideo(file, (pct) => setProgress((p) => ({ ...p, [file.name]: pct })));
-          }
-        } else {
-          if (file.size > 5 * 1024 * 1024) {
-            processedFile = await compressImage(file);
-          }
-        }
-
         const signRes = await api.get<{
           cloud_name: string; api_key: string; timestamp: number;
           signature: string; folder: string;
@@ -70,7 +56,7 @@ export function FileGallery({
         const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
 
         const fd = new FormData();
-        fd.append("file", processedFile);
+        fd.append("file", file);
         fd.append("api_key", api_key);
         fd.append("timestamp", String(timestamp));
         fd.append("signature", signature);
