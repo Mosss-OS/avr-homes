@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
-import { sizeHint } from "@/lib/media-utils";
+import { sizeHint, uploadUrlToCloudinary } from "@/lib/media-utils";
 
 interface MediaFieldProps {
   label: string;
@@ -27,8 +27,10 @@ export function MediaField({
 }: MediaFieldProps) {
   const [mode, setMode] = useState<"url" | "upload">(value ? "url" : "upload");
   const [uploading, setUploading] = useState(false);
+  const [processingUrl, setProcessingUrl] = useState(false);
   const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState<string | null>(value || null);
+  const [urlInput, setUrlInput] = useState(value || "");
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function uploadViaProxy(file: File, loadingId: string | number): Promise<string> {
@@ -137,13 +139,25 @@ export function MediaField({
     setUploading(false);
   }
 
-  function handleUrlChange(val: string) {
-    setPreview(val || null);
+  async function handleUrlConfirm() {
+    const val = urlInput.trim();
+    if (!val) return;
+    setPreview(val);
     onChange(val);
+    if (/youtube\.com|youtu\.be|vimeo\.com/i.test(val)) return;
+    setProcessingUrl(true);
+    setProgress(0);
+    const cloudUrl = await uploadUrlToCloudinary(val, folder, (pct) => setProgress(pct));
+    if (cloudUrl) {
+      setPreview(cloudUrl);
+      onChange(cloudUrl);
+    }
+    setProcessingUrl(false);
   }
 
   function clearValue() {
     setPreview(null);
+    setUrlInput("");
     onChange("");
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -169,7 +183,7 @@ export function MediaField({
     );
   }
 
-  const showUrlInput = mode === "url" || value.length > 0;
+  const showUrlInput = mode === "url" || urlInput.length > 0;
 
   return (
     <div className="space-y-2">
@@ -180,7 +194,7 @@ export function MediaField({
             className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${mode === "upload" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
             <Upload className="inline h-3 w-3 mr-1" />Upload
           </button>
-          <button type="button" onClick={() => setMode("url")}
+          <button type="button" onClick={() => { setMode("url"); setUrlInput(value); }}
             className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${mode === "url" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
             <Link className="inline h-3 w-3 mr-1" />URL
           </button>
@@ -240,9 +254,16 @@ export function MediaField({
       {showUrlInput && (
         <div className="relative">
           <Link className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input value={value} onChange={(e) => handleUrlChange(e.target.value)}
+          <input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onBlur={handleUrlConfirm}
+            onKeyDown={(e) => e.key === "Enter" && handleUrlConfirm()}
             placeholder={placeholder}
             className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-[#C9A84C]" />
+          {processingUrl && (
+            <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              {progress}%
+            </div>
+          )}
         </div>
       )}
     </div>

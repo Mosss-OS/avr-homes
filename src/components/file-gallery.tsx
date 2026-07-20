@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, X, Loader2, Video, File, Image as ImageIcon } from "lucide-react";
 import { api } from "@/lib/api-client";
-import { sizeHint } from "@/lib/media-utils";
+import { sizeHint, uploadUrlToCloudinary } from "@/lib/media-utils";
 
 interface FileGalleryItem {
   id?: number;
@@ -105,12 +105,24 @@ export function FileGallery({
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  function addUrl() {
+  async function addUrl() {
     const val = urlInput.trim();
     if (!val) return;
-    onChange([...items, { url: val, file_name: "URL" }]);
     setUrlInput("");
-    toast.success("URL added");
+    if (/youtube\.com|youtu\.be|vimeo\.com/i.test(val)) {
+      onChange([...items, { url: val, file_name: "URL" }]);
+      toast.success("URL added");
+      return;
+    }
+    const toastId = toast.loading("Fetching URL content...");
+    const cloudUrl = await uploadUrlToCloudinary(val, folder);
+    if (cloudUrl) {
+      onChange([...items, { url: cloudUrl, file_name: "URL (Cloudinary)" }]);
+      toast.success("URL uploaded to Cloudinary", { id: toastId });
+    } else {
+      onChange([...items, { url: val, file_name: "URL" }]);
+      toast.success("URL added (direct link)", { id: toastId });
+    }
   }
 
   function removeItem(index: number) {
