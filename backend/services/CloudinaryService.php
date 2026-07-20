@@ -118,7 +118,7 @@ class CloudinaryService
     $folder = $options['folder'] ?? 'avr-homes';
     $publicId = $options['public_id'] ?? pathinfo($originalName, PATHINFO_FILENAME) . '_' . $timestamp;
 
-    // Build signature params (api_key is NOT included in the signature)
+    // Build signature params (api_key and file are NOT included in the signature)
     $paramsToSign = [
       'timestamp' => $timestamp,
       'folder'    => $folder,
@@ -137,37 +137,22 @@ class CloudinaryService
     $signStr = rtrim($signStr, '&') . $apiSecret;
     $signature = sha1($signStr);
 
-    // Build multipart request
-    $boundary = '----CloudinaryBoundary' . md5((string)$timestamp);
-    $body = '';
-
-    foreach ($paramsToSign as $k => $v) {
-      $body .= "--{$boundary}\r\n";
-      $body .= "Content-Disposition: form-data; name=\"{$k}\"\r\n\r\n{$v}\r\n";
-    }
-
-    $body .= "--{$boundary}\r\n";
-    $body .= "Content-Disposition: form-data; name=\"api_key\"\r\n\r\n{$apiKey}\r\n";
-    $body .= "--{$boundary}\r\n";
-    $body .= "Content-Disposition: form-data; name=\"signature\"\r\n\r\n{$signature}\r\n";
-    $body .= "--{$boundary}\r\n";
-    $body .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$originalName}\"\r\n";
-    $body .= "Content-Type: application/octet-stream\r\n\r\n";
-    $body .= file_get_contents($effectivePath);
-    $body .= "\r\n--{$boundary}--\r\n";
-
     $url = "https://api.cloudinary.com/v1_1/{$cloudName}/{$resourceType}/upload";
 
     // Increase timeout for large video uploads
     $timeout = ($resourceType === 'video') ? 300 : 120;
 
+    $postFields = $paramsToSign;
+    $postFields['api_key'] = $apiKey;
+    $postFields['signature'] = $signature;
+    $postFields['file'] = new CURLFile($effectivePath, 'application/octet-stream', $originalName);
+
     $ch = curl_init($url);
     curl_setopt_array($ch, [
       CURLOPT_POST           => true,
-      CURLOPT_POSTFIELDS     => $body,
+      CURLOPT_POSTFIELDS     => $postFields,
       CURLOPT_HTTPHEADER     => [
         'Authorization: Basic ' . base64_encode("{$apiKey}:{$apiSecret}"),
-        "Content-Type: multipart/form-data; boundary={$boundary}",
       ],
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_TIMEOUT        => $timeout,
