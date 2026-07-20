@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, Link, File, X, Loader2, Video, Image as ImageIcon } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
-import { compressImage, compressVideo, sizeHint } from "@/lib/media-utils";
+import { sizeHint } from "@/lib/media-utils";
 
 interface MediaFieldProps {
   label: string;
@@ -72,76 +72,57 @@ export function MediaField({
 
     setUploading(true);
     setProgress(0);
-    const isVideo = mediaType === "video" || file.type.startsWith("video/");
-    const loadingId = toast.loading(file.size > 50 * 1024 * 1024 ? `Preparing ${file.name} (${(file.size / 1024 / 1024).toFixed(0)} MB)...` : `Uploading ${file.name}...`);
+    const loadingId = toast.loading(`Uploading ${file.name}...`);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
-      let processedFile = file;
 
-      // Compress if needed
-      if (isVideo && file.size > 80 * 1024 * 1024) {
-        toast.loading("Compressing video (this may take a moment)...", { id: loadingId });
-        processedFile = await compressVideo(file, (pct) => setProgress(pct));
-        toast.loading(`Compressed to ${(processedFile.size / 1024 / 1024).toFixed(0)} MB, uploading...`, { id: loadingId });
-      } else if (!isVideo && file.size > 5 * 1024 * 1024) {
-        toast.loading("Compressing image...", { id: loadingId });
-        processedFile = await compressImage(file);
-        toast.loading(`Compressed to ${(processedFile.size / 1024 / 1024).toFixed(1)} MB, uploading...`, { id: loadingId });
-      }
-
+      // Try direct Cloudinary upload first
       let url: string;
+      try {
+        const signRes = await api.get<{
+          cloud_name: string; api_key: string; timestamp: number;
+          signature: string; folder: string;
+        }>(`/api/upload/sign?folder=${encodeURIComponent(folder)}`);
 
-      // Videos route through the PHP proxy
-      if (isVideo) {
-        url = await uploadViaProxy(processedFile, loadingId);
-      } else {
-        // Images: try direct Cloudinary upload first
-        try {
-          const signRes = await api.get<{
-            cloud_name: string; api_key: string; timestamp: number;
-            signature: string; folder: string;
-          }>(`/api/upload/sign?folder=${encodeURIComponent(folder)}`);
+        const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
 
-          const { cloud_name, api_key, timestamp, signature, folder: cloudFolder } = signRes.data;
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
 
-          const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/auto/upload`;
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("api_key", api_key);
+        fd.append("timestamp", String(timestamp));
+        fd.append("signature", signature);
+        fd.append("folder", cloudFolder);
 
-          const fd = new FormData();
-          fd.append("file", processedFile);
-          fd.append("api_key", api_key);
-          fd.append("timestamp", String(timestamp));
-          fd.append("signature", signature);
-          fd.append("folder", cloudFolder);
-
-          url = await new Promise<string>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.upload.onprogress = (evt) => {
-              if (evt.lengthComputable) {
-                setProgress(Math.round((evt.loaded / evt.total) * 100));
+        url = await new Promise<string>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.upload.onprogress = (evt) => {
+            if (evt.lengthComputable) {
+              setProgress(Math.round((evt.loaded / evt.total) * 100));
+            }
+          };
+          xhr.onload = () => {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
+                resolve(data.secure_url);
+              } else {
+                reject(new Error(data.error?.message || "Cloudinary rejected the file"));
               }
-            };
-            xhr.onload = () => {
-              try {
-                const data = JSON.parse(xhr.responseText);
-                if (xhr.status >= 200 && xhr.status < 300 && data.secure_url) {
-                  resolve(data.secure_url);
-                } else {
-                  reject(new Error(data.error?.message || "Cloudinary rejected the file"));
-                }
-              } catch {
-                reject(new Error("Invalid response from Cloudinary"));
-              }
-            };
-            xhr.onerror = () => reject(new Error("Network error"));
-            xhr.open("POST", cloudinaryUrl);
-            xhr.send(fd);
-          });
-        } catch (directErr) {
-          console.warn("Direct upload failed, falling back to proxy:", directErr);
-          toast.loading("Switching to server proxy...", { id: loadingId });
-          url = await uploadViaProxy(processedFile, loadingId);
-        }
+            } catch {
+              reject(new Error("Invalid response from Cloudinary"));
+            }
+          };
+          xhr.onerror = () => reject(new Error("Network error"));
+          xhr.open("POST", cloudinaryUrl);
+          xhr.send(fd);
+        });
+      } catch (directErr) {
+        console.warn("Direct upload failed, falling back to proxy:", directErr);
+        toast.loading("Switching to server proxy...", { id: loadingId });
+        url = await uploadViaProxy(file, loadingId);
       }
 
       setPreview(url);
@@ -150,7 +131,7 @@ export function MediaField({
     } catch (err) {
       console.error("Upload error:", err);
       const msg = err instanceof Error ? err.message : "Upload failed";
-      toast.error(`${msg}. Try pasting a URL instead.`, { id: loadingId });
+      toast.error(`${msg}. For large files try pasting a URL instead.`, { id: loadingId });
     }
 
     setUploading(false);
