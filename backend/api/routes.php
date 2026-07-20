@@ -236,6 +236,7 @@ route('DELETE', '/api/admin/blog/{id}', ['BlogController', 'destroy']);
 route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
 route('POST', '/api/upload/media', ['UploadController', 'uploadMedia']);
+route('POST', '/api/upload/from-url', ['UploadController', 'uploadFromUrl']);
 route('POST', '/api/upload/video-gallery', ['UploadController', 'uploadVideoGallery']);
 route('DELETE', '/api/upload/video/{id}', ['UploadController', 'destroyVideo']);
 route('GET', '/api/upload/sign', ['UploadController', 'sign']);

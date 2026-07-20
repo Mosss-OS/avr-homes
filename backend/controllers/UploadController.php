@@ -232,6 +232,82 @@ class UploadController
   }
 
   /**
+   * Upload a file from a remote URL to Cloudinary (server-side proxy).
+   *
+   * Accepts JSON body: { "url": "...", "folder": "..." }
+   * Downloads the remote file via cURL, uploads to Cloudinary, returns the secure URL.
+   *
+   * @param array $params Route parameters (unused).
+   */
+  public static function uploadFromUrl(array $params): void
+  {
+    $user = AuthMiddleware::authenticate();
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $url  = trim($input['url'] ?? '');
+    $folder = trim($input['folder'] ?? 'avr-homes/media');
+
+    if (!$url) {
+      Response::error('URL is required', 400);
+    }
+
+    // Download remote file
+    $tmpFile = tempnam(sys_get_temp_dir(), 'url_');
+    if (!$tmpFile) {
+      Response::error('Could not create temp file', 500);
+    }
+
+    $fp = fopen($tmpFile, 'w');
+    if (!$fp) {
+      @unlink($tmpFile);
+      Response::error('Could not open temp file', 500);
+    }
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+      CURLOPT_FILE        => $fp,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_TIMEOUT     => 300,
+      CURLOPT_CONNECTTIMEOUT => 30,
+      CURLOPT_USERAGENT   => 'AVRHomes/1.0',
+    ]);
+    curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+    fclose($fp);
+
+    if ($curlErr || $httpCode < 200 || $httpCode >= 300) {
+      @unlink($tmpFile);
+      Response::error($curlErr ? "Download failed: {$curlErr}" : "Download failed: HTTP {$httpCode}", 400);
+    }
+
+    // Derive original filename from URL
+    $parsedPath = parse_url($url, PHP_URL_PATH);
+    $originalName = $parsedPath ? basename($parsedPath) : 'remote-file';
+    if (!preg_match('/\.\w+$/', $originalName)) {
+      $originalName .= '.mp4';
+    }
+
+    $resourceType = $input['resource_type'] ?? 'auto';
+
+    $result = CloudinaryService::upload($tmpFile, $originalName, $resourceType, ['folder' => $folder]);
+
+    @unlink($tmpFile);
+
+    if (!$result['success']) {
+      Response::error($result['error'], 400);
+    }
+
+    Response::success([
+      'url'       => $result['url'],
+      'public_id' => $result['public_id'],
+      'format'    => $result['format'],
+      'bytes'     => $result['bytes'],
+    ], 'File uploaded from URL successfully', 201);
+  }
+
+  /**
    * Return signed upload parameters for direct browser-to-Cloudinary upload.
    *
    * The frontend uses these params to POST directly to
