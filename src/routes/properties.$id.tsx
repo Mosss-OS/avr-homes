@@ -343,7 +343,7 @@ function Detail() {
             <dl className="mt-3 grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
               <Detail2 icon={<Building2 className="h-4 w-4" />} label="Type" value={p.type} />
               <Detail2 icon={<Compass className="h-4 w-4" />} label="Reference" value={String(p.id)} />
-              <Detail2 icon={<Calendar className="h-4 w-4" />} label="Listed" value={p.postedDaysAgo === 0 ? "Today" : `${p.postedDaysAgo} days ago`} />
+              <Detail2 icon={<Calendar className="h-4 w-4" />} label="Listed" value={(p.postedDaysAgo ?? 0) === 0 ? "Today" : `${p.postedDaysAgo ?? 0} days ago`} />
               <Detail2 icon={<MapPin className="h-4 w-4" />} label="Community" value={p.community} />
               <Detail2 icon={<Maximize2 className="h-4 w-4" />} label="Plot area" value={`${p.area.toLocaleString()} sqm`} />
               {(p as any).is_off_plan && (p as any).completion_date && (
