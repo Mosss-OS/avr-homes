@@ -286,10 +286,34 @@ class AdminController
     if ($id <= 0) Response::error('Invalid property ID', 400);
 
     $db = Database::getConnection();
-    $stmt = $db->prepare('DELETE FROM properties WHERE id = ?');
-    $stmt->execute([$id]);
 
-    Response::success(null, 'Property deleted');
+    try {
+      foreach (['property_images','property_videos','off_plan_progress','property_verifications','property_documents','property_bookings','property_availability'] as $table) {
+        if (self::tableExists($db, $table)) {
+          $db->prepare("DELETE FROM {$table} WHERE property_id = ?")->execute([$id]);
+        }
+      }
+      if (self::tableExists($db, 'investment_properties')) {
+        $db->prepare('UPDATE investment_properties SET property_id = NULL WHERE property_id = ?')->execute([$id]);
+      }
+
+      $stmt = $db->prepare('DELETE FROM properties WHERE id = ?');
+      $stmt->execute([$id]);
+
+      Response::success(null, 'Property deleted');
+    } catch (PDOException $e) {
+      Response::error('Database error: ' . $e->getMessage(), 500);
+    }
+  }
+
+  /**
+   * Check whether a table exists in the current database.
+   */
+  private static function tableExists(PDO $db, string $table): bool
+  {
+    $stmt = $db->prepare('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?');
+    $stmt->execute([$table]);
+    return (int) $stmt->fetchColumn() > 0;
   }
 
   /**
@@ -1319,7 +1343,7 @@ class AdminController
     if (!$id) Response::error('Property ID required', 400);
 
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT pi.*, p.image as hero_image FROM property_images pi LEFT JOIN properties p ON p.id = pi.property_id WHERE pi.property_id = ? ORDER BY pi.sort_order ASC, pi.id ASC");
+    $stmt = $db->prepare("SELECT pi.*, p.image as hero_image FROM property_images pi LEFT JOIN properties p ON p.id = pi.property_id WHERE pi.property_id = ? AND pi.file_path NOT LIKE '/uploads/%' ORDER BY pi.sort_order ASC, pi.id ASC");
     $stmt->execute([$id]);
     $images = $stmt->fetchAll();
 

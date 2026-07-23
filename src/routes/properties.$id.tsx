@@ -7,7 +7,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon, HardHat, Clock } from "lucide-react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { formatAED, formatNightlyPrice, getProperty, getAgent, properties, fetchProperty, submitInquiry } from "@/lib/properties";
+import { formatAED, formatNightlyPrice, fetchProperty, fetchProperties, submitInquiry } from "@/lib/properties";
 import { ProgressTimeline } from "@/components/progress-timeline";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
@@ -15,19 +15,13 @@ import type { Property } from "@/lib/properties";
 
 export const Route = createFileRoute("/properties/$id")({
   loader: async ({ params }) => {
-    const id = parseInt(params.id.replace("p-", ""), 10);
-    if (isNaN(id)) {
-      const p = getProperty(params.id);
-      if (!p) throw notFound();
-      return { property: p as unknown as Property };
-    }
+    const id = parseInt(params.id, 10);
+    if (isNaN(id)) throw notFound();
     try {
       const property = await fetchProperty(id);
       return { property };
     } catch {
-      const p = getProperty(params.id);
-      if (!p) throw notFound();
-      return { property: p as unknown as Property };
+      throw notFound();
     }
   },
   head: ({ loaderData }) => ({
@@ -61,11 +55,9 @@ export const Route = createFileRoute("/properties/$id")({
 /** Full property detail component — gallery, stats, description, agent, booking/inquiry. */
 function Detail() {
   const { property: p } = Route.useLoaderData();
-  const agent = p.agent_id != null && !("agent_name" in p)
-    ? getAgent(p.agent_id.toString())
-    : p.agent_name
-      ? { name: p.agent_name, agency: p.agent_agency || "", phone: p.agent_phone || "", email: p.agent_email || "", avatarHue: p.agent_avatar_hue || 0, listings: 0, languages: p.agent_languages || [], isVerified: p.agent_is_verified || false }
-      : null;
+  const agent = p.agent_name
+    ? { name: p.agent_name, agency: p.agent_agency || "", phone: p.agent_phone || "", email: p.agent_email || "", avatarHue: p.agent_avatar_hue || 0, listings: 0, languages: p.agent_languages || [], isVerified: p.agent_is_verified || false }
+    : null;
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [shared, setShared] = useState(false);
@@ -145,10 +137,14 @@ function Detail() {
     return () => { destroyed = true; if (mapInstance) mapInstance.remove(); };
   }, [p.id]);
 
-  const similar = useMemo(
-    () => properties.filter((x) => x.id !== p.id && (x.community === p.community || x.type === p.type)).slice(0, 3),
-    [p.id, p.community, p.type]
-  );
+  const [similar, setSimilar] = useState<Property[]>([]);
+
+  useEffect(() => {
+    fetchProperties({ city: p.city, per_page: "10" }).then((res) => {
+      const filtered = res.data.filter((x: Property) => x.id !== p.id).slice(0, 3);
+      setSimilar(filtered);
+    }).catch(() => {});
+  }, [p.id, p.city]);
 
   const videoCount = (p.videos && p.videos.length > 0) ? p.videos.length : (p.video_url ? 1 : 0);
 

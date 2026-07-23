@@ -58,6 +58,7 @@ function AdminEditProperty() {
   const [existingImages, setExistingImages] = useState<{ id: number; file_path: string; is_primary: boolean }[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [newVideoFiles, setNewVideoFiles] = useState<File[]>([]);
+  const [newVideoUrls, setNewVideoUrls] = useState<string[]>([]);
   const [existingVideos, setExistingVideos] = useState<{ id: number; url: string; file_name?: string }[]>([]);
 
   const [form, setForm] = useState<PropertyData>({
@@ -165,6 +166,11 @@ function AdminEditProperty() {
         for (const v of newVideoFiles) videoFd.append("files", v);
         videoFd.append("property_id", String(id));
         try { await api.post("/api/upload/video-gallery", videoFd); } catch { /* non-blocking */ }
+      }
+
+      // Save video URLs
+      for (const url of newVideoUrls) {
+        try { await api.post("/api/upload/video-url", { property_id: Number(id), url }); } catch { /* non-blocking */ }
       }
 
       toast.success("Property updated successfully");
@@ -385,14 +391,52 @@ function AdminEditProperty() {
                 ))}
               </div>
             )}
-            <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
-              <Upload className="h-4 w-4" />
-              Add videos
-              <input type="file" accept="video/*" multiple onChange={(e) => {
-                if (e.target.files) setNewVideoFiles((p) => [...p, ...Array.from(e.target.files!)]);
-                e.target.value = "";
-              }} className="hidden" />
-            </label>
+            <div className="mt-2 flex gap-2">
+              <Input
+                placeholder="Paste video URL (YouTube, Vimeo, MP4...)"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val) {
+                      setNewVideoUrls((p) => [...p, val]);
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }
+                }}
+              />
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-4 text-sm text-muted-foreground hover:border-primary shrink-0">
+                <Upload className="h-4 w-4" />
+                File
+                <input type="file" accept="video/*" multiple onChange={(e) => {
+                  if (e.target.files) setNewVideoFiles((p) => [...p, ...Array.from(e.target.files!)]);
+                }} className="hidden" />
+              </label>
+            </div>
+            {newVideoUrls.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {newVideoUrls.map((url, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                    <span className="truncate max-w-[200px]">{url}</span>
+                    <button type="button" onClick={() => setNewVideoUrls((p) => p.filter((_, j) => j !== i))}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {newVideoFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {newVideoFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                    <span className="truncate max-w-[160px]">{f.name}</span>
+                    <button type="button" onClick={() => setNewVideoFiles((p) => p.filter((_, j) => j !== i))}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <MediaField
             label="Video Tour URL"

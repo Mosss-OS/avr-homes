@@ -66,7 +66,7 @@ function About() {
 
       <section className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
         <h2 className="font-display text-3xl font-semibold">Want to partner with us?</h2>
-        <a href="https://wa.me/2348000000000" target="_blank" rel="noreferrer"
+        <a href="https://wa.me/2349071459878" target="_blank" rel="noreferrer"
           className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105"
           style={{ background: "#25D366" }}>
           <MessageCircle className="h-4 w-4" /> Contact us on WhatsApp

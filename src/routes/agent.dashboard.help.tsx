@@ -49,10 +49,10 @@ function HelpSupport() {
               Speak with a support agent during business hours
             </p>
             <a
-              href="tel:+2348000000000"
+              href="tel:+2349071459878"
               className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
             >
-              +234 800 000 0000 <ExternalLink className="h-3 w-3" />
+              +234 907 145 9878 <ExternalLink className="h-3 w-3" />
             </a>
           </div>
 

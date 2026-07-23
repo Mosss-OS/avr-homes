@@ -104,8 +104,9 @@ function AdminProperties() {
       await api.delete(`/api/admin/properties/${id}`);
       fetchData();
       toast.success("Property deleted");
-    } catch {
-      toast.error("Failed to delete property");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to delete property";
+      toast.error(msg);
     }
   }
 

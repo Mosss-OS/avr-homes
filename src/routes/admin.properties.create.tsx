@@ -38,7 +38,7 @@ interface FormData {
   title: string; description: string; type: string; purpose: string; price: string;
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
-  image: File | null; images: File[]; videos: File[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  image: File | null; images: File[]; videos: File[]; videoUrls: string[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
   is_off_plan: boolean; completion_date: string; status: string;
 }
 
@@ -57,7 +57,7 @@ function AdminCreateProperty() {
     title: "", description: "", type: "apartment", purpose: "buy", price: "",
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
-    image: null, images: [], videos: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    image: null, images: [], videos: [], videoUrls: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
     is_off_plan: false, completion_date: "", status: "published",
   });
 
@@ -157,6 +157,9 @@ function AdminCreateProperty() {
           for (const v of form.videos) videoFd.append("files", v);
           videoFd.append("property_id", String(propertyId));
           try { await api.post("/api/upload/video-gallery", videoFd); } catch { /* non-blocking */ }
+        }
+        for (const url of form.videoUrls) {
+          try { await api.post("/api/upload/video-url", { property_id: propertyId, url }); } catch { /* non-blocking */ }
         }
       }
 
@@ -375,11 +378,38 @@ function AdminCreateProperty() {
                   ))}
                 </div>
               )}
-              <label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
-                <Upload className="h-4 w-4" />
-                Add videos
-                <input type="file" accept="video/*" multiple onChange={handleVideos} className="hidden" />
-              </label>
+              <div className="mt-2 flex gap-2">
+                <Input
+                  placeholder="Paste video URL (YouTube, Vimeo, MP4...)"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        setForm((p) => ({ ...p, videoUrls: [...p.videoUrls, val] }));
+                        (e.target as HTMLInputElement).value = "";
+                      }
+                    }
+                  }}
+                />
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-4 text-sm text-muted-foreground hover:border-primary shrink-0">
+                  <Upload className="h-4 w-4" />
+                  File
+                  <input type="file" accept="video/*" multiple onChange={handleVideos} className="hidden" />
+                </label>
+              </div>
+              {form.videoUrls.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {form.videoUrls.map((url, i) => (
+                    <div key={i} className="flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-xs">
+                      <span className="truncate max-w-[200px]">{url}</span>
+                      <button type="button" onClick={() => setForm((p) => ({ ...p, videoUrls: p.videoUrls.filter((_, j) => j !== i) }))}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <MediaField
               label="Video Tour URL"

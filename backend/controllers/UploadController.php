@@ -427,6 +427,36 @@ class UploadController
   }
 
   /**
+   * Add a video URL (YouTube, Vimeo, direct MP4, etc.) to a property's video gallery.
+   */
+  public static function addVideoUrl(array $params): void
+  {
+    AuthMiddleware::authenticate();
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $propertyId = (int)($input['property_id'] ?? 0);
+    $url = trim($input['url'] ?? '');
+
+    if ($propertyId <= 0) Response::error('Property ID is required', 400);
+    if (!$url) Response::error('Video URL is required', 400);
+    if (!filter_var($url, FILTER_VALIDATE_URL)) Response::error('Invalid URL', 400);
+
+    $db = Database::getConnection();
+    $maxSort = $db->prepare('SELECT COALESCE(MAX(sort_order),0) FROM property_videos WHERE property_id = ?');
+    $maxSort->execute([$propertyId]);
+    $sort = (int)$maxSort->fetchColumn();
+
+    $stmt = $db->prepare(
+      'INSERT INTO property_videos (property_id, file_path, file_name, file_size, mime_type, sort_order)
+       VALUES (?, ?, ?, 0, ?, ?)'
+    );
+    $stmt->execute([$propertyId, $url, basename($url), 'video/url', $sort]);
+    $videoId = (int)$db->lastInsertId();
+
+    Response::success(['id' => $videoId, 'url' => $url, 'file_name' => basename($url)], 'Video URL added');
+  }
+
+  /**
    * Delete a property video.
    *
    * @param array $params Route parameters containing 'id' (video ID).

@@ -4,11 +4,11 @@
  * with price pins. Hovering a pin shows a preview card in the sidebar.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { MapPin } from "lucide-react";
-import { formatAED, properties as allProperties } from "@/lib/properties";
+import { formatAED, fetchProperties, type Property } from "@/lib/properties";
 
 const schema = z.object({
   purpose: fallback(z.enum(["buy", "rent"]), "buy").optional(),
@@ -31,18 +31,19 @@ export const Route = createFileRoute("/map")({
   component: MapView,
 });
 
-/**
- * Map view component — filters properties by search params, projects lat/lng onto
- * an SVG canvas, and renders price pins with a hover-activated preview sidebar.
- */
 function MapView() {
   const search = Route.useSearch();
-  const properties = useMemo(() => allProperties.filter((p) => {
-    if (search.purpose && p.purpose !== search.purpose) return false;
-    if (search.type && p.type !== search.type) return false;
-    if (search.city && p.city !== search.city) return false;
-    return true;
-  }), [search]);
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+
+  useEffect(() => {
+    const params: Record<string, string> = { per_page: "100" };
+    if (search.purpose) params.purpose = search.purpose;
+    if (search.type) params.type = search.type;
+    if (search.city) params.city = search.city;
+    fetchProperties(params).then((res) => setAllProperties(res.data)).catch(() => {});
+  }, [search.purpose, search.type, search.city]);
+
+  const properties = allProperties;
 
   const [hoverId, setHoverId] = useState<string | number | null>(null);
   const bounds = useMemo(() => {
