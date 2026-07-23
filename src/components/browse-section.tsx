@@ -7,7 +7,9 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, MapPin } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
 import { MiniMap } from "@/components/mini-map";
-import { nigerianStates, properties as allProperties, type Property } from "@/lib/properties";
+import { ScrollableSection } from "@/components/scrollable-section";
+import { nigerianStates, fetchProperties, type Property } from "@/lib/properties";
+import { useEffect, useState } from "react";
 
 /** The four browsing categories displayed on the homepage. */
 export type BrowseCategory = "buy" | "rent" | "land" | "shortlet";
@@ -44,14 +46,6 @@ const META: Record<BrowseCategory, { title: string; kicker: string; blurb: strin
   },
 };
 
-/** Filter the full property list to items matching the given category. */
-function filterByCategory(list: Property[], cat: BrowseCategory): Property[] {
-  if (cat === "land") return list.filter((p) => p.type === "land");
-  if (cat === "shortlet") return list.filter((p) => p.purpose === "shortlet");
-  if (cat === "buy") return list.filter((p) => p.purpose === "buy" && p.type !== "land");
-  return list.filter((p) => p.purpose === "rent" && p.type !== "land");
-}
-
 /** Build a search param object for the per-state city links. */
 function stateSearch(cat: BrowseCategory, city: string) {
   if (cat === "land") return { type: "land", city } as never;
@@ -70,8 +64,16 @@ function mapSearch(cat: BrowseCategory, city?: string) {
 /** Homepage section that previews properties for a given browse category. */
 export function BrowseSection({ category, dark = false }: { category: BrowseCategory; dark?: boolean }) {
   const meta = META[category];
-  const items = filterByCategory(allProperties, category);
-  const cards = items.slice(0, 3);
+  const [items, setItems] = useState<Property[]>([]);
+
+  useEffect(() => {
+    const params: Record<string, string> = { per_page: "8" };
+    if (category === "land") params.type = "land";
+    else if (category === "shortlet") params.purpose = "shortlet";
+    else if (category === "buy") params.purpose = "buy";
+    else params.purpose = "rent";
+    fetchProperties(params).then((res) => setItems(res.data)).catch(() => {});
+  }, [category]);
 
   return (
     <section className={dark ? "bg-secondary/40" : ""}>
@@ -106,21 +108,23 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
           ))}
         </div>
 
-        {/* Grid: 3 cards + mini map */}
-        <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_1fr_1fr_1fr]">
-          {cards.map((p) => (
-            <div key={p.id} className="lg:col-span-1">
-              <PropertyCard p={p} />
-            </div>
-          ))}
-          <Link
-            to="/map"
-            search={mapSearch(category)}
-            className="hidden lg:block lg:col-span-1"
-            aria-label={`View ${meta.title} on the map`}
-          >
-            <MiniMap items={items} />
-          </Link>
+        {/* Horizontal scroll: property cards + mini map */}
+        <div className="mt-6 flex gap-5">
+          <ScrollableSection className="-mx-4 flex gap-5 px-4 pb-2 sm:mx-0 sm:px-0">
+            {items.map((p) => (
+              <div key={p.id} className="w-[280px] shrink-0 sm:w-[320px]">
+                <PropertyCard p={p} />
+              </div>
+            ))}
+            <Link
+              to="/map"
+              search={mapSearch(category)}
+              className="hidden w-[280px] shrink-0 sm:block sm:w-[320px]"
+              aria-label={`View ${meta.title} on the map`}
+            >
+              <MiniMap items={items} />
+            </Link>
+          </ScrollableSection>
         </div>
       </div>
     </section>

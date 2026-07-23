@@ -1,10 +1,9 @@
 /**
  * AI-powered property search API route (POST /api/ai-search).
- * Receives a natural-language query, serialises the available property catalog,
+ * Receives a natural-language query, fetches the property catalog from the backend API,
  * sends it to an LLM gateway, and returns the AI reply along with matching property IDs.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { properties } from "@/lib/properties";
 
 const SYSTEM_PROMPT = `You are AVR Homes' property search assistant. You help buyers, renters and diaspora investors find Nigerian real estate.
 
@@ -17,9 +16,17 @@ Reply in this exact structure:
 
 Keep replies under 120 words. Use Naira (₦) for prices. Do not invent properties that are not in the list.`;
 
-/** Expected shape of the POST request body. */
 interface Body {
   query?: string;
+}
+
+const API_BASE = "https://backend.avrusthomes.com/backend/api";
+
+async function fetchCatalog() {
+  const r = await fetch(`${API_BASE}/properties?per_page=200`);
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  const j = await r.json() as { data: Array<Record<string, unknown>> };
+  return j.data;
 }
 
 export const Route = createFileRoute("/api/ai-search")({
@@ -35,7 +42,14 @@ export const Route = createFileRoute("/api/ai-search")({
         const key = process.env.LOVABLE_API_KEY;
         if (!key) return Response.json({ error: "AI service unavailable" }, { status: 500 });
 
-        const catalog = properties.map((p) => ({
+        let catalog: Record<string, unknown>[];
+        try {
+          catalog = await fetchCatalog();
+        } catch {
+          return Response.json({ error: "Could not load property catalog" }, { status: 502 });
+        }
+
+        const serialised = catalog.map((p) => ({
           id: p.id,
           title: p.title,
           type: p.type,
@@ -46,7 +60,7 @@ export const Route = createFileRoute("/api/ai-search")({
           area_sqm: p.area,
           city: p.city,
           community: p.community,
-          description: p.description.slice(0, 160),
+          description: String(p.description || "").slice(0, 160),
         }));
 
         try {
@@ -60,7 +74,7 @@ export const Route = createFileRoute("/api/ai-search")({
               model: "google/gemini-3-flash-preview",
               messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: `Available properties:\n${JSON.stringify(catalog)}\n\nUser question: ${query}` },
+                { role: "user", content: `Available properties:\n${JSON.stringify(serialised)}\n\nUser question: ${query}` },
               ],
             }),
           });
@@ -76,11 +90,10 @@ export const Route = createFileRoute("/api/ai-search")({
           const json = await r.json() as { choices?: { message?: { content?: string } }[] };
           const reply = json.choices?.[0]?.message?.content ?? "Sorry, no reply.";
 
-          // Extract matched IDs like "[p-101]" or "[l-201]"
           const ids = Array.from(new Set(
             (reply.match(/\[([a-z0-9-]+)\]/gi) ?? []).map((m) => m.slice(1, -1))
           )).slice(0, 6);
-          const matches = properties.filter((p) => ids.includes(String(p.id)));
+          const matches = catalog.filter((p) => ids.includes(String(p.id)));
 
           return Response.json({ reply, matches: matches.map((p) => ({
             id: p.id, title: p.title, price: p.price, city: p.city, community: p.community,

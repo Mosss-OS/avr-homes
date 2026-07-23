@@ -52,7 +52,7 @@ const STRUCTURED_DATA = {
   },
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "+234-XXX-XXX-XXXX",
+    telephone: "+234-907-145-9878",
     contactType: "customer service",
     email: "info@avrusthomes.com",
   },

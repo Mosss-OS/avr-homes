@@ -238,6 +238,7 @@ route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
 route('POST', '/api/upload/media', ['UploadController', 'uploadMedia']);
 route('POST', '/api/upload/from-url', ['UploadController', 'uploadFromUrl']);
 route('POST', '/api/upload/video-gallery', ['UploadController', 'uploadVideoGallery']);
+route('POST', '/api/upload/video-url', ['UploadController', 'addVideoUrl']);
 route('DELETE', '/api/upload/video/{id}', ['UploadController', 'destroyVideo']);
 route('GET', '/api/upload/sign', ['UploadController', 'sign']);
 route('DELETE', '/api/upload/{id}', ['UploadController', 'destroy']);

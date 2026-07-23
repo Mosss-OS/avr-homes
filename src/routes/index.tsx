@@ -3,7 +3,7 @@ import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
 import { BrowseSection } from "@/components/browse-section";
 import { AiSearchWidget } from "@/components/ai-search-widget";
-import { fetchProperties, properties } from "@/lib/properties";
+import { fetchProperties } from "@/lib/properties";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import type { Property } from "@/lib/properties";
@@ -48,10 +48,7 @@ function HomePage() {
         if (agentsRes) setAgents(agentsRes.data.data || []);
         if (statsRes) setStats(statsRes.data);
       })
-      .catch(() => {
-        setFeatured(properties.filter((p) => p.featured));
-        setFresh(properties.slice(0, 6));
-      })
+      .catch(() => { /* API unavailable */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -200,9 +197,9 @@ function HomePage() {
             See all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => <PropertyCard key={p.id} p={p} />)}
-        </div>
+        <ScrollableSection className="-mx-4 flex gap-5 px-4 pb-4 sm:mx-0 sm:px-0">
+          {featured.map((p) => <div key={p.id} className="w-[280px] shrink-0 sm:w-[320px]"><PropertyCard p={p} /></div>)}
+        </ScrollableSection>
       </section>
 
       {/* Value props */}
@@ -240,32 +237,12 @@ function HomePage() {
       {/* Recent */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <h2 className="font-display text-3xl font-semibold sm:text-4xl">Recently added</h2>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {fresh.map((p) => <PropertyCard key={p.id} p={p} />)}
-        </div>
+        <ScrollableSection className="-mx-4 mt-6 flex gap-5 px-4 pb-4 sm:mx-0 sm:px-0">
+          {fresh.map((p) => <div key={p.id} className="w-[280px] shrink-0 sm:w-[320px]"><PropertyCard p={p} /></div>)}
+        </ScrollableSection>
       </section>
 
       {/* Testimonials */}
-      <section className="bg-secondary/40 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>What people say</p>
-          <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Trusted by Lagos's property community</h2>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <figure key={t.name} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-                <div className="flex gap-0.5 text-[#C9A84C]">
-                  {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
-                </div>
-                <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-foreground/85">"{t.quote}"</blockquote>
-                <figcaption className="mt-4 border-t border-border pt-3">
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.title}</div>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Agent recruitment */}
       <section id="for-agents" className="scroll-mt-20" style={{ background: "#0A1628" }}>
@@ -346,12 +323,6 @@ const CITIES = [
   { name: "Onitsha", desc: "Fegge, Inland Town, Nkpor", image: "/assets/cities/onitsha.jpg" },
   { name: "Calabar", desc: "Marina, State Housing, Ekorinim", image: "/assets/cities/calabar.jpg" },
   { name: "Kaduna", desc: "Kaduna South, Kaduna North, Zaria", image: "/assets/cities/kaduna.jpg" },
-];
-
-const TESTIMONIALS = [
-  { quote: "AVR Homes gave my listings the professional presentation they deserved. I closed two deals within my first month on the platform.", name: "Chidi Okonkwo", title: "Property Consultant, Lekki" },
-  { quote: "As a diaspora investor in London, I needed a platform I could trust. AVR Homes verified listings gave me the confidence to buy remotely.", name: "Adaeze M.", title: "Investor, London / Lagos" },
-  { quote: "The agent dashboard is clean and professional. It finally feels like Lagos real estate is catching up with global standards.", name: "Funmi Adeyemi", title: "Senior Realtor, Victoria Island" },
 ];
 
 function ValueCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {

@@ -11,7 +11,6 @@ import { z } from "zod";
 import { PropertyCard } from "@/components/property-card";
 import {
   fetchProperties,
-  properties as fallbackProperties,
   cities,
   propertyTypes,
   type Purpose,
@@ -82,22 +81,8 @@ function List() {
         setTotal(res.total);
       })
       .catch(() => {
-        const filtered = fallbackProperties.filter((p) => {
-          if (search.purpose && p.purpose !== search.purpose) return false;
-          if (search.city && p.city !== search.city) return false;
-          if (search.type && p.type !== search.type) return false;
-          if (search.beds && p.beds < search.beds) return false;
-          if (search.minPrice && p.price < search.minPrice) return false;
-          if (search.maxPrice && p.price > search.maxPrice) return false;
-          if (search.q) {
-            const q = search.q.toLowerCase();
-            const hay = `${p.title} ${p.community} ${p.city} ${p.address}`.toLowerCase();
-            if (!hay.includes(q)) return false;
-          }
-          return true;
-        });
-        setResults(filtered);
-        setTotal(filtered.length);
+        setResults([]);
+        setTotal(0);
       })
       .finally(() => setLoading(false));
   }, [search]);

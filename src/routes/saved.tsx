@@ -7,7 +7,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Heart, Search, Trash2, Bell, BellOff } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
-import { properties } from "@/lib/properties";
+import { fetchProperties, type Property } from "@/lib/properties";
 import { getSavedProps, getSavedSearches, removeSavedSearch, toggleSearchAlert, type SavedSearch } from "@/lib/saved";
 
 export const Route = createFileRoute("/saved")({
@@ -21,17 +21,21 @@ export const Route = createFileRoute("/saved")({
   component: Saved,
 });
 
-/** Saved page — shows bookmarked properties and saved searches with alert-toggle and delete. */
 function Saved() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
+  const [savedProps, setSavedProps] = useState<Property[]>([]);
 
   useEffect(() => {
-    setSavedIds(getSavedProps());
+    const ids = getSavedProps();
+    setSavedIds(ids);
     setSearches(getSavedSearches());
+    if (ids.length > 0) {
+      fetchProperties({ per_page: "100" }).then((res) => {
+        setSavedProps(res.data.filter((p) => ids.includes(String(p.id))));
+      }).catch(() => {});
+    }
   }, []);
-
-  const savedProps = properties.filter((p) => savedIds.includes(String(p.id)));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
