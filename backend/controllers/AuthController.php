@@ -35,6 +35,12 @@ class AuthController
     }
 
     $data = $validator->validated();
+    $ip = RateLimiter::getClientIp();
+
+    $rate = RateLimiter::check($ip, 5, 900);
+    if ($rate['blocked']) {
+      Response::error('Too many login attempts. Please try again in ' . ceil($rate['retryAfter'] / 60) . ' minutes.', 429);
+    }
 
     $db = Database::getConnection();
     $stmt = $db->prepare('SELECT id, name, email, password, role FROM users WHERE email = ? AND is_active = 1');
@@ -42,8 +48,11 @@ class AuthController
     $user = $stmt->fetch();
 
     if (!$user || !password_verify($data['password'], $user['password'])) {
+      RateLimiter::recordFailure($ip);
       Response::error('Invalid email or password', 401);
     }
+
+    RateLimiter::clear($ip);
 
     $token = AuthMiddleware::generateToken((int)$user['id']);
     $refreshToken = AuthMiddleware::generateRefreshToken((int)$user['id']);
@@ -219,6 +228,12 @@ class AuthController
     }
 
     $data = $validator->validated();
+    $ip = RateLimiter::getClientIp();
+
+    $rate = RateLimiter::check($ip, 5, 900);
+    if ($rate['blocked']) {
+      Response::error('Too many login attempts. Please try again in ' . ceil($rate['retryAfter'] / 60) . ' minutes.', 429);
+    }
 
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT id, name, email, password, role FROM users WHERE email = ? AND role = 'agent' AND is_active = 1");
@@ -226,8 +241,11 @@ class AuthController
     $user = $stmt->fetch();
 
     if (!$user || !password_verify($data['password'], $user['password'])) {
+      RateLimiter::recordFailure($ip);
       Response::error('Invalid email or password', 401);
     }
+
+    RateLimiter::clear($ip);
 
     $token = AuthMiddleware::generateToken((int)$user['id']);
     $refreshToken = AuthMiddleware::generateRefreshToken((int)$user['id']);
