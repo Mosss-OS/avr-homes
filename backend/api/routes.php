@@ -272,6 +272,11 @@ route('POST', '/api/admin/import/properties', ['ImportExportController', 'import
 route('POST', '/api/admin/import/users', ['ImportExportController', 'importUsers']);
 route('POST', '/api/admin/import/agents', ['ImportExportController', 'importAgents']);
 
+/* ── Admin Backup routes ──────────────────────────────── */
+route('POST', '/api/admin/backup', ['BackupController', 'create']);
+route('GET', '/api/admin/backups', ['BackupController', 'list']);
+route('GET', '/api/admin/backup/download/{name}', ['BackupController', 'download']);
+
 /* ── Blog / CMS routes ────────────────────────────────────── */
 route('GET', '/api/blog', ['BlogController', 'index']);
 route('GET', '/api/blog/featured', ['BlogController', 'featured']);
