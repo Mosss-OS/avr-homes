@@ -7,6 +7,7 @@ import { Link } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart, Play, HardHat } from "lucide-react";
 import { useState } from "react";
 import { formatPrice, type Currency, type Property } from "@/lib/properties";
+import { optimizedImageUrl } from "@/lib/cloudinary";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 
 const CURRENCIES: Currency[] = ["NGN", "USD", "GBP"];
@@ -24,9 +25,10 @@ export function PropertyCard({ p }: { p: Property }) {
     >
       <div className="relative block aspect-[4/3] overflow-hidden">
         <img
-          src={p.image}
+          src={optimizedImageUrl(p.image)}
           alt={p.title}
           loading="lazy"
+          decoding="async"
           width={1024}
           height={768}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
