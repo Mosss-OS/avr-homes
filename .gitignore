@@ -41,6 +41,7 @@ backend/uploads/*
 backend/logs/*
 !backend/logs/.gitkeep
 backend/storage/ratelimit/*
+backend/storage/backups/*
 .vercel
 .env*.local
 .env.vercel
