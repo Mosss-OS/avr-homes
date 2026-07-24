@@ -114,6 +114,16 @@ class CloudinaryService
     $effectivePath = self::compressVideoIfNeeded($filePath, $originalName);
     $needsCleanup = $effectivePath !== $filePath;
 
+    // Optimise images (resize + compress) before uploading
+    if ($resourceType !== 'video' && $resourceType !== 'raw') {
+      $optimisedPath = ImageOptimizer::optimize($effectivePath);
+      if ($optimisedPath !== $effectivePath) {
+        if ($needsCleanup) @unlink($effectivePath); // clean up previous temp
+        $effectivePath = $optimisedPath;
+        $needsCleanup = true;
+      }
+    }
+
     $timestamp = time();
     $folder = $options['folder'] ?? 'avr-homes';
     $publicId = $options['public_id'] ?? pathinfo($originalName, PATHINFO_FILENAME) . '_' . $timestamp;
