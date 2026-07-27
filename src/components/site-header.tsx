@@ -111,7 +111,8 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70 relative">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 supports-[backdrop-filter]:bg-background/70">
+      <div className="pointer-events-none absolute inset-0 -z-10 supports-[backdrop-filter]:backdrop-blur-md" />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <img

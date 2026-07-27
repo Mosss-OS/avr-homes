@@ -27,7 +27,7 @@ export function ScrollableSection({ children, className = "", scrollAmount = 300
   }, [scrollAmount, checkScroll])
 
   return (
-    <div className="group relative overflow-hidden">
+    <div className="group relative overflow-x-clip">
       {canScrollLeft && (
         <button
           type="button"
