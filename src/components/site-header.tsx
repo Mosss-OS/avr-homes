@@ -124,9 +124,6 @@ export function SiteHeader() {
             <span className="font-display text-lg font-semibold tracking-tight sm:text-xl">
               AVR Homes<span className="text-[var(--gold)]">.</span>
             </span>
-            <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">
-              {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
-            </span>
           </span>
         </Link>
 
@@ -363,7 +360,7 @@ export function SiteFooter() {
               <span className="font-display text-xl font-semibold">AVR Homes.</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              {settings?.site_tagline || "Homes, Lands & Property Across Nigeria"}
+              Verified Nigerian property marketplace.
             </p>
             <address className="mt-4 not-italic text-sm text-muted-foreground">
               <div className="font-medium text-foreground">Visit us</div>
