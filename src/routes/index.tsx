@@ -104,7 +104,7 @@ function HomePage() {
 
       {/* Quick category tiles */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <ScrollableSection className="-mx-4 gap-3 px-4 pb-2 sm:mx-0 sm:px-0">
+        <ScrollableSection className="gap-3 px-4 pb-2 sm:px-0">
           {CATEGORIES.map((cat) => (
             <Link key={cat.label} to="/properties" search={cat.search as never}
               className="group flex w-[180px] shrink-0 snap-start items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-56">
@@ -197,7 +197,7 @@ function HomePage() {
             See all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <ScrollableSection className="-mx-4 gap-5 px-4 pb-4 sm:mx-0 sm:px-0">
+        <ScrollableSection className="gap-5 pb-4">
           {featured.map((p) => <div key={p.id} className="w-[280px] shrink-0 snap-start sm:w-[320px]"><PropertyCard p={p} /></div>)}
         </ScrollableSection>
       </section>
@@ -217,7 +217,7 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Neighbourhood Guide</p>
           <h2 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">Explore cities across Nigeria</h2>
-          <ScrollableSection className="-mx-4 gap-4 px-4 pb-2 sm:mx-0 sm:px-0">
+          <ScrollableSection className="gap-4 pb-2">
             {CITIES.map((c) => (
               <Link key={c.name} to="/properties" search={{ city: c.name } as never}
                 className="group relative w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-72">
@@ -237,7 +237,7 @@ function HomePage() {
       {/* Recent */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <h2 className="font-display text-3xl font-semibold sm:text-4xl">Recently added</h2>
-        <ScrollableSection className="-mx-4 mt-6 gap-5 px-4 pb-4 sm:mx-0 sm:px-0">
+        <ScrollableSection className="mt-6 gap-5 pb-4">
           {fresh.map((p) => <div key={p.id} className="w-[280px] shrink-0 snap-start sm:w-[320px]"><PropertyCard p={p} /></div>)}
         </ScrollableSection>
       </section>

@@ -77,40 +77,42 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
 
   return (
     <section className={dark ? "bg-secondary/40" : ""}>
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-16">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-2xl">
-            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>
-              {meta.kicker}
-            </p>
-            <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl lg:text-4xl">{meta.title}</h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">{meta.blurb}</p>
-          </div>
-          <Link
-            to={meta.to}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-          >
-            {meta.ctaLabel} <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        {/* State chips */}
-        <div className="mt-6 flex flex-wrap gap-2">
-          {nigerianStates.map((city) => (
+      <div className="mx-auto max-w-7xl py-10 lg:py-16">
+        <div className="px-4 sm:px-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>
+                {meta.kicker}
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl lg:text-4xl">{meta.title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base">{meta.blurb}</p>
+            </div>
             <Link
-              key={city}
-              to="/properties"
-              search={stateSearch(category, city)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground/80 hover:border-primary hover:text-primary transition"
+              to={meta.to}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
-              <MapPin className="h-3 w-3" /> {city}
+              {meta.ctaLabel} <ArrowRight className="h-4 w-4" />
             </Link>
-          ))}
+          </div>
+
+          {/* State chips — horizontal scroll on mobile */}
+          <div className="mt-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+            {nigerianStates.map((city) => (
+              <Link
+                key={city}
+                to="/properties"
+                search={stateSearch(category, city)}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground/80 hover:border-primary hover:text-primary transition"
+              >
+                <MapPin className="h-3 w-3" /> {city}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Horizontal scroll: property cards + mini map */}
         <div className="mt-6">
-          <ScrollableSection className="-mx-4 gap-5 px-4 pb-2 sm:mx-0 sm:px-0">
+          <ScrollableSection className="gap-5 px-4 pb-2 sm:px-6">
             {items.map((p) => (
               <div key={p.id} className="w-[280px] shrink-0 snap-start sm:w-[320px]">
                 <PropertyCard p={p} />

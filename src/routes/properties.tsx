@@ -236,7 +236,7 @@ const CATEGORIES = [
 
 function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
   return (
-    <ScrollableSection className="-mx-4 gap-3 px-4 pb-2">
+    <ScrollableSection className="gap-3 pb-2">
       {CATEGORIES.map((cat) => {
         const isActive =
           cat.search.purpose === current.purpose &&
