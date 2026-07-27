@@ -104,20 +104,20 @@ function HomePage() {
 
       {/* Quick category tiles */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <ScrollableSection className="gap-3 px-4 pb-2 sm:px-0">
+        <div className="flex flex-wrap justify-center gap-3">
           {CATEGORIES.map((cat) => (
             <Link key={cat.label} to="/properties" search={cat.search as never}
-              className="group flex w-[180px] shrink-0 snap-start items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-56">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ background: cat.bg }}>
-                <cat.icon className="h-6 w-6" style={{ color: cat.color }} />
+              className="group flex w-[140px] shrink-0 snap-start items-center gap-2 rounded-2xl border border-border bg-card p-3 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-56 sm:gap-3 sm:p-4">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-12 sm:w-12" style={{ background: cat.bg }}>
+                <cat.icon className="h-4 w-4 sm:h-6 sm:w-6" style={{ color: cat.color }} />
               </div>
               <div>
-                <div className="font-semibold text-foreground">{cat.label}</div>
-                <div className="text-xs text-muted-foreground">{cat.desc}</div>
+                <div className="text-sm font-semibold text-foreground sm:text-base">{cat.label}</div>
+                <div className="text-[10px] text-muted-foreground sm:text-xs">{cat.desc}</div>
               </div>
             </Link>
           ))}
-        </ScrollableSection>
+        </div>
       </section>
 
       {/* Browse sections */}
