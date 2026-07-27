@@ -195,13 +195,13 @@ function Detail() {
 
       {/* Media Gallery */}
       <div className="mt-4">
-        <div className="flex gap-1 rounded-xl border border-border bg-card p-1">
+        <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {mediaTabs.map((tab) => (
             <button key={tab.key} onClick={() => setMediaTab(tab.key)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition sm:text-sm ${mediaTab === tab.key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-              {tab.count != null && <span className="ml-0.5 text-xs opacity-70">({tab.count})</span>}
+              className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-medium transition sm:px-3 sm:text-xs md:text-sm ${mediaTab === tab.key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              <tab.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              {tab.count != null && <span className="ml-0.5 text-[10px] opacity-70 sm:text-xs">({tab.count})</span>}
             </button>
           ))}
         </div>
@@ -301,16 +301,16 @@ function Detail() {
             )}
             <span className="text-xs text-muted-foreground">Listed {(p.posted_days_ago ?? p.postedDaysAgo) === 0 ? "today" : `${(p.posted_days_ago ?? p.postedDaysAgo)}d ago`}</span>
           </div>
-          <h1 className="mt-3 font-display text-2xl font-semibold sm:text-4xl">{p.title}</h1>
-          <div className="mt-1 inline-flex items-start gap-1.5 text-sm text-muted-foreground">
+          <h1 className="mt-3 font-display text-xl font-semibold sm:text-2xl md:text-4xl">{p.title}</h1>
+          <div className="mt-1 inline-flex items-start gap-1.5 text-xs text-muted-foreground sm:text-sm">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> <span>{p.address} · {p.community}, {p.city}</span>
           </div>
 
           <div className="mt-6 flex flex-wrap items-baseline gap-3">
             {p.purpose === "shortlet" && p.nightly_price ? (
-              <div className="font-display text-3xl font-semibold text-primary sm:text-4xl">{formatNightlyPrice(p.nightly_price)}</div>
+              <div className="font-display text-2xl font-semibold text-primary sm:text-3xl md:text-4xl">{formatNightlyPrice(p.nightly_price)}</div>
             ) : (
-              <div className="font-display text-3xl font-semibold text-primary sm:text-4xl">{formatAED(p.price)}</div>
+              <div className="font-display text-2xl font-semibold text-primary sm:text-3xl md:text-4xl">{formatAED(p.price)}</div>
             )}
             {p.purpose === "rent" && <span className="text-sm text-muted-foreground">/year</span>}
             {p.purpose === "shortlet" && p.min_stay && <span className="text-sm text-muted-foreground">min {p.min_stay} night{p.min_stay > 1 ? "s" : ""}</span>}
@@ -324,7 +324,7 @@ function Detail() {
           </div>
 
           <section className="mt-8">
-            <h2 className="font-display text-2xl font-semibold">About this home</h2>
+            <h2 className="font-display text-lg font-semibold sm:text-2xl">About this home</h2>
             <p className="mt-3 leading-relaxed text-foreground/80">{p.description}</p>
           </section>
 
@@ -335,7 +335,7 @@ function Detail() {
           )}
 
           <section className="mt-8">
-            <h2 className="font-display text-2xl font-semibold">Property details</h2>
+            <h2 className="font-display text-lg font-semibold sm:text-2xl">Property details</h2>
             <dl className="mt-3 grid gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2">
               <Detail2 icon={<Building2 className="h-4 w-4" />} label="Type" value={p.type} />
               <Detail2 icon={<Compass className="h-4 w-4" />} label="Reference" value={String(p.id)} />
@@ -353,7 +353,7 @@ function Detail() {
           </section>
 
           <section className="mt-8">
-            <h2 className="font-display text-2xl font-semibold">Amenities</h2>
+            <h2 className="font-display text-lg font-semibold sm:text-2xl">Amenities</h2>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">
               {p.amenities.map((a: string) => (
                 <li key={a} className="flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm">
@@ -365,13 +365,13 @@ function Detail() {
 
           {p.purpose === "buy" && (
             <section className="mt-8">
-              <h2 className="font-display text-2xl font-semibold">Mortgage estimate</h2>
+              <h2 className="font-display text-lg font-semibold sm:text-2xl">Mortgage estimate</h2>
               <MortgageCalc price={p.price} />
             </section>
           )}
 
           <section className="mt-8">
-            <h2 className="font-display text-2xl font-semibold">Location</h2>
+            <h2 className="font-display text-lg font-semibold sm:text-2xl">Location</h2>
             <div className="mt-3 overflow-hidden rounded-2xl border border-border">
               <div className="h-[350px] w-full" id="property-detail-map" />
             </div>
@@ -404,7 +404,7 @@ function Detail() {
 
           {similar.length > 0 && (
             <section className="mt-10">
-              <h2 className="font-display text-2xl font-semibold">Similar properties</h2>
+              <h2 className="font-display text-lg font-semibold sm:text-2xl">Similar properties</h2>
               <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {similar.map((s) => <PropertyCard key={s.id} p={s} />)}
               </div>
@@ -626,7 +626,7 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
   return (
     <div className="text-center">
       <div className="mx-auto grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</div>
-      <div className="mt-1.5 text-base font-semibold">{value}</div>
+      <div className="mt-1.5 text-sm font-semibold sm:text-base">{value}</div>
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
     </div>
   );
@@ -660,7 +660,7 @@ function MortgageCalc({ price }: { price: number }) {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Calculator className="h-4 w-4 text-primary" /> Estimated monthly payment
       </div>
-      <div className="mt-1 font-display text-3xl font-semibold text-primary">{formatAED(Math.round(monthly))}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+      <div className="mt-1 font-display text-2xl font-semibold text-primary sm:text-3xl">{formatAED(Math.round(monthly))}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <Range label="Down payment" suffix="%" min={10} max={80} value={downPct} onChange={setDownPct} />
