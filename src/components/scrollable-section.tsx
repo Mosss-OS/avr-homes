@@ -27,7 +27,7 @@ export function ScrollableSection({ children, className = "", scrollAmount = 300
   }, [scrollAmount, checkScroll])
 
   return (
-    <div className="group relative">
+    <div className="group relative overflow-hidden">
       {canScrollLeft && (
         <button
           type="button"
@@ -41,7 +41,7 @@ export function ScrollableSection({ children, className = "", scrollAmount = 300
       <div
         ref={ref}
         onScroll={checkScroll}
-        className={`overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+        className={`flex gap-4 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
       >
         {children}
       </div>

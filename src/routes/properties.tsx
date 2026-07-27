@@ -236,7 +236,7 @@ const CATEGORIES = [
 
 function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
   return (
-    <ScrollableSection className="-mx-4 flex gap-3 px-4 pb-2">
+    <ScrollableSection className="-mx-4 gap-3 px-4 pb-2">
       {CATEGORIES.map((cat) => {
         const isActive =
           cat.search.purpose === current.purpose &&
@@ -246,7 +246,7 @@ function CategoryCards({ current }: { current: z.infer<typeof schema> }) {
             key={cat.label}
             to="/properties"
             search={{ ...current, ...cat.search } as never}
-            className={`group flex w-[170px] shrink-0 items-center gap-3 rounded-2xl border p-4 transition ${
+            className={`group flex w-[170px] shrink-0 snap-start items-center gap-3 rounded-2xl border p-4 transition ${
               isActive
                 ? "border-primary bg-primary/5"
                 : "border-border bg-card hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"

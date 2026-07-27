@@ -109,17 +109,17 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
         </div>
 
         {/* Horizontal scroll: property cards + mini map */}
-        <div className="mt-6 flex gap-5">
-          <ScrollableSection className="-mx-4 flex gap-5 px-4 pb-2 sm:mx-0 sm:px-0">
+        <div className="mt-6">
+          <ScrollableSection className="-mx-4 gap-5 px-4 pb-2 sm:mx-0 sm:px-0">
             {items.map((p) => (
-              <div key={p.id} className="w-[280px] shrink-0 sm:w-[320px]">
+              <div key={p.id} className="w-[280px] shrink-0 snap-start sm:w-[320px]">
                 <PropertyCard p={p} />
               </div>
             ))}
             <Link
               to="/map"
               search={mapSearch(category)}
-              className="hidden w-[280px] shrink-0 sm:block sm:w-[320px]"
+              className="hidden w-[280px] shrink-0 snap-start sm:block sm:w-[320px]"
               aria-label={`View ${meta.title} on the map`}
             >
               <MiniMap items={items} />
