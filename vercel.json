@@ -21,11 +21,5 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
-  ],
-  "images": {
-    "remotePatterns": [
-      { "protocol": "https", "hostname": "res.cloudinary.com" },
-      { "protocol": "https", "hostname": "images.unsplash.com" }
-    ]
-  }
+  ]
 }
