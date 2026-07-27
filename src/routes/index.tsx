@@ -77,10 +77,7 @@ function HomePage() {
         }} />
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center text-white">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" style={{ color: "#C9A84C" }} /> Verified Nigerian Property Marketplace
-            </span>
-            <h1 className="mt-5 font-display font-semibold leading-[0.95] text-3xl sm:text-4xl md:text-6xl lg:text-8xl">
+            <h1 className="font-display font-semibold leading-[0.95] text-3xl sm:text-4xl md:text-6xl lg:text-8xl">
               Homes, Lands &nbsp;&nbsp;<span style={{ fontStyle: "italic", color: "#C9A84C", fontFamily: "'Playfair Display', 'Georgia', serif" }}>&</span>&nbsp;&nbsp; Property Across Nigeria
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-[11px] leading-relaxed text-white/85 sm:text-sm sm:leading-normal md:text-lg lg:text-xl">
