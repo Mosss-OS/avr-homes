@@ -149,10 +149,10 @@ function Detail() {
   const videoCount = (p.videos && p.videos.length > 0) ? p.videos.length : (p.video_url ? 1 : 0);
 
   const mediaTabs = [
-    { key: "photos" as const, icon: ImageIcon, label: "Photos", count: p.gallery.length },
-    { key: "video" as const, icon: Video, label: "Video", count: videoCount, disabled: videoCount === 0 },
-    { key: "tour" as const, icon: Globe, label: "Virtual Tour", disabled: !p.virtual_tour_url },
-    { key: "plan" as const, icon: FileImage, label: "Floor Plan", disabled: !p.floor_plan_url },
+    { key: "photos" as const, icon: ImageIcon, label: "Photos", mobileLabel: "Photos", count: p.gallery.length },
+    { key: "video" as const, icon: Video, label: "Video", mobileLabel: "Video", count: videoCount, disabled: videoCount === 0 },
+    { key: "tour" as const, icon: Globe, label: "Virtual Tour", mobileLabel: "Tour", disabled: !p.virtual_tour_url },
+    { key: "plan" as const, icon: FileImage, label: "Floor Plan", mobileLabel: "Plan", disabled: !p.floor_plan_url },
   ].filter((t) => !(t as any).disabled || t.key === "photos");
 
   useEffect(() => {
@@ -200,6 +200,7 @@ function Detail() {
             <button key={tab.key} onClick={() => setMediaTab(tab.key)}
               className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-medium transition sm:px-3 sm:text-xs md:text-sm ${mediaTab === tab.key ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               <tab.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="sm:hidden">{tab.mobileLabel}</span>
               <span className="hidden sm:inline">{tab.label}</span>
               {tab.count != null && <span className="ml-0.5 text-[10px] opacity-70 sm:text-xs">({tab.count})</span>}
             </button>
