@@ -25,7 +25,7 @@ function Diaspora() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#C9A84C" }}>Diaspora Investors</p>
-      <h1 className="mt-1 font-display text-4xl font-semibold sm:text-5xl">Investing in Lagos from abroad — made simple.</h1>
+      <h1 className="mt-1 font-display text-4xl font-semibold sm:text-5xl">Investing in Nigeria from abroad — made simple.</h1>
       <p className="mt-3 max-w-2xl text-muted-foreground">A growing community of UK, US, and Canadian-based Nigerians trust AVR Homes to source, verify, and close Lagos property deals on their behalf.</p>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">

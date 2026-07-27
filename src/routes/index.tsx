@@ -277,7 +277,7 @@ function HomePage() {
       <section style={{ background: "linear-gradient(90deg, #C9A84C 0%, #E5C26B 100%)" }}>
         <div className="mx-auto flex max-w-7xl flex-col items-start gap-5 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl text-[#0A1628]">
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">Investing in Lagos from abroad? We make it simple.</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Investing in Nigeria from abroad? We make it simple.</h2>
             <p className="mt-2 text-sm sm:text-base">
               <span className="inline-flex items-center gap-1.5"><Plane className="h-4 w-4" /> Virtual tours</span>
               <span className="mx-2">·</span>
