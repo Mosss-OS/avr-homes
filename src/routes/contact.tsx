@@ -56,8 +56,10 @@ function Contact() {
             {address}
           </InfoRow>
           <InfoRow icon={<Phone className="h-4 w-4" />} title="WhatsApp">
-            <a href="https://wa.me/2349071459878" className="hover:underline">+234 907 145 9878</a>
-            <a href="https://wa.me/2347120173619" className="hover:underline">+234 712 017 3619</a>
+            <div className="flex flex-col">
+              <a href="https://wa.me/2349071459878" className="hover:underline">+234 907 145 9878</a>
+              <a href="https://wa.me/2347120173619" className="hover:underline">+234 712 017 3619</a>
+            </div>
           </InfoRow>
           <InfoRow icon={<Mail className="h-4 w-4" />} title="Email">
             <a href="mailto:info@avrusthomes.com" className="hover:underline">info@avrusthomes.com</a>
