@@ -698,18 +698,24 @@ function Range({ label, suffix, min, max, value, onChange }: { label: string; su
   );
 }
 
-/** Viewing-request form shown in the sidebar for buy/rent properties (not short-let). */
+/** Inspection-scheduling form shown in the sidebar for buy/rent properties (not short-let). */
 function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; propertyTitle: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [paying, setPaying] = useState(false);
+  const [step, setStep] = useState<"form" | "payment">("form");
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const INSPECTION_FEE = 10000; // ₦10,000 inspection fee
+  const PAYSTACK_KEY = "pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // Replace with real Paystack public key
+
+  async function handlePaystackSuccess(response: { reference: string }) {
+    setPaying(true);
     setError("");
-    const form = new FormData(e.currentTarget);
     try {
+      const formEl = document.getElementById("inspection-form") as HTMLFormElement;
+      const form = new FormData(formEl);
       const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
-      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
+      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}\nPayment Ref: ${response.reference}`;
       await submitInquiry({
         name: form.get("name") as string,
         email: form.get("email") as string,
@@ -720,31 +726,78 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
       });
       setSent(true);
     } catch {
-      setError("Failed to send. Try emailing the agent directly.");
+      setError("Payment received but submission failed. Please email us directly with your payment reference: " + response.reference);
+    } finally {
+      setPaying(false);
     }
   }
 
+  function openPaystack() {
+    const formEl = document.getElementById("inspection-form") as HTMLFormElement;
+    if (!formEl || !formEl.reportValidity()) return;
+
+    const form = new FormData(formEl);
+    const email = form.get("email") as string;
+    const phone = form.get("phone") as string;
+
+    setError("");
+    setPaying(true);
+
+    // Dynamically load Paystack inline script
+    const script = document.createElement("script");
+    script.src = "https://js.paystack.co/v1/inline.js";
+    script.onload = () => {
+      const handler = (window as any).PaystackPop.setup({
+        key: PAYSTACK_KEY,
+        email,
+        amount: INSPECTION_FEE * 100, // Paystack uses kobo
+        currency: "NGN",
+        metadata: {
+          custom_fields: [
+            { display_name: "Property", variable_name: "property_id", value: String(propertyId) },
+            { display_name: "Phone", variable_name: "phone", value: phone },
+          ],
+        },
+        callback: handlePaystackSuccess,
+        onClose: () => { setPaying(false); },
+      });
+      handler.openIframe();
+    };
+    script.onerror = () => { setPaying(false); setError("Could not load payment gateway. Please try again."); };
+    document.head.appendChild(script);
+  }
+
   return (
-    <form onSubmit={handleSubmit}
-      className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-      <h3 className="font-display text-lg font-semibold">Request a viewing</h3>
+    <div className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+      <h3 className="font-display text-lg font-semibold">Schedule an Inspection</h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        An inspection fee of <span className="font-semibold text-foreground">{formatAED(INSPECTION_FEE)}</span> applies.
+      </p>
       {sent ? (
         <div className="mt-3 rounded-lg bg-primary/10 p-3 text-sm text-primary">
-          Thanks! An agent will reach out shortly.
+          Inspection confirmed! An agent will reach out to confirm the date and time.
         </div>
       ) : (
-        <div className="mt-3 grid gap-2">
+        <form id="inspection-form" onSubmit={(e) => e.preventDefault()} className="mt-3 grid gap-2">
           {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
           <input required name="name" placeholder="Your name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           <input required type="email" name="email" placeholder="Email" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           <input required type="tel" name="phone" placeholder="Phone" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <textarea name="message" rows={3} defaultValue={`I'd like to schedule a viewing for "${propertyTitle}".`}
+          <textarea name="message" rows={3} defaultValue={`I'd like to schedule an inspection for "${propertyTitle}".`}
             className="resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <button type="submit" className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90">
-            Send inquiry
+          <button type="button" onClick={openPaystack} disabled={paying}
+            className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50">
+            {paying ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                Processing payment…
+              </>
+            ) : (
+              `Pay ${formatAED(INSPECTION_FEE)} & Schedule`
+            )}
           </button>
-        </div>
+        </form>
       )}
-    </form>
+    </div>
   );
 }
