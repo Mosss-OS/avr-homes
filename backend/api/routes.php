@@ -78,6 +78,11 @@ route('PUT', '/api/agent/leads/{id}/read', ['AgentLeadController', 'markRead']);
 route('PUT', '/api/agent/leads/{id}/status', ['AgentLeadController', 'updateStatus']);
 route('PUT', '/api/agent/leads/{id}/notes', ['AgentLeadController', 'updateNotes']);
 
+/* ── Inquiry Message routes (public & agent) ────────────── */
+route('GET',  '/api/inquiries/{inquiry_id}/messages',        ['InquiryMessageController', 'index']);
+route('POST', '/api/inquiries/{inquiry_id}/messages',        ['InquiryMessageController', 'store']);
+route('GET',  '/api/agent/messages/unread-count',            ['InquiryMessageController', 'unreadCountByAgent']);
+
 /* ── Agent Listing routes (agent only) ────────────────────── */
 route('GET', '/api/agent/listings', ['AgentListingController', 'index']);
 route('POST', '/api/agent/listings', ['AgentListingController', 'store']);

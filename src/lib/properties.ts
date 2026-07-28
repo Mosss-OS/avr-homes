@@ -129,8 +129,23 @@ export async function submitContact(data: Record<string, string>): Promise<void>
 /**
  * Submits a property inquiry (lead) to the API.
  */
-export async function submitInquiry(data: Record<string, string | number>): Promise<void> {
-  await api.post("/api/inquiries", data);
+export async function submitInquiry(data: Record<string, string | number>): Promise<{ id: number }> {
+  const res = await api.post<{ id: number }>("/api/inquiries", data);
+  return res.data;
+}
+
+export async function fetchInquiryMessages(inquiryId: number, email: string): Promise<{ inquiry: any; messages: any[] }> {
+  const res = await api.get<{ inquiry: any; messages: any[] }>(`/api/inquiries/${inquiryId}/messages`, {
+    headers: { "X-Inquiry-Email": email },
+  });
+  return res.data;
+}
+
+export async function sendInquiryMessage(inquiryId: number, email: string, body: string): Promise<any> {
+  const res = await api.post<any>(`/api/inquiries/${inquiryId}/messages`, { body }, {
+    headers: { "X-Inquiry-Email": email },
+  });
+  return res.data;
 }
 
 /** A real-estate agent displayed in the UI. */

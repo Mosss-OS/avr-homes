@@ -20,7 +20,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { Loader2, Mail, Phone, MessageSquare, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Mail, Phone, MessageSquare, Search, ChevronLeft, ChevronRight, Send } from "lucide-react";
 
 export const Route = createFileRoute("/agent/dashboard/leads")({
   head: () => ({ meta: [{ title: "Leads — AVR Homes" }] }),
@@ -376,6 +376,9 @@ function AgentLeadsPage() {
                   </Select>
                 </div>
 
+                {/* Message Thread */}
+                <MessagesSection inquiryId={selected.id} />
+
                 <div className="space-y-2">
                   <Label htmlFor="notes">Internal Notes</Label>
                   <Textarea id="notes" value={selected.notes || ""}
@@ -389,5 +392,91 @@ function AgentLeadsPage() {
         </SheetContent>
       </Sheet>
     </DashboardLayout>
+  );
+}
+
+/** Message thread inside the lead detail sheet. Agent can view user messages and reply. */
+function MessagesSection({ inquiryId }: { inquiryId: number }) {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadMessages();
+    const interval = setInterval(loadMessages, 10000);
+    return () => clearInterval(interval);
+  }, [inquiryId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function loadMessages() {
+    try {
+      const res = await api.get<{ inquiry: any; messages: any[] }>(`/api/inquiries/${inquiryId}/messages`);
+      setMessages(res.data.messages);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!body.trim()) return;
+    setSending(true);
+    try {
+      const res = await api.post<any>(`/api/inquiries/${inquiryId}/messages`, { body: body.trim() });
+      setMessages((prev) => [...prev, res.data]);
+      setBody("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>Messages with Client</Label>
+      <div className="max-h-[260px] overflow-y-auto rounded-lg border border-border bg-background p-3 space-y-2">
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          </div>
+        ) : messages.length === 0 ? (
+          <p className="text-center text-xs text-muted-foreground py-6">No messages yet.</p>
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.sender_type === "agent" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs ${
+                msg.sender_type === "agent"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-foreground"
+              }`}>
+                <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+                <p className={`mt-1 text-[10px] ${msg.sender_type === "agent" ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
+                  {msg.sender_type === "user" ? "Client" : "You"} &middot;{" "}
+                  {new Date(msg.created_at).toLocaleString("en-NG", {
+                    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={bottomRef} />
+      </div>
+      <form onSubmit={handleSend} className="flex gap-2">
+        <Input value={body} onChange={(e) => setBody(e.target.value)}
+          placeholder="Reply…" className="text-xs min-w-0" maxLength={5000} />
+        <Button type="submit" size="sm" disabled={sending || !body.trim()} className="shrink-0 rounded-full">
+          {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+        </Button>
+      </form>
+    </div>
   );
 }

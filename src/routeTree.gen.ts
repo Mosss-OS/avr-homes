@@ -29,6 +29,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as InvestIdRouteImport } from './routes/invest.$id'
+import { Route as InquiryIdRouteImport } from './routes/inquiry.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiAiSearchRouteImport } from './routes/api/ai-search'
 import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
@@ -180,6 +181,11 @@ const InvestIdRoute = InvestIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => InvestRoute,
+} as any)
+const InquiryIdRoute = InquiryIdRouteImport.update({
+  id: '/inquiry/$id',
+  path: '/inquiry/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
@@ -567,6 +574,7 @@ export interface FileRoutesByTo {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
@@ -641,6 +649,7 @@ export interface FileRoutesById {
   '/agents/$slug': typeof AgentsSlugRoute
   '/api/ai-search': typeof ApiAiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
@@ -716,6 +725,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/inquiry/$id'
     | '/invest/$id'
     | '/properties/$id'
     | '/admin/investments/new'
@@ -789,6 +799,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/inquiry/$id'
     | '/invest/$id'
     | '/properties/$id'
     | '/admin/investments/new'
@@ -862,6 +873,7 @@ export interface FileRouteTypes {
     | '/agents/$slug'
     | '/api/ai-search'
     | '/blog/$slug'
+    | '/inquiry/$id'
     | '/invest/$id'
     | '/properties/$id'
     | '/admin/investments/new'
@@ -906,6 +918,7 @@ export interface RootRouteChildren {
   AgentLoginRoute: typeof AgentLoginRoute
   AgentRegisterRoute: typeof AgentRegisterRoute
   ApiAiSearchRoute: typeof ApiAiSearchRoute
+  InquiryIdRoute: typeof InquiryIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1049,6 +1062,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/invest/$id'
       preLoaderRoute: typeof InvestIdRouteImport
       parentRoute: typeof InvestRoute
+    }
+    '/inquiry/$id': {
+      id: '/inquiry/$id'
+      path: '/inquiry/$id'
+      fullPath: '/inquiry/$id'
+      preLoaderRoute: typeof InquiryIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -1636,6 +1656,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentLoginRoute: AgentLoginRoute,
   AgentRegisterRoute: AgentRegisterRoute,
   ApiAiSearchRoute: ApiAiSearchRoute,
+  InquiryIdRoute: InquiryIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

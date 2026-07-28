@@ -76,11 +76,13 @@ export class ApiError extends Error {
  * methods with automatic typing.
  */
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint),
-  post: <T>(endpoint: string, body?: unknown) =>
+  get: <T>(endpoint: string, opts?: { headers?: Record<string, string> }) =>
+    request<T>(endpoint, { headers: opts?.headers }),
+  post: <T>(endpoint: string, body?: unknown, opts?: { headers?: Record<string, string> }) =>
     request<T>(endpoint, {
       method: "POST",
       body: body instanceof FormData ? body : JSON.stringify(body),
+      headers: opts?.headers,
     }),
   put: <T>(endpoint: string, body: unknown) =>
     request<T>(endpoint, {

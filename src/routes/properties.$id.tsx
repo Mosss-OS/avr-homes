@@ -703,6 +703,8 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
+  const [inquiryId, setInquiryId] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState("");
 
   const INSPECTION_FEE = 10000; // ₦10,000 inspection fee
   const PAYSTACK_KEY = "pk_test_8f68b8a8da7e89262b754f79586235a3e8533419";
@@ -715,7 +717,7 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
       const form = new FormData(formEl);
       const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
       const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
-      await submitInquiry({
+      const result = await submitInquiry({
         name: form.get("name") as string,
         email: form.get("email") as string,
         phone: form.get("phone") as string,
@@ -724,6 +726,8 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
         property_url: propertyUrl,
         payment_ref: response.reference,
       });
+      setInquiryId(result.id);
+      setUserEmail(form.get("email") as string);
       setSent(true);
     } catch {
       setError("Payment received but submission failed. Please email us directly with your payment reference: " + response.reference);
@@ -794,8 +798,15 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
         An inspection fee of <span className="font-semibold text-foreground">{formatAED(INSPECTION_FEE)}</span> applies.
       </p>
       {sent ? (
-        <div className="mt-3 rounded-lg bg-primary/10 p-3 text-sm text-primary">
-          Inspection confirmed! An agent will reach out to confirm the date and time.
+        <div className="mt-3 space-y-3 rounded-lg bg-primary/10 p-4 text-sm">
+          <p className="text-primary">Inspection confirmed!</p>
+          <p className="text-muted-foreground">
+            An agent will be in touch soon. Track your inspection request and messages{" "}
+            <Link to="/inquiry/$id" params={{ id: String(inquiryId) }}
+              className="font-medium text-primary underline underline-offset-2">
+              here
+            </Link>.
+          </p>
         </div>
       ) : (
         <form id="inspection-form" onSubmit={(e) => e.preventDefault()} className="mt-3 grid gap-2">
