@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS inquiry_messages (
   body TEXT NOT NULL,
   is_read TINYINT(1) DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE CASCADE,
   INDEX idx_msg_inquiry (inquiry_id),
   INDEX idx_msg_read (inquiry_id, is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
