@@ -10,6 +10,7 @@ class InquiryController
 {
   /**
    * Submit a new property inquiry, optionally linked to a property.
+   * Requires a verified Paystack payment reference for inspection scheduling.
    *
    * @param array $params Route parameters (unused).
    * @return void
@@ -50,9 +51,17 @@ class InquiryController
       }
     }
 
+    // Verify Paystack payment if payment_ref provided
+    if (!empty($data['payment_ref'])) {
+      $verified = self::verifyPaystackPayment($data['payment_ref']);
+      if (!$verified) {
+        Response::error('Payment verification failed. Invalid or unverified payment.', 402);
+      }
+    }
+
     $db = Database::getConnection();
     $stmt = $db->prepare(
-      'INSERT INTO inquiries (property_id, name, email, phone, message, property_url) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO inquiries (property_id, name, email, phone, message, property_url, payment_ref) VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
       !empty($data['property_id']) ? (int)$data['property_id'] : null,
@@ -61,11 +70,58 @@ class InquiryController
       $data['phone'],
       $data['message'],
       $data['property_url'] ?? null,
+      $data['payment_ref'] ?? null,
     ]);
 
     Response::success([
       'id' => (int)$db->lastInsertId(),
     ], 'Your inquiry has been submitted. An agent will reach out shortly.', 201);
+  }
+
+  /**
+   * Verify a Paystack transaction reference via the Paystack API.
+   *
+   * @param string $reference The Paystack transaction reference.
+   * @return bool True if the transaction was successful and verified.
+   */
+  private static function verifyPaystackPayment(string $reference): bool
+  {
+    $secretKey = $_ENV['PAYSTACK_SECRET_KEY'] ?? '';
+    if (!$secretKey) {
+      error_log('Paystack secret key not configured');
+      return false;
+    }
+
+    $ch = curl_init("https://api.paystack.co/transaction/verify/" . urlencode($reference));
+    curl_setopt_array($ch, [
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer ' . $secretKey,
+        'Content-Type: application/json',
+      ],
+      CURLOPT_TIMEOUT => 15,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+      error_log("Paystack verification curl error: {$error}");
+      return false;
+    }
+
+    $body = json_decode($response, true);
+    if (!$body || $httpCode !== 200) {
+      error_log("Paystack verification HTTP {$httpCode}: {$response}");
+      return false;
+    }
+
+    // Status must be "success" and amount must be 10000 (₦10,000 in kobo)
+    return $body['status'] === true
+      && ($body['data']['status'] ?? '') === 'success'
+      && ($body['data']['amount'] ?? 0) >= 1000000; // ₦10,000 * 100 kobo
   }
 
   /**

@@ -703,10 +703,9 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
-  const [step, setStep] = useState<"form" | "payment">("form");
 
   const INSPECTION_FEE = 10000; // ₦10,000 inspection fee
-  const PAYSTACK_KEY = "pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // Replace with real Paystack public key
+  const PAYSTACK_KEY = "pk_test_8f68b8a8da7e89262b754f79586235a3e8533419";
 
   async function handlePaystackSuccess(response: { reference: string }) {
     setPaying(true);
@@ -715,7 +714,7 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
       const formEl = document.getElementById("inspection-form") as HTMLFormElement;
       const form = new FormData(formEl);
       const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
-      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}\nPayment Ref: ${response.reference}`;
+      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
       await submitInquiry({
         name: form.get("name") as string,
         email: form.get("email") as string,
@@ -723,6 +722,7 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
         message: msg,
         property_id: propertyId,
         property_url: propertyUrl,
+        payment_ref: response.reference,
       });
       setSent(true);
     } catch {
@@ -743,26 +743,46 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
     setError("");
     setPaying(true);
 
-    // Dynamically load Paystack inline script
+    const initPaystack = () => {
+      try {
+        const PaystackPop = (window as any).PaystackPop;
+        if (!PaystackPop) {
+          setPaying(false);
+          setError("Payment library failed to load. Please refresh and try again.");
+          return;
+        }
+        const handler = PaystackPop.setup({
+          key: PAYSTACK_KEY,
+          email,
+          amount: INSPECTION_FEE * 100, // Paystack uses kobo
+          currency: "NGN",
+          metadata: {
+            custom_fields: [
+              { display_name: "Property", variable_name: "property_id", value: String(propertyId) },
+              { display_name: "Phone", variable_name: "phone", value: phone },
+            ],
+          },
+          callback: handlePaystackSuccess,
+          onClose: () => { setPaying(false); },
+        });
+        handler.openIframe();
+      } catch (err) {
+        setPaying(false);
+        setError("Payment gateway error. Please try again later.");
+        console.error("Paystack init error:", err);
+      }
+    };
+
+    // If Paystack script already loaded, init immediately
+    if ((window as any).PaystackPop) {
+      initPaystack();
+      return;
+    }
+
+    // Otherwise load the script first
     const script = document.createElement("script");
     script.src = "https://js.paystack.co/v1/inline.js";
-    script.onload = () => {
-      const handler = (window as any).PaystackPop.setup({
-        key: PAYSTACK_KEY,
-        email,
-        amount: INSPECTION_FEE * 100, // Paystack uses kobo
-        currency: "NGN",
-        metadata: {
-          custom_fields: [
-            { display_name: "Property", variable_name: "property_id", value: String(propertyId) },
-            { display_name: "Phone", variable_name: "phone", value: phone },
-          ],
-        },
-        callback: handlePaystackSuccess,
-        onClose: () => { setPaying(false); },
-      });
-      handler.openIframe();
-    };
+    script.onload = initPaystack;
     script.onerror = () => { setPaying(false); setError("Could not load payment gateway. Please try again."); };
     document.head.appendChild(script);
   }
