@@ -118,10 +118,10 @@ class InquiryController
       return false;
     }
 
-    // Status must be "success" and amount must be 10000 (₦10,000 in kobo)
+    // Status must be "success" and amount must be at least ₦15,000 (minimum inspection fee)
     return $body['status'] === true
       && ($body['data']['status'] ?? '') === 'success'
-      && ($body['data']['amount'] ?? 0) >= 1000000; // ₦10,000 * 100 kobo
+      && ($body['data']['amount'] ?? 0) >= 1500000; // ₦15,000 minimum in kobo
   }
 
   /**

@@ -447,7 +447,7 @@ function Detail() {
               {p.purpose === "shortlet" ? (
                 <ShortletBooking property={p} />
               ) : (
-                <InquiryForm propertyId={Number(p.id)} propertyTitle={p.title} />
+                <InquiryForm propertyId={Number(p.id)} propertyTitle={p.title} purpose={p.purpose} type={p.type} />
               )}
           </aside>
       </div>
@@ -699,42 +699,47 @@ function Range({ label, suffix, min, max, value, onChange }: { label: string; su
 }
 
 /** Inspection-scheduling form shown in the sidebar for buy/rent properties (not short-let). */
-function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; propertyTitle: string }) {
+function InquiryForm({ propertyId, propertyTitle, purpose, type }: { propertyId: number; propertyTitle: string; purpose: string; type: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
   const [inquiryId, setInquiryId] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
 
-  const INSPECTION_FEE = 10000; // ₦10,000 inspection fee
+  const INSPECTION_FEE = type === "land" ? 15000
+    : purpose === "sell" ? 50000
+    : 25000;
+
   const PAYSTACK_KEY = "pk_test_8f68b8a8da7e89262b754f79586235a3e8533419";
 
-  async function handlePaystackSuccess(response: { reference: string }) {
-    setPaying(true);
-    setError("");
-    try {
-      const formEl = document.getElementById("inspection-form") as HTMLFormElement;
-      const form = new FormData(formEl);
-      const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
-      const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
-      const result = await submitInquiry({
-        name: form.get("name") as string,
-        email: form.get("email") as string,
-        phone: form.get("phone") as string,
-        message: msg,
-        property_id: propertyId,
-        property_url: propertyUrl,
-        payment_ref: response.reference,
-      });
-      setInquiryId(result.id);
-      setUserEmail(form.get("email") as string);
-      setSent(true);
-    } catch {
-      setError("Payment received but submission failed. Please email us directly with your payment reference: " + response.reference);
-    } finally {
-      setPaying(false);
-    }
-  }
+  const handlePaystackSuccess = useCallback((response: { reference: string }) => {
+    (async () => {
+      setPaying(true);
+      setError("");
+      try {
+        const formEl = document.getElementById("inspection-form") as HTMLFormElement;
+        const form = new FormData(formEl);
+        const propertyUrl = typeof window !== "undefined" ? window.location.href : `https://avrusthomes.com/properties/${propertyId}`;
+        const msg = `${form.get("message") as string}\n\nProperty: ${propertyUrl}`;
+        const result = await submitInquiry({
+          name: form.get("name") as string,
+          email: form.get("email") as string,
+          phone: form.get("phone") as string,
+          message: msg,
+          property_id: propertyId,
+          property_url: propertyUrl,
+          payment_ref: response.reference,
+        });
+        setInquiryId(result.id);
+        setUserEmail(form.get("email") as string);
+        setSent(true);
+      } catch {
+        setError("Payment received but submission failed. Please email us directly with your payment reference: " + response.reference);
+      } finally {
+        setPaying(false);
+      }
+    })();
+  }, [propertyId]);
 
   function openPaystack() {
     const formEl = document.getElementById("inspection-form") as HTMLFormElement;
@@ -766,7 +771,7 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
               { display_name: "Phone", variable_name: "phone", value: phone },
             ],
           },
-          callback: handlePaystackSuccess,
+          callback: (resp: any) => handlePaystackSuccess(resp),
           onClose: () => { setPaying(false); },
         });
         handler.openIframe();
@@ -795,7 +800,7 @@ function InquiryForm({ propertyId, propertyTitle }: { propertyId: number; proper
     <div className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
       <h3 className="font-display text-lg font-semibold">Schedule an Inspection</h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        An inspection fee of <span className="font-semibold text-foreground">{formatAED(INSPECTION_FEE)}</span> applies.
+        {type === "land" ? "Land inspection fee" : purpose === "sell" ? "Inspection fee for sale listing" : "Rental inspection fee"}: <span className="font-semibold text-foreground">{formatAED(INSPECTION_FEE)}</span>
       </p>
       {sent ? (
         <div className="mt-3 space-y-3 rounded-lg bg-primary/10 p-4 text-sm">
