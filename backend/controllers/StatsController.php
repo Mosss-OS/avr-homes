@@ -6,7 +6,12 @@ class StatsController
 {
   public static function index(array $params): void
   {
-    $db = Database::getConnection();
+    try {
+      $db = Database::getConnection();
+    } catch (\Throwable $e) {
+      Response::error('DB connection: ' . $e->getMessage(), 500);
+    }
+
     $stats = [];
 
     $tables = [
@@ -20,10 +25,14 @@ class StatsController
     foreach ($tables as $key => $sql) {
       try {
         $stmt = $db->query($sql);
+        if ($stmt === false) {
+          $stats[$key] = 0;
+          continue;
+        }
         $row = $stmt->fetch();
         $stats[$key] = (int)($row['c'] ?? 0);
       } catch (\Throwable $e) {
-        error_log("StatsController {$key}: " . $e->getMessage());
+        $stats[$key . '_error'] = $e->getMessage();
         $stats[$key] = 0;
       }
     }
