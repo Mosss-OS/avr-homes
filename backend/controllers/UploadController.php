@@ -169,6 +169,11 @@ class UploadController
       Response::error('Image not found', 404);
     }
 
+    // Delete from Cloudinary if it's a Cloudinary URL
+    if (!empty($image['file_path'])) {
+      CloudinaryService::deleteByUrl($image['file_path']);
+    }
+
     $db->prepare('DELETE FROM property_images WHERE id = ?')->execute([$id]);
 
     if ($image['is_primary'] && $image['property_id']) {
@@ -477,6 +482,11 @@ class UploadController
 
     if (!$video) {
       Response::error('Video not found', 404);
+    }
+
+    // Delete from Cloudinary if it's a Cloudinary URL
+    if (!empty($video['file_path'])) {
+      CloudinaryService::deleteByUrl($video['file_path']);
     }
 
     $db->prepare('DELETE FROM property_videos WHERE id = ?')->execute([$id]);

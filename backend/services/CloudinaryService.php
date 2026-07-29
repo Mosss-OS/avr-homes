@@ -218,4 +218,92 @@ class CloudinaryService
       $options
     );
   }
+
+  /**
+   * Delete a resource from Cloudinary by its public URL.
+   * The URL must be a Cloudinary secure_url (res.cloudinary.com/...).
+   * Extracts the public_id and resource type automatically from the URL.
+   *
+   * @param string $cloudinaryUrl Full Cloudinary URL (https://res.cloudinary.com/...)
+   * @return array{success: bool, error?: string}
+   */
+  public static function deleteByUrl(string $cloudinaryUrl): array
+  {
+    // Only attempt deletion if this is a Cloudinary URL
+    if (!str_contains($cloudinaryUrl, 'res.cloudinary.com/')) {
+      return ['success' => true]; // Not a Cloudinary URL, nothing to do
+    }
+
+    try {
+      [$cloudName, $apiKey, $apiSecret] = self::config();
+    } catch (RuntimeException $e) {
+      return ['success' => false, 'error' => $e->getMessage()];
+    }
+
+    // Determine resource type from URL path
+    $resourceType = 'image';
+    if (preg_match('#/(image|video|raw)/upload/#', $cloudinaryUrl, $m)) {
+      $resourceType = $m[1];
+    }
+
+    // Parse public_id from URL
+    // Format: https://res.cloudinary.com/cloud_name/image/upload/v1234567/folder/public_id.ext
+    $parts = parse_url($cloudinaryUrl);
+    $path = $parts['path'] ?? '';
+
+    // Remove /cloud_name/image/upload/v1234567/ prefix
+    $path = preg_replace('#^/[^/]+/(image|video|raw)/upload/[^/]+/#', '', $path);
+    // Remove file extension
+    $path = preg_replace('#\.\w+$#', '', $path);
+
+    if (!$path) {
+      return ['success' => false, 'error' => 'Could not parse public_id from URL'];
+    }
+
+    $publicId = $path;
+
+    $timestamp = time();
+    $paramsToSign = [
+      'timestamp' => $timestamp,
+      'public_id' => $publicId,
+    ];
+    ksort($paramsToSign);
+    $signStr = '';
+    foreach ($paramsToSign as $k => $v) {
+      $signStr .= "{$k}={$v}&";
+    }
+    $signStr = rtrim($signStr, '&') . $apiSecret;
+    $signature = sha1($signStr);
+
+    $url = "https://api.cloudinary.com/v1_1/{$cloudName}/{$resourceType}/destroy";
+
+    $postFields = [
+      'public_id'  => $publicId,
+      'api_key'    => $apiKey,
+      'signature'  => $signature,
+      'timestamp'  => $timestamp,
+    ];
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+      CURLOPT_POST           => true,
+      CURLOPT_POSTFIELDS     => http_build_query($postFields),
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT        => 30,
+      CURLOPT_CONNECTTIMEOUT => 10,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if ($httpCode !== 200 || !$data || ($data['result'] ?? '') !== 'ok') {
+      $errMsg = $data['error']['message'] ?? "HTTP {$httpCode}";
+      return ['success' => false, 'error' => "Cloudinary delete error: {$errMsg}"];
+    }
+
+    return ['success' => true];
+  }
 }

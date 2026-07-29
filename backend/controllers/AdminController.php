@@ -288,11 +288,20 @@ class AdminController
     $db = Database::getConnection();
 
     try {
-      foreach (['property_images','property_videos','off_plan_progress','property_verifications','property_documents','property_bookings','property_availability'] as $table) {
+      // Delete Cloudinary assets first
+      foreach (['property_images' => 'file_path', 'property_videos' => 'file_path'] as $table => $col) {
         if (self::tableExists($db, $table)) {
+          $stmt = $db->prepare("SELECT {$col} FROM {$table} WHERE property_id = ?");
+          $stmt->execute([$id]);
+          while ($row = $stmt->fetch()) {
+            if (!empty($row[$col])) {
+              CloudinaryService::deleteByUrl($row[$col]);
+            }
+          }
           $db->prepare("DELETE FROM {$table} WHERE property_id = ?")->execute([$id]);
         }
       }
+      foreach (['off_plan_progress','property_verifications','property_documents','property_bookings','property_availability'] as $table) {
       if (self::tableExists($db, 'investment_properties')) {
         $db->prepare('UPDATE investment_properties SET property_id = NULL WHERE property_id = ?')->execute([$id]);
       }
@@ -1465,6 +1474,11 @@ class AdminController
     $stmt->execute([$id]);
     $img = $stmt->fetch();
     if (!$img) Response::error('Image not found', 404);
+
+    // Delete from Cloudinary if it's a Cloudinary URL
+    if (!empty($img['file_path'])) {
+      CloudinaryService::deleteByUrl($img['file_path']);
+    }
 
     $db->prepare("DELETE FROM property_images WHERE id = ?")->execute([$id]);
 
