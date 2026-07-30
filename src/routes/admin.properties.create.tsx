@@ -39,6 +39,7 @@ interface FormData {
   beds: string; baths: string; area: string; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
   image: File | null; images: File[]; videos: File[]; videoUrls: string[]; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  nightly_price: string; min_stay: string; max_stay: string;
   is_off_plan: boolean; completion_date: string; status: string;
 }
 
@@ -58,6 +59,7 @@ function AdminCreateProperty() {
     beds: "0", baths: "0", area: "0", amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
     image: null, images: [], videos: [], videoUrls: [], video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    nightly_price: "", min_stay: "1", max_stay: "",
     is_off_plan: false, completion_date: "", status: "published",
   });
 
@@ -118,7 +120,10 @@ function AdminCreateProperty() {
     if (step === 0) {
       if (!form.title.trim()) errors.title = "Title is required";
       if (!form.description.trim()) errors.description = "Description is required";
-      if (!form.price || Number(form.price) <= 0) errors.price = "Valid price is required";
+      if (form.purpose !== "shortlet" && (!form.price || Number(form.price) <= 0)) errors.price = "Valid price is required";
+    }
+    if (step === 1 && form.purpose === "shortlet") {
+      if (!form.nightly_price || Number(form.nightly_price) <= 0) errors.nightly_price = "Nightly price is required for short-let";
     }
     if (step === 2) {
       if (!form.city.trim()) errors.city = "City is required";
@@ -283,6 +288,26 @@ function AdminCreateProperty() {
                 ))}
               </div>
             </div>
+            {form.purpose === "shortlet" && (
+              <div className="rounded-xl border border-border bg-accent/30 p-4">
+                <h4 className="mb-3 text-sm font-semibold text-foreground">Short-Let Pricing</h4>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <Label htmlFor="nightly_price">Nightly Price (NGN)</Label>
+                    <Input id="nightly_price" type="number" min="0" value={form.nightly_price} onChange={(e) => update("nightly_price", e.target.value)} placeholder="e.g. 250000" />
+                    {fieldErrors.nightly_price && <p className="mt-1 text-xs text-destructive">{fieldErrors.nightly_price}</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="min_stay">Min Nights</Label>
+                    <Input id="min_stay" type="number" min="1" value={form.min_stay} onChange={(e) => update("min_stay", e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="max_stay">Max Nights</Label>
+                    <Input id="max_stay" type="number" min="0" value={form.max_stay} onChange={(e) => update("max_stay", e.target.value)} placeholder="Unlimited" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -445,10 +470,13 @@ function AdminCreateProperty() {
               <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div><span className="text-muted-foreground">Type:</span> <span className="font-medium capitalize">{form.type}</span></div>
                 <div><span className="text-muted-foreground">Purpose:</span> <span className="font-medium capitalize">{form.purpose}</span></div>
-                <div><span className="text-muted-foreground">Price:</span> <span className="font-medium">₦{Number(form.price).toLocaleString()}</span></div>
+                <div><span className="text-muted-foreground">Price:</span> <span className="font-medium">{form.purpose === "shortlet" ? (form.nightly_price ? `₦${Number(form.nightly_price).toLocaleString()}/night` : "—") : `₦${Number(form.price).toLocaleString()}`}</span></div>
                 <div><span className="text-muted-foreground">Area:</span> <span className="font-medium">{form.area} sqm</span></div>
                 <div><span className="text-muted-foreground">Beds / Baths:</span> <span className="font-medium">{form.beds} / {form.baths}</span></div>
                 <div><span className="text-muted-foreground">Location:</span> <span className="font-medium">{form.community}, {form.city}</span></div>
+                {form.purpose === "shortlet" && form.nightly_price && (
+                  <div><span className="text-muted-foreground">Min stay:</span> <span className="font-medium">{form.min_stay || 1} night{Number(form.min_stay || 1) > 1 ? "s" : ""}</span></div>
+                )}
               </div>
               <div className="mt-4">
                 <span className="text-xs text-muted-foreground">Status: </span>

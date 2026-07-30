@@ -41,6 +41,7 @@ interface PropertyData {
   beds: number; baths: number; area: number; amenities: string[];
   city: string; community: string; address: string; lat: string; lng: string;
   image: string | null; video_url: string; virtual_tour_url: string; floor_plan_url: string;
+  nightly_price: number; min_stay: number; max_stay: number | null;
   is_active: number; featured: boolean; is_verified: boolean; is_off_plan: boolean; completion_date: string | null;
 }
 
@@ -66,6 +67,7 @@ function AdminEditProperty() {
     beds: 0, baths: 0, area: 0, amenities: [],
     city: "", community: "", address: "", lat: "", lng: "",
     image: null, video_url: "", virtual_tour_url: "", floor_plan_url: "",
+    nightly_price: 0, min_stay: 1, max_stay: null,
     is_active: 1, featured: false, is_verified: false, is_off_plan: false, completion_date: null,
   });
 
@@ -84,6 +86,7 @@ function AdminEditProperty() {
           lat: String(p.lat ?? ""), lng: String(p.lng ?? ""),
           image: p.image || null, video_url: p.video_url || "",
           virtual_tour_url: p.virtual_tour_url || "", floor_plan_url: p.floor_plan_url || "",
+          nightly_price: p.nightly_price || 0, min_stay: p.min_stay || 1, max_stay: p.max_stay || null,
           is_active: p.is_active, featured: p.featured, is_verified: p.is_verified,
           is_off_plan: p.is_off_plan, completion_date: p.completion_date || null,
         });
@@ -279,6 +282,25 @@ function AdminEditProperty() {
               ))}
             </div>
           </div>
+          {form.purpose === "shortlet" && (
+            <div className="rounded-xl border border-border bg-accent/30 p-4">
+              <h4 className="mb-3 text-sm font-semibold text-foreground">Short-Let Pricing</h4>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <Label htmlFor="nightly_price">Nightly Price (NGN)</Label>
+                  <Input id="nightly_price" type="number" min="0" value={form.nightly_price} onChange={(e) => update("nightly_price", Number(e.target.value))} placeholder="e.g. 250000" />
+                </div>
+                <div>
+                  <Label htmlFor="min_stay">Min Nights</Label>
+                  <Input id="min_stay" type="number" min="1" value={form.min_stay} onChange={(e) => update("min_stay", Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label htmlFor="max_stay">Max Nights</Label>
+                  <Input id="max_stay" type="number" min="0" value={form.max_stay ?? ""} onChange={(e) => update("max_stay", e.target.value ? Number(e.target.value) : null)} placeholder="Unlimited" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
