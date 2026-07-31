@@ -20,23 +20,30 @@ class PoolCronController
 {
   public static function daily(array $params): void
   {
-    self::generateSchedules();
-    self::sendReminders();
-    self::applyPenalties();
-    self::markDefaulted();
-    self::markFunded();
+    $summary = [
+      'schedules_generated' => self::generateSchedules(),
+      'reminders_sent' => self::sendReminders(),
+      'penalties_applied' => self::applyPenalties(),
+      'memberships_defaulted' => self::markDefaulted(),
+      'pools_funded' => self::markFunded(),
+      'run_at' => date('c'),
+    ];
+
+    Response::success($summary, 'Pool cron completed');
   }
 
   /* ────────────────────────── Tasks ────────────────────────── */
 
   /**
    * Create a pending schedule for every active membership on its due day.
+   * @return int Number of schedules created.
    */
-  private static function generateSchedules(): void
+  private static function generateSchedules(): int
   {
     $db = Database::getConnection();
     $today = (int)date('j');
     $month = date('Y-m');
+    $created = 0;
 
     $stmt = $db->query(
       "SELECT m.*, p.title as pool_title
@@ -66,17 +73,22 @@ class PoolCronController
           (float)$m['monthly_amount'], (float)$m['monthly_amount'],
           date('Y-m-d'),
         ]);
+        $created++;
       }
     }
+
+    return $created;
   }
 
   /**
    * Send reminder emails for schedules due within the pool's reminder window.
+   * @return int Number of reminder notifications sent.
    */
-  private static function sendReminders(): void
+  private static function sendReminders(): int
   {
     $db = Database::getConnection();
     $today = date('Y-m-d');
+    $sent = 0;
 
     $pools = $db->query('SELECT id, reminder_days_before FROM investment_pools WHERE status = \'active\'');
     while ($pool = $pools->fetch()) {
@@ -111,17 +123,22 @@ class PoolCronController
             '<p style="margin:0 0 12px;color:#4b5563;line-height:1.6;">Your <strong>' . NotificationService::naira((float)$s['total_due']) . '</strong> contribution to <strong>' . htmlspecialchars($s['pool_title']) . '</strong> is due on <strong>' . date('j F Y', strtotime($s['due_date'])) . '</strong>.</p>' .
             '<p style="margin:0;color:#4b5563;line-height:1.6;">Login to your AVR Homes account to pay. Late payments attract a penalty after the grace period.</p>'
           );
+          $sent++;
         }
       }
     }
+
+    return $sent;
   }
 
   /**
    * Apply the late penalty once a schedule passes its grace period.
+   * @return int Number of penalties applied.
    */
-  private static function applyPenalties(): void
+  private static function applyPenalties(): int
   {
     $db = Database::getConnection();
+    $applied = 0;
 
     $stmt = $db->query(
       "SELECT s.*, p.penalty_rate, p.grace_days
@@ -151,18 +168,23 @@ class PoolCronController
           '<p style="margin:0;color:#4b5563;line-height:1.6;">Total now due: <strong>' . NotificationService::naira((float)$s['total_due']) . '</strong>. Please pay as soon as possible.</p>'
         );
       }
+      $applied++;
     }
+
+    return $applied;
   }
 
   /**
    * Default memberships that have been overdue beyond the default window.
+   * @return int Number of memberships defaulted.
    */
-  private static function markDefaulted(): void
+  private static function markDefaulted(): int
   {
     $db = Database::getConnection();
+    $defaulted = 0;
 
     $stmt = $db->query(
-      "SELECT m.id, m.pool_id, p.default_after_days
+      "SELECT m.id, m.pool_id, m.user_id, p.default_after_days
        FROM pool_memberships m
        JOIN investment_pools p ON p.id = m.pool_id
        WHERE m.status = 'active' AND p.status = 'active'"
@@ -189,20 +211,25 @@ class PoolCronController
             '<p style="margin:0;color:#4b5563;line-height:1.6;">Please contact AVR Homes to discuss reinstatement or a refund of contributions made so far.</p>'
           );
         }
+        $defaulted++;
       }
     }
+
+    return $defaulted;
   }
 
   /**
    * Mark a pool funded once the target is reached.
+   * @return int Number of pools marked funded.
    */
-  private static function markFunded(): void
+  private static function markFunded(): int
   {
     $db = Database::getConnection();
-    $db->query(
+    $stmt = $db->query(
       "UPDATE investment_pools SET status = 'funded', funded_at = NOW()
        WHERE status = 'active' AND current_raised >= target_amount"
     );
+    return $stmt->rowCount();
   }
 
   /* ────────────────────────── Helpers ────────────────────────── */
