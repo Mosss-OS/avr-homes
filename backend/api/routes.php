@@ -30,6 +30,7 @@ route('GET', '/api/health', function () {
 });
 
 /* ── Auth routes ──────────────────────────────────────────── */
+route('POST', '/api/auth/register', ['AuthController', 'register']);
 route('POST', '/api/auth/login', ['AuthController', 'login']);
 route('POST', '/api/auth/logout', ['AuthController', 'logout']);
 route('GET', '/api/auth/me', ['AuthController', 'me']);
@@ -341,6 +342,32 @@ route('PUT',    '/api/admin/investments/dividends/{id}/pay', ['InvestmentControl
 route('GET',  '/api/admin/kyc',              ['KYCController', 'adminList']);
 route('PUT',  '/api/admin/kyc/{id}/verify',  ['KYCController', 'adminVerify']);
 route('PUT',  '/api/admin/kyc/{id}/reject',  ['KYCController', 'adminReject']);
+
+/* ── Pooled investment routes (public) ───────────────── */
+route('GET', '/api/pools', ['PoolController', 'index']);
+route('GET', '/api/pools/{id}', ['PoolController', 'show']);
+
+/* ── Pooled investment routes (authenticated user) ───── */
+route('POST', '/api/pools/{id}/join', ['PoolController', 'join']);
+route('GET', '/api/pools/my/memberships', ['PoolController', 'myPools']);
+route('GET', '/api/pools/my/memberships/{membership_id}', ['PoolController', 'myPool']);
+
+/* ── Pool payment routes (authenticated user) ────────── */
+route('POST', '/api/pools/pay/initialize', ['PoolPaymentController', 'initializePayment']);
+route('POST', '/api/pools/pay/verify', ['PoolPaymentController', 'verifyPayment']);
+route('POST', '/api/pools/pay/auto-debit', ['PoolPaymentController', 'setupAutoDebit']);
+
+/* ── Pool webhook (Paystack, public) ─────────────────── */
+route('POST', '/api/pools/pay/webhook', ['PoolPaymentController', 'webhook']);
+
+/* ── Pool cron (internal, daily) ─────────────────────── */
+route('GET', '/api/pools/cron/daily', ['PoolCronController', 'daily']);
+
+/* ── Admin pool management ───────────────────────────── */
+route('GET',    '/api/admin/pools',          ['PoolController', 'adminList']);
+route('POST',   '/api/admin/pools',          ['PoolController', 'adminCreate']);
+route('PUT',    '/api/admin/pools/{id}',     ['PoolController', 'adminUpdate']);
+route('DELETE', '/api/admin/pools/{id}',     ['PoolController', 'adminDelete']);
 
 /* ── Admin role & permission management ──────────────────── */
 route('GET', '/api/admin/roles', ['RoleController', 'adminRoles']);

@@ -204,6 +204,73 @@ class AuthController
   }
 
   /**
+   * Register a new regular (non-agent) user account.
+   *
+   * @param array $params Request parameters (unused).
+   * @return void
+   */
+  public static function register(array $params): void
+  {
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) {
+      $input = $_POST;
+    }
+
+    $validator = new Validator($input);
+    $validator
+      ->required('name', 'Full Name')
+      ->string('name', 'Full Name', 100)
+      ->required('email', 'Email')
+      ->email('email', 'Email')
+      ->required('password', 'Password')
+      ->minLength('password', 6, 'Password');
+
+    if ($validator->fails()) {
+      Response::error('Validation failed', 422, $validator->getErrors());
+    }
+
+    $data = $validator->validated();
+
+    $db = Database::getConnection();
+
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt->execute([$data['email']]);
+    if ($stmt->fetch()) {
+      Response::error('An account with this email already exists', 422, ['email' => ['Email is already registered']]);
+    }
+
+    $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]);
+
+    $stmt = $db->prepare(
+      'INSERT INTO users (name, email, password, role, is_active)
+       VALUES (?, ?, ?, ?, ?)'
+    );
+    $stmt->execute([
+      $data['name'],
+      $data['email'],
+      $hashedPassword,
+      'user',
+      1,
+    ]);
+    $userId = (int)$db->lastInsertId();
+
+    $token = AuthMiddleware::generateToken($userId);
+    $refreshToken = AuthMiddleware::generateRefreshToken($userId);
+
+    Response::success([
+      'id'            => $userId,
+      'token'         => $token,
+      'refresh_token' => $refreshToken,
+      'user'          => [
+        'id'    => $userId,
+        'name'  => $data['name'],
+        'email' => $data['email'],
+        'role'  => 'user',
+      ],
+    ], 'Registration successful', 201);
+  }
+
+  /**
    * Authenticate an agent and return tokens with agent profile data.
    *
    * @param array $params Request parameters (unused).
