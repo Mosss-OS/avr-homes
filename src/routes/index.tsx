@@ -10,6 +10,10 @@ import type { Property } from "@/lib/properties";
 import { ScrollableSection } from "@/components/scrollable-section";
 import { ArrowRight, ShieldCheck, Sparkles, Map, Home, BarChart3, Users, Star, Plane, FileCheck, Banknote, Search, Play, Heart, Building2, MapPin, LandPlot, Gem, ChevronRight } from "lucide-react";
 import heroLekki from "@/assets/hero-lekki.jpg";
+import heroDubai from "@/assets/hero-dubai.jpg";
+import prop1 from "@/assets/prop-1.jpg";
+import prop3 from "@/assets/prop-3.jpg";
+import prop5 from "@/assets/prop-5.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +31,62 @@ export const Route = createFileRoute("/")({
 
 interface AgentLogo { id: number; name: string; agency: string; avatar_hue?: number; avatar_url?: string; listings: number; }
 interface StatsData { total_properties: number; featured_properties: number; cities_covered: number; total_agents: number; total_users: number; }
+
+const HERO_IMAGES = [
+  { src: heroLekki, alt: "Civic Towers, Lekki — Lagos luxury skyline" },
+  { src: heroDubai, alt: "Luxury high-rise development" },
+  { src: prop1, alt: "Modern luxury apartment interior" },
+  { src: prop3, alt: "Premium residential home" },
+  { src: prop5, alt: "Elegant property exterior" },
+];
+
+const HERO_SLIDE_MS = 5000;
+
+/** Auto-advancing infinite hero carousel with crossfade and a subtle Ken Burns zoom. */
+function HeroCarousel() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(() => setActive((i) => (i + 1) % HERO_IMAGES.length), HERO_SLIDE_MS);
+    return () => clearInterval(t);
+  }, [paused]);
+
+  return (
+    <div
+      className="absolute inset-0"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {HERO_IMAGES.map((img, i) => (
+        <img
+          key={img.src}
+          src={img.src}
+          alt={img.alt}
+          loading="eager"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[2000ms] ease-in-out ${
+            i === active ? "opacity-40" : "opacity-0"
+          }`}
+          style={i === active ? { transform: "scale(1.08)", transitionProperty: "opacity, transform" } : { transform: "scale(1)" }}
+        />
+      ))}
+      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2">
+        {HERO_IMAGES.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Show slide ${i + 1}`}
+            onClick={() => setActive(i)}
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              i === active ? "w-6 bg-[#C9A84C]" : "w-1.5 bg-white/40 hover:bg-white/70"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function HomePage() {
   const [featured, setFeatured] = useState<Property[]>([]);
@@ -59,12 +119,7 @@ function HomePage() {
         className="relative flex min-h-dvh flex-col justify-center overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0A1628 0%, #1B2E4B 100%)" }}
       >
-        <img
-          src={heroLekki}
-          alt="Civic Towers, Lekki — Lagos luxury skyline"
-          className="absolute inset-0 h-full w-full object-cover opacity-40"
-          loading="eager"
-        />
+        <HeroCarousel />
         <div
           className="absolute inset-0"
           style={{
