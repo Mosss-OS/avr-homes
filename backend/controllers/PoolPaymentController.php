@@ -66,7 +66,14 @@ class PoolPaymentController
     } else {
       $scheduleId = (int)($input['schedule_id'] ?? 0);
       if ($scheduleId <= 0) {
-        Response::error('schedule_id is required for schedule payments', 422);
+        // No schedule specified — resolve the next outstanding installment.
+        $next = $db->prepare("SELECT id FROM pool_schedules WHERE membership_id = ? AND status IN ('pending','overdue') ORDER BY due_date ASC LIMIT 1");
+        $next->execute([$membershipId]);
+        $nextRow = $next->fetch();
+        $scheduleId = $nextRow ? (int)$nextRow['id'] : 0;
+      }
+      if ($scheduleId <= 0) {
+        Response::error('No outstanding installment to pay', 422);
       }
       $sched = $db->prepare('SELECT * FROM pool_schedules WHERE id = ? AND membership_id = ?');
       $sched->execute([$scheduleId, $membershipId]);

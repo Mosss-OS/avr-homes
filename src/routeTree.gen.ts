@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShortletRouteImport } from './routes/shortlet'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as RentRouteImport } from './routes/rent'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PropertiesRouteImport } from './routes/properties'
+import { Route as PoolsRouteImport } from './routes/pools'
 import { Route as MarketInsightsRouteImport } from './routes/market-insights'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as LandRouteImport } from './routes/land'
@@ -28,6 +30,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as PoolsIdRouteImport } from './routes/pools.$id'
 import { Route as InvestIdRouteImport } from './routes/invest.$id'
 import { Route as InquiryIdRouteImport } from './routes/inquiry.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -64,6 +67,8 @@ import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcem
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAgentsRouteImport } from './routes/admin.agents'
 import { Route as AdminActivityRouteImport } from './routes/admin.activity'
+import { Route as AccountPoolsRouteImport } from './routes/account.pools'
+import { Route as PoolsIdPaymentRouteImport } from './routes/pools.$id.payment'
 import { Route as AgentDashboardVerificationRouteImport } from './routes/agent.dashboard.verification'
 import { Route as AgentDashboardSubscriptionsRouteImport } from './routes/agent.dashboard.subscriptions'
 import { Route as AgentDashboardReferralsRouteImport } from './routes/agent.dashboard.referrals'
@@ -75,6 +80,7 @@ import { Route as AgentDashboardHelpRouteImport } from './routes/agent.dashboard
 import { Route as AgentDashboardBlogRouteImport } from './routes/agent.dashboard.blog'
 import { Route as AdminPropertiesCreateRouteImport } from './routes/admin.properties.create'
 import { Route as AdminInvestmentsNewRouteImport } from './routes/admin.investments.new'
+import { Route as AccountPoolsIdRouteImport } from './routes/account.pools.$id'
 import { Route as AgentDashboardListingsCreateRouteImport } from './routes/agent.dashboard.listings.create'
 import { Route as AdminUsersIdEditRouteImport } from './routes/admin.users.$id.edit'
 import { Route as AdminPropertiesIdEditRouteImport } from './routes/admin.properties.$id.edit'
@@ -97,9 +103,19 @@ const RentRoute = RentRouteImport.update({
   path: '/rent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropertiesRoute = PropertiesRouteImport.update({
   id: '/properties',
   path: '/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoolsRoute = PoolsRouteImport.update({
+  id: '/pools',
+  path: '/pools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketInsightsRoute = MarketInsightsRouteImport.update({
@@ -176,6 +192,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => PropertiesRoute,
+} as any)
+const PoolsIdRoute = PoolsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PoolsRoute,
 } as any)
 const InvestIdRoute = InvestIdRouteImport.update({
   id: '/$id',
@@ -357,6 +378,16 @@ const AdminActivityRoute = AdminActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => AdminRoute,
 } as any)
+const AccountPoolsRoute = AccountPoolsRouteImport.update({
+  id: '/account/pools',
+  path: '/account/pools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoolsIdPaymentRoute = PoolsIdPaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => PoolsIdRoute,
+} as any)
 const AgentDashboardVerificationRoute =
   AgentDashboardVerificationRouteImport.update({
     id: '/verification',
@@ -414,6 +445,11 @@ const AdminInvestmentsNewRoute = AdminInvestmentsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AdminInvestmentsRoute,
 } as any)
+const AccountPoolsIdRoute = AccountPoolsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AccountPoolsRoute,
+} as any)
 const AgentDashboardListingsCreateRoute =
   AgentDashboardListingsCreateRouteImport.update({
     id: '/create',
@@ -462,10 +498,13 @@ export interface FileRoutesByFullPath {
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
+  '/pools': typeof PoolsRouteWithChildren
   '/properties': typeof PropertiesRouteWithChildren
+  '/register': typeof RegisterRoute
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
+  '/account/pools': typeof AccountPoolsRouteWithChildren
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -502,7 +541,9 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
+  '/pools/$id': typeof PoolsIdRouteWithChildren
   '/properties/$id': typeof PropertiesIdRoute
+  '/account/pools/$id': typeof AccountPoolsIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -514,6 +555,7 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/pools/$id/payment': typeof PoolsIdPaymentRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
   '/admin/investments/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
@@ -536,10 +578,13 @@ export interface FileRoutesByTo {
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
+  '/pools': typeof PoolsRouteWithChildren
   '/properties': typeof PropertiesRouteWithChildren
+  '/register': typeof RegisterRoute
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
+  '/account/pools': typeof AccountPoolsRouteWithChildren
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -576,7 +621,9 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
+  '/pools/$id': typeof PoolsIdRouteWithChildren
   '/properties/$id': typeof PropertiesIdRoute
+  '/account/pools/$id': typeof AccountPoolsIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -588,6 +635,7 @@ export interface FileRoutesByTo {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/pools/$id/payment': typeof PoolsIdPaymentRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
   '/admin/investments/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
@@ -611,10 +659,13 @@ export interface FileRoutesById {
   '/land': typeof LandRoute
   '/map': typeof MapRoute
   '/market-insights': typeof MarketInsightsRoute
+  '/pools': typeof PoolsRouteWithChildren
   '/properties': typeof PropertiesRouteWithChildren
+  '/register': typeof RegisterRoute
   '/rent': typeof RentRoute
   '/saved': typeof SavedRoute
   '/shortlet': typeof ShortletRoute
+  '/account/pools': typeof AccountPoolsRouteWithChildren
   '/admin/activity': typeof AdminActivityRoute
   '/admin/agents': typeof AdminAgentsRouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -651,7 +702,9 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/inquiry/$id': typeof InquiryIdRoute
   '/invest/$id': typeof InvestIdRoute
+  '/pools/$id': typeof PoolsIdRouteWithChildren
   '/properties/$id': typeof PropertiesIdRoute
+  '/account/pools/$id': typeof AccountPoolsIdRoute
   '/admin/investments/new': typeof AdminInvestmentsNewRoute
   '/admin/properties/create': typeof AdminPropertiesCreateRoute
   '/agent/dashboard/blog': typeof AgentDashboardBlogRoute
@@ -663,6 +716,7 @@ export interface FileRoutesById {
   '/agent/dashboard/referrals': typeof AgentDashboardReferralsRoute
   '/agent/dashboard/subscriptions': typeof AgentDashboardSubscriptionsRoute
   '/agent/dashboard/verification': typeof AgentDashboardVerificationRoute
+  '/pools/$id/payment': typeof PoolsIdPaymentRoute
   '/admin/agents/$id/edit': typeof AdminAgentsIdEditRoute
   '/admin/investments_/$id/edit': typeof AdminInvestmentsIdEditRoute
   '/admin/properties/$id/edit': typeof AdminPropertiesIdEditRoute
@@ -687,10 +741,13 @@ export interface FileRouteTypes {
     | '/land'
     | '/map'
     | '/market-insights'
+    | '/pools'
     | '/properties'
+    | '/register'
     | '/rent'
     | '/saved'
     | '/shortlet'
+    | '/account/pools'
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
@@ -727,7 +784,9 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/inquiry/$id'
     | '/invest/$id'
+    | '/pools/$id'
     | '/properties/$id'
+    | '/account/pools/$id'
     | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -739,6 +798,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/pools/$id/payment'
     | '/admin/agents/$id/edit'
     | '/admin/investments/$id/edit'
     | '/admin/properties/$id/edit'
@@ -761,10 +821,13 @@ export interface FileRouteTypes {
     | '/land'
     | '/map'
     | '/market-insights'
+    | '/pools'
     | '/properties'
+    | '/register'
     | '/rent'
     | '/saved'
     | '/shortlet'
+    | '/account/pools'
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
@@ -801,7 +864,9 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/inquiry/$id'
     | '/invest/$id'
+    | '/pools/$id'
     | '/properties/$id'
+    | '/account/pools/$id'
     | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -813,6 +878,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/pools/$id/payment'
     | '/admin/agents/$id/edit'
     | '/admin/investments/$id/edit'
     | '/admin/properties/$id/edit'
@@ -835,10 +901,13 @@ export interface FileRouteTypes {
     | '/land'
     | '/map'
     | '/market-insights'
+    | '/pools'
     | '/properties'
+    | '/register'
     | '/rent'
     | '/saved'
     | '/shortlet'
+    | '/account/pools'
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/analytics'
@@ -875,7 +944,9 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/inquiry/$id'
     | '/invest/$id'
+    | '/pools/$id'
     | '/properties/$id'
+    | '/account/pools/$id'
     | '/admin/investments/new'
     | '/admin/properties/create'
     | '/agent/dashboard/blog'
@@ -887,6 +958,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/referrals'
     | '/agent/dashboard/subscriptions'
     | '/agent/dashboard/verification'
+    | '/pools/$id/payment'
     | '/admin/agents/$id/edit'
     | '/admin/investments_/$id/edit'
     | '/admin/properties/$id/edit'
@@ -910,10 +982,13 @@ export interface RootRouteChildren {
   LandRoute: typeof LandRoute
   MapRoute: typeof MapRoute
   MarketInsightsRoute: typeof MarketInsightsRoute
+  PoolsRoute: typeof PoolsRouteWithChildren
   PropertiesRoute: typeof PropertiesRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
   RentRoute: typeof RentRoute
   SavedRoute: typeof SavedRoute
   ShortletRoute: typeof ShortletRoute
+  AccountPoolsRoute: typeof AccountPoolsRouteWithChildren
   AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
   AgentLoginRoute: typeof AgentLoginRoute
   AgentRegisterRoute: typeof AgentRegisterRoute
@@ -944,11 +1019,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/properties': {
       id: '/properties'
       path: '/properties'
       fullPath: '/properties'
       preLoaderRoute: typeof PropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pools': {
+      id: '/pools'
+      path: '/pools'
+      fullPath: '/pools'
+      preLoaderRoute: typeof PoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market-insights': {
@@ -1055,6 +1144,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/properties/$id'
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof PropertiesRoute
+    }
+    '/pools/$id': {
+      id: '/pools/$id'
+      path: '/$id'
+      fullPath: '/pools/$id'
+      preLoaderRoute: typeof PoolsIdRouteImport
+      parentRoute: typeof PoolsRoute
     }
     '/invest/$id': {
       id: '/invest/$id'
@@ -1308,6 +1404,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminActivityRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/account/pools': {
+      id: '/account/pools'
+      path: '/account/pools'
+      fullPath: '/account/pools'
+      preLoaderRoute: typeof AccountPoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pools/$id/payment': {
+      id: '/pools/$id/payment'
+      path: '/payment'
+      fullPath: '/pools/$id/payment'
+      preLoaderRoute: typeof PoolsIdPaymentRouteImport
+      parentRoute: typeof PoolsIdRoute
+    }
     '/agent/dashboard/verification': {
       id: '/agent/dashboard/verification'
       path: '/verification'
@@ -1384,6 +1494,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/investments/new'
       preLoaderRoute: typeof AdminInvestmentsNewRouteImport
       parentRoute: typeof AdminInvestmentsRoute
+    }
+    '/account/pools/$id': {
+      id: '/account/pools/$id'
+      path: '/$id'
+      fullPath: '/account/pools/$id'
+      preLoaderRoute: typeof AccountPoolsIdRouteImport
+      parentRoute: typeof AccountPoolsRoute
     }
     '/agent/dashboard/listings/create': {
       id: '/agent/dashboard/listings/create'
@@ -1577,6 +1694,27 @@ const InvestRouteChildren: InvestRouteChildren = {
 const InvestRouteWithChildren =
   InvestRoute._addFileChildren(InvestRouteChildren)
 
+interface PoolsIdRouteChildren {
+  PoolsIdPaymentRoute: typeof PoolsIdPaymentRoute
+}
+
+const PoolsIdRouteChildren: PoolsIdRouteChildren = {
+  PoolsIdPaymentRoute: PoolsIdPaymentRoute,
+}
+
+const PoolsIdRouteWithChildren =
+  PoolsIdRoute._addFileChildren(PoolsIdRouteChildren)
+
+interface PoolsRouteChildren {
+  PoolsIdRoute: typeof PoolsIdRouteWithChildren
+}
+
+const PoolsRouteChildren: PoolsRouteChildren = {
+  PoolsIdRoute: PoolsIdRouteWithChildren,
+}
+
+const PoolsRouteWithChildren = PoolsRoute._addFileChildren(PoolsRouteChildren)
+
 interface PropertiesRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
@@ -1587,6 +1725,18 @@ const PropertiesRouteChildren: PropertiesRouteChildren = {
 
 const PropertiesRouteWithChildren = PropertiesRoute._addFileChildren(
   PropertiesRouteChildren,
+)
+
+interface AccountPoolsRouteChildren {
+  AccountPoolsIdRoute: typeof AccountPoolsIdRoute
+}
+
+const AccountPoolsRouteChildren: AccountPoolsRouteChildren = {
+  AccountPoolsIdRoute: AccountPoolsIdRoute,
+}
+
+const AccountPoolsRouteWithChildren = AccountPoolsRoute._addFileChildren(
+  AccountPoolsRouteChildren,
 )
 
 interface AgentDashboardListingsRouteChildren {
@@ -1648,10 +1798,13 @@ const rootRouteChildren: RootRouteChildren = {
   LandRoute: LandRoute,
   MapRoute: MapRoute,
   MarketInsightsRoute: MarketInsightsRoute,
+  PoolsRoute: PoolsRouteWithChildren,
   PropertiesRoute: PropertiesRouteWithChildren,
+  RegisterRoute: RegisterRoute,
   RentRoute: RentRoute,
   SavedRoute: SavedRoute,
   ShortletRoute: ShortletRoute,
+  AccountPoolsRoute: AccountPoolsRouteWithChildren,
   AgentDashboardRoute: AgentDashboardRouteWithChildren,
   AgentLoginRoute: AgentLoginRoute,
   AgentRegisterRoute: AgentRegisterRoute,

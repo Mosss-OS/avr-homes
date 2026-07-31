@@ -164,15 +164,17 @@ class PoolController
       ]);
       $membershipId = (int)$db->lastInsertId();
 
-      // Generate the first monthly schedule (due on the 1st of next month).
-      if ($planType !== 'lump_sum') {
-        $firstDue = date('Y-m-d', strtotime('first day of next month'));
-        $stmt = $db->prepare(
-          'INSERT INTO pool_schedules (membership_id, pool_id, user_id, due_date, amount, penalty_amount, total_due, status, created_at)
-           VALUES (?, ?, ?, ?, ?, 0, ?, \'pending\', NOW())'
-        );
-        $stmt->execute([$membershipId, $poolId, (int)$user['id'], $firstDue, $monthlyAmount, $monthlyAmount]);
-      }
+    // Generate the first monthly schedule (due on the 1st of next month).
+    $firstScheduleId = null;
+    if ($planType !== 'lump_sum') {
+      $firstDue = date('Y-m-d', strtotime('first day of next month'));
+      $stmt = $db->prepare(
+        'INSERT INTO pool_schedules (membership_id, pool_id, user_id, due_date, amount, penalty_amount, total_due, status, created_at)
+         VALUES (?, ?, ?, ?, ?, 0, ?, \'pending\', NOW())'
+      );
+      $stmt->execute([$membershipId, $poolId, (int)$user['id'], $firstDue, $monthlyAmount, $monthlyAmount]);
+      $firstScheduleId = (int)$db->lastInsertId();
+    }
 
       // Bump the pool's member count.
       $stmt = $db->prepare('UPDATE investment_pools SET member_count = member_count + 1 WHERE id = ?');
@@ -215,6 +217,7 @@ class PoolController
 
     Response::success([
       'membership_id' => $membershipId,
+      'first_schedule_id' => $firstScheduleId,
       'plan_type' => $planType,
       'monthly_amount' => $planType === 'lump_sum' ? null : $monthlyAmount,
     ], 'You have joined the pool successfully', 201);

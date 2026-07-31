@@ -1,10 +1,43 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Heart, Map, Users, Building2, Menu, X, Share2, Check, Instagram, Linkedin, Facebook, Youtube, Music2, LogIn, LayoutDashboard, LogOut, ChevronDown, Home, Search, ShieldCheck, BarChart3, Info, Phone, Globe, GraduationCap, BookOpen, DollarSign, Send, Sparkles, TrendingUp } from "lucide-react";
+import {
+  Heart,
+  Map,
+  Users,
+  Building2,
+  Menu,
+  X,
+  Share2,
+  Check,
+  Instagram,
+  Linkedin,
+  Facebook,
+  Youtube,
+  Music2,
+  LogIn,
+  LayoutDashboard,
+  LogOut,
+  ChevronDown,
+  Home,
+  Search,
+  ShieldCheck,
+  BarChart3,
+  Info,
+  Phone,
+  Globe,
+  GraduationCap,
+  BookOpen,
+  DollarSign,
+  Send,
+  Sparkles,
+  TrendingUp,
+  HandCoins,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { fetchSettings, type AppSettings } from "@/lib/settings";
 import { NotificationBell } from "@/components/notification-bell";
-const LOGO_URL = "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
+const LOGO_URL =
+  "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
 
 interface MegaItem {
   label: string;
@@ -26,10 +59,28 @@ const MEGA_MENU: MegaGroup[] = [
     label: "Properties",
     icon: Building2,
     items: [
-      { label: "Buy", to: "/properties", search: { purpose: "buy" }, icon: Home, desc: "Luxury homes for purchase" },
-      { label: "Rent", to: "/properties", search: { purpose: "rent" }, icon: Search, desc: "Premium rental listings" },
+      {
+        label: "Buy",
+        to: "/properties",
+        search: { purpose: "buy" },
+        icon: Home,
+        desc: "Luxury homes for purchase",
+      },
+      {
+        label: "Rent",
+        to: "/properties",
+        search: { purpose: "rent" },
+        icon: Search,
+        desc: "Premium rental listings",
+      },
       { label: "Map View", to: "/map", icon: Map, desc: "Explore properties on map" },
-      { label: "Virtual Tours", to: "/properties", search: { purpose: "buy" }, icon: Globe, desc: "360° virtual walkthroughs" },
+      {
+        label: "Virtual Tours",
+        to: "/properties",
+        search: { purpose: "buy" },
+        icon: Globe,
+        desc: "360° virtual walkthroughs",
+      },
     ],
   },
   {
@@ -37,7 +88,12 @@ const MEGA_MENU: MegaGroup[] = [
     icon: Users,
     items: [
       { label: "Find an Agent", to: "/agents", icon: Users, desc: "Browse verified agents" },
-      { label: "Become an Agent", to: "/agent/register", icon: ShieldCheck, desc: "Join AVR Homes network" },
+      {
+        label: "Become an Agent",
+        to: "/agent/register",
+        icon: ShieldCheck,
+        desc: "Join AVR Homes network",
+      },
       { label: "Agent Login", to: "/agent/login", icon: LogIn, desc: "Access your dashboard" },
     ],
   },
@@ -45,7 +101,12 @@ const MEGA_MENU: MegaGroup[] = [
     label: "Resources",
     icon: BookOpen,
     items: [
-      { label: "Market Insights", to: "/insights", icon: BarChart3, desc: "Lagos real estate trends" },
+      {
+        label: "Market Insights",
+        to: "/insights",
+        icon: BarChart3,
+        desc: "Lagos real estate trends",
+      },
       { label: "Blog", to: "/blog", icon: BookOpen, desc: "Guides, tips & market analysis" },
       { label: "Diaspora Investors", to: "/diaspora", icon: Globe, desc: "Invest from abroad" },
       { label: "About Us", to: "/about", icon: Info, desc: "Our story & mission" },
@@ -59,6 +120,12 @@ const MEGA_MENU: MegaGroup[] = [
       { label: "Saved Properties", to: "/saved", icon: Heart, desc: "Your saved listings" },
       { label: "Blog", to: "/blog", icon: BookOpen, desc: "Guides, tips & market analysis" },
       { label: "Invest", to: "/invest", icon: TrendingUp, desc: "Fractional property investment" },
+      {
+        label: "Pooled Buying",
+        to: "/pools",
+        icon: HandCoins,
+        desc: "Co-own property with a group (ajo/esusu)",
+      },
       { label: "Diaspora Guide", to: "/diaspora", icon: Globe, desc: "Invest from abroad" },
       { label: "Newsletter", href: "#", icon: Send, desc: "Monthly market updates" },
     ],
@@ -77,7 +144,9 @@ export function SiteHeader() {
   const pathname = router.state.location.pathname;
   const isPropertyPage = pathname.startsWith("/properties/") && pathname.split("/").length === 3;
 
-  useEffect(() => { fetchSettings().then(setSettings); }, []);
+  useEffect(() => {
+    fetchSettings().then(setSettings);
+  }, []);
 
   function handleLogout() {
     logout();
@@ -94,7 +163,9 @@ export function SiteHeader() {
         setShared(true);
         setTimeout(() => setShared(false), 1500);
       }
-    } catch { /* cancelled */ }
+    } catch {
+      /* cancelled */
+    }
   }
 
   function handleMegaEnter(index: number) {
@@ -107,7 +178,9 @@ export function SiteHeader() {
   }
 
   useEffect(() => {
-    return () => { if (closeTimer.current) clearTimeout(closeTimer.current); };
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
   }, []);
 
   return (
@@ -128,71 +201,89 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop Mega Menu */}
-        <nav className="hidden items-center gap-0 lg:flex"
-          onMouseLeave={handleMegaLeave}>
+        <nav className="hidden items-center gap-0 lg:flex" onMouseLeave={handleMegaLeave}>
           {MEGA_MENU.map((group, i) => (
-            <div key={group.label}
-              onMouseEnter={() => handleMegaEnter(i)}>
+            <div key={group.label} onMouseEnter={() => handleMegaEnter(i)}>
               <button
                 className={`flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium transition ${
-                  activeMega === i ? "bg-secondary text-foreground" : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+                  activeMega === i
+                    ? "bg-secondary text-foreground"
+                    : "text-foreground/70 hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 {group.label}
-                <ChevronDown className={`h-3.5 w-3.5 transition ${activeMega === i ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition ${activeMega === i ? "rotate-180" : ""}`}
+                />
               </button>
             </div>
           ))}
         </nav>
 
         {/* Mega Menu Dropdown - centered on page */}
-        {activeMega !== null && (() => {
-          const group = MEGA_MENU[activeMega];
-          const IconComp = group.icon;
-          return (
-            <div className="absolute left-1/2 top-full z-50 w-[80vw] max-w-6xl -translate-x-1/2 pt-2"
-              onMouseEnter={() => handleMegaEnter(activeMega)}
-              onMouseLeave={handleMegaLeave}>
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
-                <div className="mb-3 flex items-center gap-2 border-b border-border pb-3">
-                  {IconComp && <IconComp className="h-5 w-5 text-primary" />}
-                  <span className="font-display text-base font-semibold">{group.label}</span>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {group.items.map((item) => {
-                    const ItemIcon = item.icon;
-                    const content = (
-                      <div className="group/item flex items-start gap-3 rounded-xl p-3 transition hover:bg-secondary/80">
-                        {ItemIcon && (
-                          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                            <ItemIcon className="h-4 w-4" />
+        {activeMega !== null &&
+          (() => {
+            const group = MEGA_MENU[activeMega];
+            const IconComp = group.icon;
+            return (
+              <div
+                className="absolute left-1/2 top-full z-50 w-[80vw] max-w-6xl -translate-x-1/2 pt-2"
+                onMouseEnter={() => handleMegaEnter(activeMega)}
+                onMouseLeave={handleMegaLeave}
+              >
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
+                  <div className="mb-3 flex items-center gap-2 border-b border-border pb-3">
+                    {IconComp && <IconComp className="h-5 w-5 text-primary" />}
+                    <span className="font-display text-base font-semibold">{group.label}</span>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {group.items.map((item) => {
+                      const ItemIcon = item.icon;
+                      const content = (
+                        <div className="group/item flex items-start gap-3 rounded-xl p-3 transition hover:bg-secondary/80">
+                          {ItemIcon && (
+                            <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                              <ItemIcon className="h-4 w-4" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium group-hover/item:text-primary">
+                              {item.label}
+                            </div>
+                            {item.desc && (
+                              <div className="text-xs text-muted-foreground">{item.desc}</div>
+                            )}
                           </div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium group-hover/item:text-primary">{item.label}</div>
-                          {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
                         </div>
-                      </div>
-                    );
-
-                    if (item.to) {
-                      return (
-                        <Link key={item.label} to={item.to} search={item.search as never} onClick={() => setActiveMega(null)}>
-                          {content}
-                        </Link>
                       );
-                    }
-                    return (
-                      <a key={item.label} href={item.href || "#"} onClick={() => setActiveMega(null)}>
-                        {content}
-                      </a>
-                    );
-                  })}
+
+                      if (item.to) {
+                        return (
+                          <Link
+                            key={item.label}
+                            to={item.to}
+                            search={item.search as never}
+                            onClick={() => setActiveMega(null)}
+                          >
+                            {content}
+                          </Link>
+                        );
+                      }
+                      return (
+                        <a
+                          key={item.label}
+                          href={item.href || "#"}
+                          onClick={() => setActiveMega(null)}
+                        >
+                          {content}
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {isPropertyPage && (
@@ -200,7 +291,11 @@ export function SiteHeader() {
               onClick={share}
               className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
             >
-              {shared ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Share2 className="h-3.5 w-3.5" />}
+              {shared ? (
+                <Check className="h-3.5 w-3.5 text-green-500" />
+              ) : (
+                <Share2 className="h-3.5 w-3.5" />
+              )}
               {shared ? "Copied" : "Share"}
             </button>
           )}
@@ -211,23 +306,61 @@ export function SiteHeader() {
                 to="/agent/dashboard"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
               >
-                <LayoutDashboard className="h-3.5 w-3.5" />Dashboard
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
               </Link>
-              <div className="hidden sm:grid h-8 w-8 place-items-center rounded-full text-xs font-semibold text-primary-foreground"
-                style={{ background: `oklch(0.45 0.1 200)` }}>
-                {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+              <div
+                className="hidden sm:grid h-8 w-8 place-items-center rounded-full text-xs font-semibold text-primary-foreground"
+                style={{ background: `oklch(0.45 0.1 200)` }}
+              >
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
               </div>
-              <button onClick={handleLogout}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-destructive hover:text-destructive-foreground">
-                <LogOut className="h-3.5 w-3.5" />Logout
+              <button
+                onClick={handleLogout}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
+              </button>
+            </>
+          ) : user ? (
+            <>
+              <Link
+                to="/account/pools"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                My Pools
+              </Link>
+              <div
+                className="hidden sm:grid h-8 w-8 place-items-center rounded-full text-xs font-semibold text-primary-foreground"
+                style={{ background: `oklch(0.55 0.12 80)` }}
+              >
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
               </button>
             </>
           ) : (
             <Link
-              to="/agent/login"
+              to="/register"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
             >
-              <LogIn className="h-3.5 w-3.5" />Agent Login
+              <LogIn className="h-3.5 w-3.5" />
+              Login
             </Link>
           )}
           <Link
@@ -256,29 +389,45 @@ export function SiteHeader() {
               const isOpen = expandedGroups[group.label] ?? false;
               return (
                 <div key={group.label}>
-                  <button onClick={() => setExpandedGroups((prev) => ({ ...prev, [group.label]: !isOpen }))}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary">
+                  <button
+                    onClick={() =>
+                      setExpandedGroups((prev) => ({ ...prev, [group.label]: !isOpen }))
+                    }
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                  >
                     {group.icon && <group.icon className="h-4 w-4" />}
                     {group.label}
-                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown
+                      className={`ml-auto h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
-                  {isOpen && group.items.map((item) => {
-                    if (item.to) {
+                  {isOpen &&
+                    group.items.map((item) => {
+                      if (item.to) {
+                        return (
+                          <MobileLink
+                            key={item.label}
+                            to={item.to}
+                            search={item.search}
+                            onClick={() => setOpen(false)}
+                          >
+                            {item.icon && <item.icon className="h-4 w-4" />}
+                            {item.label}
+                          </MobileLink>
+                        );
+                      }
                       return (
-                        <MobileLink key={item.label} to={item.to} search={item.search} onClick={() => setOpen(false)}>
+                        <a
+                          key={item.label}
+                          href={item.href || "#"}
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-medium text-foreground/80 hover:bg-secondary"
+                        >
                           {item.icon && <item.icon className="h-4 w-4" />}
                           {item.label}
-                        </MobileLink>
+                        </a>
                       );
-                    }
-                    return (
-                      <a key={item.label} href={item.href || "#"} onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-medium text-foreground/80 hover:bg-secondary">
-                        {item.icon && <item.icon className="h-4 w-4" />}
-                        {item.label}
-                      </a>
-                    );
-                  })}
+                    })}
                 </div>
               );
             })}
@@ -286,29 +435,62 @@ export function SiteHeader() {
             {user && isAgent ? (
               <>
                 <MobileLink to="/agent/dashboard" onClick={() => setOpen(false)}>
-                  <LayoutDashboard className="h-4 w-4" />Dashboard
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
                 </MobileLink>
-                <button onClick={() => { handleLogout(); setOpen(false); }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-destructive hover:text-destructive-foreground">
-                  <LogOut className="h-4 w-4" />Logout
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </>
+            ) : user ? (
+              <>
+                <MobileLink to="/account/pools" onClick={() => setOpen(false)}>
+                  <LayoutDashboard className="h-4 w-4" />
+                  My Pools
+                </MobileLink>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
                 </button>
               </>
             ) : (
               <>
-                <MobileLink to="/agent/login" onClick={() => setOpen(false)}>
-                  <LogIn className="h-4 w-4" />Agent Login
+                <MobileLink to="/register" onClick={() => setOpen(false)}>
+                  <LogIn className="h-4 w-4" />
+                  Login / Register
                 </MobileLink>
                 <MobileLink to="/agent/register" onClick={() => setOpen(false)}>
-                  <ShieldCheck className="h-4 w-4" />Become an Agent
+                  <ShieldCheck className="h-4 w-4" />
+                  Become an Agent
                 </MobileLink>
               </>
             )}
             {isPropertyPage && (
               <button
-                onClick={() => { share(); setOpen(false); }}
+                onClick={() => {
+                  share();
+                  setOpen(false);
+                }}
                 className="mt-1 inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary"
               >
-                {shared ? <Check className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
+                {shared ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Share2 className="h-4 w-4" />
+                )}
                 {shared ? "Copied" : "Share property"}
               </button>
             )}
@@ -319,7 +501,17 @@ export function SiteHeader() {
   );
 }
 
-function MobileLink({ to, search, children, onClick }: { to: string; search?: Record<string, unknown>; children: React.ReactNode; onClick?: () => void }) {
+function MobileLink({
+  to,
+  search,
+  children,
+  onClick,
+}: {
+  to: string;
+  search?: Record<string, unknown>;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
   return (
     <Link
       to={to}
@@ -334,20 +526,28 @@ function MobileLink({ to, search, children, onClick }: { to: string; search?: Re
 }
 
 const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  Instagram, TikTok: Music2, Linkedin, Facebook, Youtube,
+  Instagram,
+  TikTok: Music2,
+  Linkedin,
+  Facebook,
+  Youtube,
 };
 
 export function SiteFooter() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
-  useEffect(() => { fetchSettings().then(setSettings); }, []);
+  useEffect(() => {
+    fetchSettings().then(setSettings);
+  }, []);
 
-  const socialLinks = settings ? [
-    { label: "Instagram", href: settings.social_instagram, icon: Instagram },
-    { label: "TikTok", href: settings.social_tiktok, icon: Music2 },
-    { label: "LinkedIn", href: settings.social_linkedin, icon: Linkedin },
-    { label: "Facebook", href: settings.social_facebook, icon: Facebook },
-    { label: "YouTube", href: settings.social_youtube, icon: Youtube },
-  ].filter((s) => s.href) : [];
+  const socialLinks = settings
+    ? [
+        { label: "Instagram", href: settings.social_instagram, icon: Instagram },
+        { label: "TikTok", href: settings.social_tiktok, icon: Music2 },
+        { label: "LinkedIn", href: settings.social_linkedin, icon: Linkedin },
+        { label: "Facebook", href: settings.social_facebook, icon: Facebook },
+        { label: "YouTube", href: settings.social_youtube, icon: Youtube },
+      ].filter((s) => s.href)
+    : [];
 
   return (
     <footer className="mt-20 border-t border-border bg-secondary/40">
@@ -364,25 +564,66 @@ export function SiteFooter() {
             </p>
             <address className="mt-4 not-italic text-sm text-muted-foreground">
               <div className="font-medium text-foreground">Visit us</div>
-              {settings?.address ? settings.address : (
-                <>2 Lanre Olumide Street,<br />Idado Estate, Igbo-efon,<br />Lekki, Lagos, Nigeria.</>
+              {settings?.address ? (
+                settings.address
+              ) : (
+                <>
+                  2 Lanre Olumide Street,
+                  <br />
+                  Idado Estate, Igbo-efon,
+                  <br />
+                  Lekki, Lagos, Nigeria.
+                </>
               )}
             </address>
-            <p className="mt-3 text-xs text-muted-foreground">{settings?.contact_email || "info@avrusthomes.com"}</p>
-            {settings?.contact_phone && <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>}
+            <p className="mt-3 text-xs text-muted-foreground">
+              {settings?.contact_email || "info@avrusthomes.com"}
+            </p>
+            {settings?.contact_phone && (
+              <p className="text-xs text-muted-foreground">{settings.contact_phone}</p>
+            )}
           </div>
 
           {/* Explore */}
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Explore</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Buy</Link>
-              <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Rent</Link>
-              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Shortlet</Link>
-              <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">Map View</Link>
-              <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">Agents</Link>
-              <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">Market Insights</Link>
-              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">Fractional Investment</Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "buy" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Buy
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "rent" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Rent
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "shortlet" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Shortlet
+              </Link>
+              <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">
+                Map View
+              </Link>
+              <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">
+                Agents
+              </Link>
+              <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">
+                Market Insights
+              </Link>
+              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">
+                Fractional Investment
+              </Link>
+              <Link to="/pools" className="text-sm text-muted-foreground hover:text-foreground">
+                Pooled Buying (Ajo)
+              </Link>
             </div>
           </div>
 
@@ -390,12 +631,44 @@ export function SiteFooter() {
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">For Sale</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/properties" search={{ purpose: "buy", type: "apartment" } as never} className="text-sm text-muted-foreground hover:text-foreground">Flats & Apartments</Link>
-              <Link to="/properties" search={{ purpose: "buy", type: "villa" } as never} className="text-sm text-muted-foreground hover:text-foreground">Houses & Villas</Link>
-              <Link to="/properties" search={{ type: "land" } as never} className="text-sm text-muted-foreground hover:text-foreground">Lands</Link>
-              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Commercial Property</Link>
-              <Link to="/properties" search={{ purpose: "buy" } as never} className="text-sm text-muted-foreground hover:text-foreground">Luxury Homes</Link>
-              <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">Diaspora Investment</Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "buy", type: "apartment" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Flats & Apartments
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "buy", type: "villa" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Houses & Villas
+              </Link>
+              <Link
+                to="/properties"
+                search={{ type: "land" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Lands
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "buy" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Commercial Property
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "buy" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Luxury Homes
+              </Link>
+              <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">
+                Diaspora Investment
+              </Link>
             </div>
           </div>
 
@@ -403,19 +676,64 @@ export function SiteFooter() {
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Rent & Shortlet</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/properties" search={{ purpose: "rent" } as never} className="text-sm text-muted-foreground hover:text-foreground">Homes for Rent</Link>
-              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Shortlets</Link>
-              <Link to="/properties" search={{ purpose: "shortlet" } as never} className="text-sm text-muted-foreground hover:text-foreground">Vacation Rentals</Link>
-              <Link to="/properties" search={{ purpose: "rent", type: "apartment" } as never} className="text-sm text-muted-foreground hover:text-foreground">Serviced Apartments</Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "rent" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Homes for Rent
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "shortlet" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Shortlets
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "shortlet" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Vacation Rentals
+              </Link>
+              <Link
+                to="/properties"
+                search={{ purpose: "rent", type: "apartment" } as never}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Serviced Apartments
+              </Link>
             </div>
             <h4 className="text-sm font-semibold text-foreground mt-6 mb-3">Resources</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link>
-              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link>
-              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
-              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">Fractional Investment</Link>
-              <Link to="/agent/register" className="text-sm text-muted-foreground hover:text-foreground">Become an Agent</Link>
-              <Link to="/agent/login" className="text-sm text-muted-foreground hover:text-foreground">Agent Login</Link>
+              <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
+                Blog
+              </Link>
+              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">
+                About Us
+              </Link>
+              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">
+                Contact
+              </Link>
+              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">
+                Fractional Investment
+              </Link>
+              <Link to="/pools" className="text-sm text-muted-foreground hover:text-foreground">
+                Pooled Buying
+              </Link>
+              <Link
+                to="/agent/register"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Become an Agent
+              </Link>
+              <Link
+                to="/agent/login"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Agent Login
+              </Link>
             </div>
           </div>
 
@@ -423,23 +741,46 @@ export function SiteFooter() {
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-3">Follow AVR Homes</h4>
             <div className="flex flex-wrap gap-2">
-              {socialLinks.length > 0 ? socialLinks.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
-                  <s.icon className="h-4 w-4" />
-                </a>
-              )) : (
+              {socialLinks.length > 0 ? (
+                socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={s.label}
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <s.icon className="h-4 w-4" />
+                  </a>
+                ))
+              ) : (
                 <>
-                  <a href="https://instagram.com/avrhomes.ng" target="_blank" rel="noreferrer" aria-label="Instagram"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <a
+                    href="https://instagram.com/avrhomes.ng"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground"
+                  >
                     <Instagram className="h-4 w-4" />
                   </a>
-                  <a href="https://facebook.com/avrhomesng" target="_blank" rel="noreferrer" aria-label="Facebook"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <a
+                    href="https://facebook.com/avrhomesng"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground"
+                  >
                     <Facebook className="h-4 w-4" />
                   </a>
-                  <a href="https://linkedin.com/company/avr-homes" target="_blank" rel="noreferrer" aria-label="LinkedIn"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground">
+                  <a
+                    href="https://linkedin.com/company/avr-homes"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="LinkedIn"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-foreground/70 transition hover:bg-primary hover:text-primary-foreground"
+                  >
                     <Linkedin className="h-4 w-4" />
                   </a>
                 </>
@@ -450,16 +791,29 @@ export function SiteFooter() {
 
         {/* State/city SEO grid */}
         <div className="mt-10 border-t border-border pt-8">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Properties by Location</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+            Properties by Location
+          </h4>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {LOCATIONS.map((loc) => (
               <div key={loc.state}>
-                <Link to="/properties" search={{ city: loc.state } as never}
-                  className="text-sm font-medium text-foreground hover:text-primary">{loc.state}</Link>
+                <Link
+                  to="/properties"
+                  search={{ city: loc.state } as never}
+                  className="text-sm font-medium text-foreground hover:text-primary"
+                >
+                  {loc.state}
+                </Link>
                 <div className="mt-1 flex flex-col gap-0.5">
                   {loc.cities.slice(0, 4).map((city) => (
-                    <Link key={city} to="/properties" search={{ city } as never}
-                      className="text-xs text-muted-foreground hover:text-foreground">{city}</Link>
+                    <Link
+                      key={city}
+                      to="/properties"
+                      search={{ city } as never}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      {city}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -475,8 +829,14 @@ export function SiteFooter() {
 }
 
 const LOCATIONS = [
-  { state: "Lagos", cities: ["Lekki", "Ikoyi", "Victoria Island", "Ikeja", "Ajah", "Surulere", "Yaba", "Gbagada"] },
-  { state: "Abuja", cities: ["Maitama", "Wuse 2", "Asokoro", "Gwarinpa", "Jabi", "Kubwa", "Lugbe", "Katampe"] },
+  {
+    state: "Lagos",
+    cities: ["Lekki", "Ikoyi", "Victoria Island", "Ikeja", "Ajah", "Surulere", "Yaba", "Gbagada"],
+  },
+  {
+    state: "Abuja",
+    cities: ["Maitama", "Wuse 2", "Asokoro", "Gwarinpa", "Jabi", "Kubwa", "Lugbe", "Katampe"],
+  },
   { state: "Rivers", cities: ["Port Harcourt", "Obio Akpor", "Ikwerre", "Elelenwo"] },
   { state: "Oyo", cities: ["Ibadan", "Bodija", "Jericho", "Ring Road"] },
   { state: "Ogun", cities: ["Abeokuta", "Sagamu", "Ifo", "Ado Odo Ota"] },
