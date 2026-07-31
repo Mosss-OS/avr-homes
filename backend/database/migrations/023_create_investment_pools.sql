@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS investment_pools (
   start_date DATE NULL,
   end_date DATE NULL,
   status ENUM('draft','active','paused','funded','completed','closed') NOT NULL DEFAULT 'active',
+  funded_at TIMESTAMP NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_pool_status (status),
