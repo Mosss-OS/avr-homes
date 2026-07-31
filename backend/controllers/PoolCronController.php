@@ -18,18 +18,39 @@ declare(strict_types=1);
  */
 class PoolCronController
 {
+  /** Per-task failure reasons captured during a cron run. */
+  private static array $taskErrors = [];
+
   public static function daily(array $params): void
   {
     $summary = [
-      'schedules_generated' => self::generateSchedules(),
-      'reminders_sent' => self::sendReminders(),
-      'penalties_applied' => self::applyPenalties(),
-      'memberships_defaulted' => self::markDefaulted(),
-      'pools_funded' => self::markFunded(),
+      'schedules_generated' => self::safeTask('generateSchedules'),
+      'reminders_sent' => self::safeTask('sendReminders'),
+      'penalties_applied' => self::safeTask('applyPenalties'),
+      'memberships_defaulted' => self::safeTask('markDefaulted'),
+      'pools_funded' => self::safeTask('markFunded'),
       'run_at' => date('c'),
     ];
 
+    if (!empty(self::$taskErrors)) {
+      $summary['errors'] = self::$taskErrors;
+    }
+
     Response::success($summary, 'Pool cron completed');
+  }
+
+  /**
+   * Run a cron task, catching and recording any failure instead of aborting.
+   */
+  private static function safeTask(string $method): int
+  {
+    try {
+      return self::$method();
+    } catch (\Throwable $e) {
+      self::$taskErrors[$method] = $e->getMessage();
+      error_log("PoolCronController::{$method} failed: " . $e->getMessage());
+      return 0;
+    }
   }
 
   /* ────────────────────────── Tasks ────────────────────────── */
@@ -107,7 +128,7 @@ class PoolCronController
 
         while ($s = $stmt->fetch()) {
           $last = $db->prepare(
-            'SELECT id FROM pool_notifications WHERE user_id = ? AND type = \'reminder\' AND schedule_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 2 DAY)'
+            'SELECT id FROM pool_notifications WHERE user_id = ? AND type = \'reminder\' AND schedule_id = ? AND sent_at >= DATE_SUB(NOW(), INTERVAL 2 DAY)'
           );
           $last->execute([(int)$s['user_id'], (int)$s['id']]);
           if ($last->fetch()) {
@@ -191,12 +212,12 @@ class PoolCronController
     );
 
     while ($m = $stmt->fetch()) {
+      $window = max(0, (int)$m['default_after_days']);
       $overdue = $db->prepare(
         "SELECT COUNT(*) as cnt FROM pool_schedules
-         WHERE membership_id = ? AND status = 'overdue' AND penalty_applied_at < DATE_SUB(NOW(), INTERVAL ? DAY)"
+         WHERE membership_id = ? AND status = 'overdue' AND penalty_applied_at < DATE_SUB(NOW(), INTERVAL {$window} DAY)"
       );
-      $overdue->execute([(int)$m['id'], (int)$m['default_after_days']]);
-      $row = $overdue->fetch();
+      $overdue->execute([(int)$m['id']]);      $row = $overdue->fetch();
       if ((int)$row['cnt'] > 0) {
         $db->prepare("UPDATE pool_memberships SET status = 'defaulted' WHERE id = ?")->execute([(int)$m['id']]);
         $user = $db->prepare('SELECT id, name, email FROM users WHERE id = ?');
