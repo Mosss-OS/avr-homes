@@ -148,7 +148,7 @@ function CreateListingPage() {
         if (images.length > 1) {
           const galleryFd = new FormData();
           for (let i = 1; i < images.length; i++) {
-            galleryFd.append("files", images[i]);
+            galleryFd.append("files[]", images[i]);
           }
           galleryFd.append("property_id", String(propertyId));
 
@@ -175,12 +175,12 @@ function CreateListingPage() {
         const allowedVideoTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"];
         for (const v of videos) {
           if (allowedVideoTypes.includes(v.type)) {
-            videoFd.append("files", v);
+            videoFd.append("files[]", v);
           }
         }
-        if (videoFd.has("files")) {
+        if (videoFd.getAll("files[]").length > 0) {
           videoFd.append("property_id", String(propertyId));
-          const videoLoadingId = toast.loading(`Uploading ${videoFd.getAll("files").length} video(s)...`);
+          const videoLoadingId = toast.loading(`Uploading ${videoFd.getAll("files[]").length} video(s)...`);
           try {
             const videoRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/video-gallery", videoFd);
             const uploaded = videoRes.data?.uploaded?.length ?? 0;

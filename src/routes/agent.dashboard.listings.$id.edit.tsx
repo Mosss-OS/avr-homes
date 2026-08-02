@@ -142,16 +142,22 @@ function EditListingPage() {
       // Upload new gallery images after save
       if (newImageFiles.length > 0) {
         const imgFd = new FormData();
-        for (const img of newImageFiles) imgFd.append("files", img);
+        for (const img of newImageFiles) imgFd.append("files[]", img);
         imgFd.append("property_id", String(id));
-        try { await api.post("/api/upload/gallery", imgFd); } catch { /* non-blocking */ }
+        try {
+          const galleryRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/gallery", imgFd);
+          const failed = galleryRes.data?.errors?.length ?? 0;
+          if (failed > 0) {
+            toast.error(`${galleryRes.data.uploaded?.length ?? 0} uploaded, ${failed} gallery image(s) failed`);
+          }
+        } catch { /* non-blocking */ }
       }
 
       // Upload new videos after save
       if (newVideoFiles.length > 0) {
         const videoFd = new FormData();
         for (const v of newVideoFiles) {
-          videoFd.append("files", v);
+          videoFd.append("files[]", v);
         }
         videoFd.append("property_id", String(id));
         try {

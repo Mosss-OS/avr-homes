@@ -157,15 +157,20 @@ function AdminEditProperty() {
       // Upload new gallery images
       if (newImageFiles.length > 0) {
         const imgFd = new FormData();
-        for (const img of newImageFiles) imgFd.append("files", img);
+        for (const img of newImageFiles) imgFd.append("files[]", img);
         imgFd.append("property_id", String(id));
-        try { await api.post("/api/admin/properties/upload-gallery", imgFd); } catch { /* non-blocking */ }
+        try {
+          const galleryRes = await api.post<{ uploaded: any[] | number; errors?: string[] }>("/api/admin/properties/upload-gallery", imgFd);
+          const uploaded = Array.isArray(galleryRes.data?.uploaded) ? galleryRes.data?.uploaded?.length : (galleryRes.data?.uploaded ?? 0);
+          const failed = galleryRes.data?.errors?.length ?? 0;
+          if (failed > 0) toast.error(`${uploaded} uploaded, ${failed} gallery image(s) failed`);
+        } catch { /* non-blocking */ }
       }
 
       // Upload new videos
       if (newVideoFiles.length > 0) {
         const videoFd = new FormData();
-        for (const v of newVideoFiles) videoFd.append("files", v);
+        for (const v of newVideoFiles) videoFd.append("files[]", v);
         videoFd.append("property_id", String(id));
         try { await api.post("/api/upload/video-gallery", videoFd); } catch { /* non-blocking */ }
       }
