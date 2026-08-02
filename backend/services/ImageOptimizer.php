@@ -36,6 +36,19 @@ class ImageOptimizer
     $srcW = $info[0];
     $srcH = $info[1];
 
+    // Skip optimisation if the decoded image may exceed the PHP memory limit.
+    // GD needs roughly 5 bytes/pixel during decode + resample; a large camera
+    // photo (e.g. 12MP) can otherwise trigger a fatal "Allowed memory size
+    // exhausted", which cannot be suppressed and would abort the request.
+    $limitBytes = self::memoryLimitBytes();
+    if ($limitBytes > 0) {
+      $estimated = (int)ceil($srcW * $srcH * 8);
+      $available = $limitBytes - (memory_get_usage(true) + (2 * 1024 * 1024));
+      if ($estimated > $available) {
+        return $filePath;
+      }
+    }
+
     // Only optimise raster images
     $src = match ($mime) {
       'image/jpeg' => @imagecreatefromjpeg($filePath),
@@ -105,5 +118,26 @@ class ImageOptimizer
   public static function isAvailable(): bool
   {
     return function_exists('imagecreatefromjpeg') && function_exists('imagecreatefrompng');
+  }
+
+  /**
+   * Parse the PHP memory_limit ini setting into bytes.
+   *
+   * @return int Limit in bytes, or -1 if unlimited.
+   */
+  private static function memoryLimitBytes(): int
+  {
+    $raw = ini_get('memory_limit');
+    if ($raw === false || $raw === '') {
+      return -1;
+    }
+    $value = (int)$raw;
+    $unit = strtoupper(substr(trim($raw), -1));
+    return match ($unit) {
+      'G' => $value * 1024 * 1024 * 1024,
+      'M' => $value * 1024 * 1024,
+      'K' => $value * 1024,
+      default => $value,
+    };
   }
 }

@@ -466,6 +466,9 @@ function AdminCreateProperty() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-6">
               <h3 className="font-display text-lg font-semibold">{form.title || "Untitled Property"}</h3>
+              {form.description && (
+                <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">{form.description}</p>
+              )}
               <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div><span className="text-muted-foreground">Type:</span> <span className="font-medium capitalize">{form.type}</span></div>
                 <div><span className="text-muted-foreground">Purpose:</span> <span className="font-medium capitalize">{form.purpose}</span></div>
@@ -473,10 +476,23 @@ function AdminCreateProperty() {
                 <div><span className="text-muted-foreground">Area:</span> <span className="font-medium">{form.area} sqm</span></div>
                 <div><span className="text-muted-foreground">Beds / Baths:</span> <span className="font-medium">{form.beds} / {form.baths}</span></div>
                 <div><span className="text-muted-foreground">Location:</span> <span className="font-medium">{form.community}, {form.city}</span></div>
+                {form.address && (
+                  <div><span className="text-muted-foreground">Address:</span> <span className="font-medium">{form.address}</span></div>
+                )}
                 {form.purpose === "shortlet" && form.nightly_price && (
-                  <div><span className="text-muted-foreground">Min stay:</span> <span className="font-medium">{form.min_stay || 1} night{Number(form.min_stay || 1) > 1 ? "s" : ""}</span></div>
+                  <div><span className="text-muted-foreground">Stay:</span> <span className="font-medium">{form.min_stay || 1}–{form.max_stay || "∞"} nights</span></div>
                 )}
               </div>
+              {form.amenities.length > 0 && (
+                <div className="mt-4">
+                  <span className="text-xs text-muted-foreground">Amenities: </span>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {form.amenities.map((a) => (
+                      <span key={a} className="rounded-full border border-border bg-background px-2.5 py-0.5 text-xs font-medium text-foreground">{a}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="mt-4">
                 <span className="text-xs text-muted-foreground">Status: </span>
                 <Select value={form.status} onValueChange={(v) => update("status", v)}>
@@ -498,6 +514,24 @@ function AdminCreateProperty() {
                 </div>
               )}
             </div>
+            {(imagePreview || imagePreviews.length > 0) && (
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <h3 className="font-display text-base font-semibold">Media</h3>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Featured" className="h-32 w-48 rounded-xl object-cover" />
+                  )}
+                  {imagePreviews.map((preview, i) => (
+                    <img key={i} src={preview} alt="" className="h-20 w-24 rounded-lg object-cover" />
+                  ))}
+                  {form.videos.length > 0 && (
+                    <span className="inline-flex h-20 w-24 items-center justify-center rounded-lg bg-accent text-xs text-muted-foreground">
+                      {form.videos.length} video{form.videos.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
           </div>
         )}
