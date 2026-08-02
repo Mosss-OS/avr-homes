@@ -215,7 +215,13 @@ function AdminCreateProperty() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
+            e.preventDefault();
+          }
+        }}>
         {step === 0 && (
           <div className="space-y-4">
             <div>

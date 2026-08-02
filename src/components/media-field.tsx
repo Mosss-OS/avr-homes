@@ -255,7 +255,12 @@ export function MediaField({
         <div className="relative">
           <Link className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onBlur={handleUrlConfirm}
-            onKeyDown={(e) => e.key === "Enter" && handleUrlConfirm()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleUrlConfirm();
+              }
+            }}
             placeholder={placeholder}
             className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-[#C9A84C]" />
           {processingUrl && (

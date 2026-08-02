@@ -204,7 +204,14 @@ function AdminEditProperty() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
+            e.preventDefault();
+          }
+        }}
+        className="space-y-6">
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <h3 className="font-display text-lg font-semibold">Basic Info</h3>
           <div>
