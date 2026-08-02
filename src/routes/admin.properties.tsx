@@ -29,12 +29,23 @@ interface PropertyRow {
   created_at: string;
 }
 
-/** Properties management page with search, status filter, pagination, and row-level actions. */
+/**
+ * Layout wrapper for /admin/properties. Renders the list page on the index
+ * path, and falls through to child routes (create/edit) via <Outlet/>.
+ * Kept hook-free on the conditional branch to avoid React error #300
+ * ("Rendered fewer hooks than expected") when navigating between the list
+ * and child routes on the same mounted route component.
+ */
 function AdminProperties() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (pathname !== "/admin/properties") return <Outlet />;
+  return <PropertiesList />;
+}
+
+/** Properties management page with search, status filter, pagination, and row-level actions. */
+function PropertiesList() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [rows, setRows] = useState<PropertyRow[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

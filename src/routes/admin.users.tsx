@@ -19,12 +19,23 @@ interface UserRow {
   is_active: boolean; email_verified_at: string | null; created_at: string;
 }
 
-/** Users management page with search, pagination, and inline role-change dropdown. */
+/**
+ * Layout wrapper for /admin/users. Renders the list page on the index
+ * path, and falls through to child routes (edit) via <Outlet/>.
+ * Kept hook-free on the conditional branch to avoid React error #300
+ * ("Rendered fewer hooks than expected") when navigating between the list
+ * and child routes on the same mounted route component.
+ */
 function AdminUsers() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (pathname !== "/admin/users") return <Outlet />;
+  return <UsersList />;
+}
+
+/** Users management page with search, pagination, and inline role-change dropdown. */
+function UsersList() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

@@ -21,12 +21,23 @@ interface AgentRow {
   created_at: string;
 }
 
-/** Agents management page with search, pagination, and row-level actions. */
+/**
+ * Layout wrapper for /admin/agents. Renders the list page on the index
+ * path, and falls through to child routes (edit) via <Outlet/>.
+ * Kept hook-free on the conditional branch to avoid React error #300
+ * ("Rendered fewer hooks than expected") when navigating between the list
+ * and child routes on the same mounted route component.
+ */
 function AdminAgents() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (pathname !== "/admin/agents") return <Outlet />;
+  return <AgentsList />;
+}
+
+/** Agents management page with search, pagination, and row-level actions. */
+function AgentsList() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [rows, setRows] = useState<AgentRow[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
