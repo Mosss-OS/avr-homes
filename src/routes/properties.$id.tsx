@@ -426,7 +426,7 @@ function Detail() {
                   </div>
                   <div className="min-w-0">
                     <div className="truncate font-semibold">{agent.name}</div>
-                    <div className="truncate text-xs text-muted-foreground">{agent.agency} · {agent.listings} listings</div>
+                    <div className="truncate text-xs text-muted-foreground">{agent.agency}{agent.listings > 0 ? ` · ${agent.listings} listings` : ""}</div>
                   </div>
                 </div>
                 <div className="mt-4 grid gap-2">

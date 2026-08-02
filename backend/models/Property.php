@@ -121,6 +121,10 @@ class Property
 
     // Get images for each property
     foreach ($properties as &$property) {
+      // Properties without an assigned agent are tied to the company (AVRust Homes).
+      if (empty($property['agent_name'])) {
+        $property = array_merge($property, self::companyAgentDefaults());
+      }
       $property['id'] = (int)$property['id'];
       $property['agent_id'] = $property['agent_id'] ? (int)$property['agent_id'] : null;
       $property['price'] = (int)$property['price'];
@@ -170,6 +174,11 @@ class Property
 
     if (!$property) {
       return null;
+    }
+
+    // Properties without an assigned agent are tied to the company (AVRust Homes).
+    if (empty($property['agent_name'])) {
+      $property = array_merge($property, self::companyAgentDefaults());
     }
 
     $property['id'] = (int)$property['id'];
@@ -307,6 +316,56 @@ class Property
     $db = Database::getConnection();
     $stmt = $db->prepare('DELETE FROM properties WHERE id = ?');
     return $stmt->execute([$id]);
+  }
+
+  /**
+   * Default agent fields used to tie a property to the company (AVRust Homes)
+   * when no agent has been assigned. Reads contact details from the settings
+   * table with sensible hardcoded fallbacks.
+   *
+   * @return array<string,mixed>
+   */
+  private static function companyAgentDefaults(): array
+  {
+    static $defaults = null;
+
+    if ($defaults !== null) {
+      return $defaults;
+    }
+
+    $settings = [];
+    try {
+      $db = Database::getConnection();
+      $stmt = $db->query('SELECT `key`, `value` FROM settings');
+      foreach ($stmt->fetchAll() as $row) {
+        $settings[$row['key']] = $row['value'];
+      }
+    } catch (\Throwable $e) {
+      // Settings table unavailable — fall back to hardcoded values below.
+    }
+
+    $siteName    = $settings['site_name'] ?? 'AVRust Homes';
+    $contactEmail = $settings['contact_email'] ?? 'info@avrusthomes.com';
+    // Prefer a single clean dialable number for the tel:/wa.me links in the
+    // agent card (contact_phone may hold several comma-separated numbers).
+    $phone = $settings['contact_whatsapp']
+      ?? $settings['whatsapp_number']
+      ?? preg_replace('/[^0-9,]/', '', $settings['contact_phone'] ?? '')
+      ?? '2348000000000';
+
+    $defaults = [
+      'agent_id'          => null,
+      'agent_name'        => $siteName,
+      'agent_agency'      => $siteName,
+      'agent_phone'       => $phone,
+      'agent_email'       => $contactEmail,
+      'agent_avatar_hue'  => 195,
+      'agent_languages'   => '["English"]',
+      'agent_is_verified' => 1,
+      'agent_bio'         => null,
+    ];
+
+    return $defaults;
   }
 
   /**
