@@ -302,6 +302,11 @@ class AdminController
         }
       }
       foreach (['off_plan_progress','property_verifications','property_documents','property_bookings','property_availability'] as $table) {
+        if (self::tableExists($db, $table)) {
+          $db->prepare("DELETE FROM {$table} WHERE property_id = ?")->execute([$id]);
+        }
+      }
+
       if (self::tableExists($db, 'investment_properties')) {
         $db->prepare('UPDATE investment_properties SET property_id = NULL WHERE property_id = ?')->execute([$id]);
       }
