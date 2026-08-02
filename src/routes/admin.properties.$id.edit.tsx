@@ -210,7 +210,7 @@ function AdminEditProperty() {
       </div>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => e.preventDefault()}
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
             e.preventDefault();
