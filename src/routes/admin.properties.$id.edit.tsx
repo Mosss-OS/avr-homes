@@ -144,8 +144,8 @@ function AdminEditProperty() {
   }
 
   /** Save changes — strips non-editable fields (featured, verified, is_active) before sending. */
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setSaving(true);
     setError("");
     try {
@@ -501,7 +501,7 @@ function AdminEditProperty() {
 
         <div className="flex items-center gap-3 border-t border-border pt-6">
           <Button type="button" variant="outline" onClick={() => navigate({ to: "/admin/properties" })}>Cancel</Button>
-          <Button type="submit" disabled={saving}>
+          <Button type="button" onClick={() => handleSubmit()} disabled={saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Save Changes
           </Button>

@@ -133,8 +133,8 @@ function AdminCreateProperty() {
   }
 
   /** Submit the completed form as multipart FormData to the API. */
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     if (!validateStep()) return;
     setLoading(true);
     setError("");
@@ -564,7 +564,7 @@ function AdminCreateProperty() {
                 Next <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+              <Button type="button" onClick={() => handleSubmit()} disabled={loading} className="w-full sm:w-auto">
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Create Property
               </Button>
