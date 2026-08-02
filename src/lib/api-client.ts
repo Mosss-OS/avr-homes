@@ -6,7 +6,7 @@
  */
 
 /** Base URL for the REST API — falls back from Vite env to a production URL. */
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+export const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
 
 /** Generic envelope returned by the API for every response. */
 interface ApiResponse<T> {

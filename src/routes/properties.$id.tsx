@@ -8,6 +8,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Phone, Mail, ArrowLeft, Heart, Share2, Calendar, Building2, Compass, Calculator, CheckCircle2, X, ChevronLeft, ChevronRight, Video, Globe, FileImage, Image as ImageIcon, HardHat, Clock } from "lucide-react";
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { formatAED, formatNightlyPrice, fetchProperty, fetchProperties, submitInquiry } from "@/lib/properties";
+import { API_URL } from "@/lib/api-client";
 import { ProgressTimeline } from "@/components/progress-timeline";
 import { isSaved, toggleSavedProp } from "@/lib/saved";
 import { PropertyCard } from "@/components/property-card";
@@ -470,7 +471,7 @@ function ShortletBooking({ property }: { property: Property }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/shortlet/${String(property.id)}/availability?check_in=${checkIn}&check_out=${checkOut}`);
+      const res = await fetch(`${API_URL}/api/shortlet/${String(property.id)}/availability?check_in=${checkIn}&check_out=${checkOut}`);
       const data = await res.json();
       if (data.success) {
         if (data.data.is_available) {
@@ -507,7 +508,7 @@ function ShortletBooking({ property }: { property: Property }) {
     setError("");
     const form = new FormData(e.currentTarget);
     try {
-      const res = await fetch(`/api/shortlet/${String(property.id)}/book`, {
+      const res = await fetch(`${API_URL}/api/shortlet/${String(property.id)}/book`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
