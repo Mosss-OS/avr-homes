@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
+import { formatNightlyPrice, formatPrice } from "@/lib/properties";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/admin/properties")({
 interface PropertyRow {
   id: number;
   title: string; purpose: string; type: string; price: number;
+  nightly_price: number | null;
   city: string; community: string; featured: boolean; is_verified: boolean;
   is_active: number; agent_name: string | null;
   created_at: string;
@@ -160,7 +162,7 @@ function AdminProperties() {
                 <tr key={r.id} className="hover:bg-secondary/30">
                   <td className="px-4 py-3 font-medium max-w-[250px] truncate">{r.title}</td>
                   <td className="px-4 py-3 capitalize">{r.purpose}</td>
-                  <td className="px-4 py-3">₦{(r.price / 1_000_000).toFixed(1)}M</td>
+                  <td className="px-4 py-3">{r.purpose === "shortlet" ? formatNightlyPrice((r.nightly_price ?? 0) > 0 ? r.nightly_price! : r.price) : formatPrice(r.price)}</td>
                   <td className="px-4 py-3">{r.city}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.agent_name || "—"}</td>
                   <td className="px-4 py-3 text-center">

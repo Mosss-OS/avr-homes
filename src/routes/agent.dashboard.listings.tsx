@@ -8,6 +8,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
+import { formatNightlyPrice, formatPrice } from "@/lib/properties";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ interface Property {
   type: string;
   purpose: string;
   price: number;
+  nightly_price: number | null;
   image: string | null;
   status: string;
   is_active: number;
@@ -154,7 +156,7 @@ function AgentListingsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-medium">₦{(p.price / 1e6).toFixed(1)}M</td>
+                  <td className="px-4 py-3 font-medium">{p.purpose === "shortlet" ? formatNightlyPrice((p.nightly_price ?? 0) > 0 ? p.nightly_price! : p.price) : formatPrice(p.price)}</td>
                   <td className="px-4 py-3">{statusBadge(p.status)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{p.inquiry_count ?? 0}</td>
                   <td className="px-4 py-3 text-right">

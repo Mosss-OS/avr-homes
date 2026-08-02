@@ -112,7 +112,7 @@ class AgentListingController
     $total = (int)$countStmt->fetchColumn();
 
     $offset = ($page - 1) * $perPage;
-    $sql = "SELECT p.id, p.title, p.slug, p.type, p.purpose, p.price, p.image,
+    $sql = "SELECT p.id, p.title, p.slug, p.type, p.purpose, p.price, p.nightly_price, p.image,
             p.beds, p.baths, p.area, p.city, p.community, p.is_active, p.featured,
             p.is_verified, p.is_off_plan, p.completion_date, p.posted_days_ago, p.created_at, p.updated_at,
             (SELECT COUNT(*) FROM inquiries WHERE property_id = p.id) as inquiry_count
@@ -128,6 +128,7 @@ class AgentListingController
     foreach ($listings as &$listing) {
       $listing['id'] = (int)$listing['id'];
       $listing['price'] = (int)$listing['price'];
+      $listing['nightly_price'] = $listing['nightly_price'] !== null ? (int)$listing['nightly_price'] : null;
       $listing['beds'] = (int)$listing['beds'];
       $listing['baths'] = (int)$listing['baths'];
       $listing['area'] = (int)$listing['area'];

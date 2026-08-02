@@ -114,6 +114,7 @@ class AdminController
     foreach ($rows as &$r) {
       $r['id'] = (int)$r['id'];
       $r['price'] = (int)$r['price'];
+      $r['nightly_price'] = $r['nightly_price'] !== null ? (int)$r['nightly_price'] : null;
       $r['beds'] = (int)$r['beds'];
       $r['baths'] = (int)$r['baths'];
       $r['area'] = (int)$r['area'];

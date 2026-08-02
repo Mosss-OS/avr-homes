@@ -63,15 +63,16 @@ class NotificationController
     $user = self::auth();
     $db = Database::getConnection();
 
-    $stmt = $db->prepare(
-      'SELECT COUNT(*) FROM notification_recipients nr
-       JOIN notifications n ON n.id = nr.notification_id
-       WHERE nr.user_id = ? AND n.sent_at IS NOT NULL AND nr.is_read = 0'
-    );
     try {
+      $stmt = $db->prepare(
+        'SELECT COUNT(*) FROM notification_recipients nr
+         JOIN notifications n ON n.id = nr.notification_id
+         WHERE nr.user_id = ? AND n.sent_at IS NOT NULL AND nr.is_read = 0'
+      );
       $stmt->execute([$user['id']]);
       $count = (int)$stmt->fetchColumn();
     } catch (PDOException $e) {
+      // Notifications tables may not exist yet on this database — degrade gracefully.
       $count = 0;
     }
 
