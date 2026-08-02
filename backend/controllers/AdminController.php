@@ -112,6 +112,10 @@ class AdminController
     $rows = $stmt->fetchAll();
 
     foreach ($rows as &$r) {
+      // Properties without an assigned agent are tied to the company (AVRust Homes).
+      if (empty($r['agent_name'])) {
+        $r = array_merge($r, Property::companyAgentDefaults());
+      }
       $r['id'] = (int)$r['id'];
       $r['price'] = (int)$r['price'];
       $r['nightly_price'] = $r['nightly_price'] !== null ? (int)$r['nightly_price'] : null;

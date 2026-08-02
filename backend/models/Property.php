@@ -325,7 +325,7 @@ class Property
    *
    * @return array<string,mixed>
    */
-  private static function companyAgentDefaults(): array
+  public static function companyAgentDefaults(): array
   {
     static $defaults = null;
 
