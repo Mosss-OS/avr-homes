@@ -18,25 +18,31 @@ class NotificationController
     $perPage = 20;
     $offset = ($page - 1) * $perPage;
 
-    $totalStmt = $db->prepare(
-      'SELECT COUNT(*) FROM notification_recipients nr
-       JOIN notifications n ON n.id = nr.notification_id
-       WHERE nr.user_id = ? AND n.sent_at IS NOT NULL'
-    );
-    $totalStmt->execute([$user['id']]);
-    $total = (int)$totalStmt->fetchColumn();
+    try {
+      $totalStmt = $db->prepare(
+        'SELECT COUNT(*) FROM notification_recipients nr
+         JOIN notifications n ON n.id = nr.notification_id
+         WHERE nr.user_id = ? AND n.sent_at IS NOT NULL'
+      );
+      $totalStmt->execute([$user['id']]);
+      $total = (int)$totalStmt->fetchColumn();
 
-    $stmt = $db->prepare(
-      'SELECT nr.id AS recipient_id, nr.is_read, nr.read_at,
-              n.id AS notification_id, n.title, n.body, n.type, n.created_at, n.sent_at
-       FROM notification_recipients nr
-       JOIN notifications n ON n.id = nr.notification_id
-       WHERE nr.user_id = ? AND n.sent_at IS NOT NULL
-       ORDER BY n.sent_at DESC
-       LIMIT ? OFFSET ?'
-    );
-    $stmt->execute([$user['id'], $perPage, $offset]);
-    $items = $stmt->fetchAll();
+      $stmt = $db->prepare(
+        'SELECT nr.id AS recipient_id, nr.is_read, nr.read_at,
+                n.id AS notification_id, n.title, n.body, n.type, n.created_at, n.sent_at
+         FROM notification_recipients nr
+         JOIN notifications n ON n.id = nr.notification_id
+         WHERE nr.user_id = ? AND n.sent_at IS NOT NULL
+         ORDER BY n.sent_at DESC
+         LIMIT ? OFFSET ?'
+      );
+      $stmt->execute([$user['id'], $perPage, $offset]);
+      $items = $stmt->fetchAll();
+    } catch (PDOException $e) {
+      // Notifications tables may not exist yet on this database — degrade gracefully.
+      $items = [];
+      $total = 0;
+    }
 
     foreach ($items as &$item) {
       $item['recipient_id'] = (int)$item['recipient_id'];
@@ -62,8 +68,12 @@ class NotificationController
        JOIN notifications n ON n.id = nr.notification_id
        WHERE nr.user_id = ? AND n.sent_at IS NOT NULL AND nr.is_read = 0'
     );
-    $stmt->execute([$user['id']]);
-    $count = (int)$stmt->fetchColumn();
+    try {
+      $stmt->execute([$user['id']]);
+      $count = (int)$stmt->fetchColumn();
+    } catch (PDOException $e) {
+      $count = 0;
+    }
 
     Response::success(['count' => $count]);
   }

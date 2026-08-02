@@ -472,7 +472,7 @@ function ShortletBooking({ property }: { property: Property }) {
     try {
       const res = await fetch(`/api/shortlet/${String(property.id)}/availability?check_in=${checkIn}&check_out=${checkOut}`);
       const data = await res.json();
-      if (data.status === 'success') {
+      if (data.success) {
         if (data.data.is_available) {
           setBookingData({ total_price: data.data.total_price, nights: data.data.nights });
         } else {
@@ -520,7 +520,7 @@ function ShortletBooking({ property }: { property: Property }) {
         }),
       });
       const data = await res.json();
-      if (data.status === 'success') {
+      if (data.success) {
         setSuccess(true);
       } else {
         setError(data.message || "Booking failed");
