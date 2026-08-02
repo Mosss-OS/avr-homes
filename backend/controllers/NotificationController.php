@@ -28,7 +28,7 @@ class NotificationController
       $total = (int)$totalStmt->fetchColumn();
 
       $stmt = $db->prepare(
-        'SELECT nr.id AS recipient_id, nr.is_read, nr.read_at,
+        'SELECT nr.id AS recipient_id, nr.is_read, nr.read_at, nr.link,
                 n.id AS notification_id, n.title, n.body, n.type, n.created_at, n.sent_at
          FROM notification_recipients nr
          JOIN notifications n ON n.id = nr.notification_id
@@ -110,5 +110,66 @@ class NotificationController
     $stmt->execute([$user['id']]);
 
     Response::success(null, 'All notifications marked as read');
+  }
+
+  /**
+   * Create an in-app notification and distribute it to the given users.
+   * Each recipient may carry its own link so the frontend can deep-link
+   * to the right action page per role.
+   *
+   * @param array<int,string|null> $recipients Map of user_id => link (or null).
+   * @param string $title
+   * @param string $body
+   * @param string $type
+   * @param int|null $createdBy Falls back to the first admin id.
+   * @return int|null The notification id, or null on failure (never throws).
+   */
+  public static function create(array $recipients, string $title, string $body, string $type = 'notification', ?int $createdBy = null): ?int
+  {
+    if (!$recipients) {
+      return null;
+    }
+
+    $db = null;
+    try {
+      $db = Database::getConnection();
+      $db->beginTransaction();
+
+      if (!$createdBy) {
+        $createdByStmt = $db->query(
+          "SELECT id FROM users WHERE role IN ('admin','superadmin') AND is_active = 1 ORDER BY id LIMIT 1"
+        );
+        $createdBy = (int)$createdByStmt->fetchColumn() ?: null;
+      }
+
+      if (!$createdBy) {
+        $db->rollBack();
+        return null;
+      }
+
+      $stmt = $db->prepare(
+        'INSERT INTO notifications (title, body, type, target_role, created_by, scheduled_at, sent_at)
+         VALUES (?, ?, ?, NULL, ?, NULL, NOW())'
+      );
+      $stmt->execute([$title, $body, $type, $createdBy]);
+      $notificationId = (int)$db->lastInsertId();
+
+      $insertStmt = $db->prepare(
+        'INSERT INTO notification_recipients (notification_id, user_id, link)
+         VALUES (?, ?, ?)'
+      );
+      foreach ($recipients as $userId => $link) {
+        $insertStmt->execute([$notificationId, (int)$userId, $link ?: null]);
+      }
+
+      $db->commit();
+      return $notificationId;
+    } catch (\Throwable $e) {
+      error_log('NotificationController::create failed: ' . $e->getMessage());
+      if ($db && $db->inTransaction()) {
+        $db->rollBack();
+      }
+      return null;
+    }
   }
 }

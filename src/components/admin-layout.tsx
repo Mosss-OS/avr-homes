@@ -7,6 +7,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBell } from "@/components/notification-bell";
 import {
   LayoutDashboard, Home, Users, CalendarCheck, Activity, Settings,
   Menu, X, LogOut, ChevronRight, FileText, Building2, PanelLeftClose, PanelLeft, MessageSquare, CreditCard, Wallet, Gift, CalendarRange, Tag, Mail, BadgePercent, TrendingUp, Image, ShieldCheck, ClipboardList, Wrench, Search, ArrowUpDown, Shield, Megaphone, DollarSign, ShieldAlert, HardHat,
@@ -120,6 +121,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </div>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <div className="text-right text-sm">
               <p className="font-medium">{user?.name}</p>
               <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>

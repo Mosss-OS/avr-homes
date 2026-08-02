@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, Check, Loader2, X, Eye } from "lucide-react";
+import { Bell, Check, Loader2, Eye } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
+import { useNavigate } from "@tanstack/react-router";
 
 interface NotificationItem {
   recipient_id: number;
   notification_id: number;
   is_read: boolean;
   read_at: string | null;
+  link: string | null;
   title: string;
   body: string;
   type: string;
@@ -17,6 +19,7 @@ interface NotificationItem {
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -63,7 +66,7 @@ export function NotificationBell() {
 
   async function markRead(id: number) {
     try {
-      await api.put(`/api/notifications/${id}/read`);
+      await api.put(`/api/notifications/${id}/read`, {});
       setItems((prev) => prev.map((n) => n.recipient_id === id ? { ...n, is_read: true } : n));
       setUnread((prev) => Math.max(0, prev - 1));
     } catch {}
@@ -71,10 +74,20 @@ export function NotificationBell() {
 
   async function markAllRead() {
     try {
-      await api.put("/api/notifications/read-all");
+      await api.put("/api/notifications/read-all", {});
       setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnread(0);
     } catch {}
+  }
+
+  function handleOpen(item: NotificationItem) {
+    if (!item.is_read) {
+      markRead(item.recipient_id);
+    }
+    setOpen(false);
+    if (item.link) {
+      navigate({ to: item.link as any });
+    }
   }
 
   if (!user) return null;
@@ -114,7 +127,16 @@ export function NotificationBell() {
             ) : (
               items.map((item) => (
                 <div key={item.recipient_id}
-                  className={`border-b border-border px-4 py-3 transition ${item.is_read ? "" : "bg-primary/[0.03]"}`}>
+                  onClick={() => handleOpen(item)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleOpen(item);
+                    }
+                  }}
+                  className={`border-b border-border px-4 py-3 transition cursor-pointer hover:bg-secondary/50 ${item.is_read ? "" : "bg-primary/[0.03]"}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -129,7 +151,7 @@ export function NotificationBell() {
                       </p>
                     </div>
                     {!item.is_read && (
-                      <button onClick={() => markRead(item.recipient_id)}
+                      <button onClick={(e) => { e.stopPropagation(); markRead(item.recipient_id); }}
                         className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition"
                         title="Mark as read"
                       >

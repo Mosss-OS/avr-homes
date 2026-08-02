@@ -8,6 +8,8 @@ declare(strict_types=1);
  * @package AVRHomes\Controllers
  */
 
+require_once __DIR__ . '/NotificationController.php';
+
 /**
  * Controller for short-let property availability and booking management.
  *
@@ -152,7 +154,7 @@ class ShortLetController
     $data = $validator->validated();
     $db = Database::getConnection();
 
-    $stmt = $db->prepare("SELECT nightly_price, min_stay FROM properties WHERE id = ? AND purpose = 'shortlet' AND is_active = 1");
+    $stmt = $db->prepare("SELECT nightly_price, min_stay, agent_id, title FROM properties WHERE id = ? AND purpose = 'shortlet' AND is_active = 1");
     $stmt->execute([$id]);
     $prop = $stmt->fetch();
 
@@ -195,6 +197,32 @@ class ShortLetController
     ]);
 
     $bookingId = (int)$db->lastInsertId();
+
+    // Notify the property's agent and all admins about the new booking request.
+    try {
+      $recipients = [];
+
+      if (!empty($prop['agent_id'])) {
+        $recipients[(int)$prop['agent_id']] = '/agent/dashboard/listings';
+      }
+
+      $adminStmt = $db->query("SELECT id FROM users WHERE role IN ('admin','superadmin') AND is_active = 1");
+      foreach ($adminStmt->fetchAll() as $admin) {
+        $recipients[(int)$admin['id']] = '/admin/bookings';
+      }
+
+      if ($recipients) {
+        NotificationController::create(
+          $recipients,
+          'New booking request',
+          "{$data['guest_name']} requested to book {$prop['title']} from {$data['check_in']} to {$data['check_out']} (₦" . number_format($totalPrice) . ").",
+          'booking',
+          !empty($prop['agent_id']) ? (int)$prop['agent_id'] : null
+        );
+      }
+    } catch (Exception $e) {
+      error_log('ShortLetController::book — notification failed: ' . $e->getMessage());
+    }
 
     Response::success([
       'booking_id' => $bookingId,

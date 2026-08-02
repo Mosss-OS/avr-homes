@@ -8,6 +8,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBell } from "@/components/notification-bell";
 import {
   LayoutDashboard, Home, Mail, UserCircle, ShieldCheck, HelpCircle, CreditCard, Users, HardHat,
   Menu, LogOut, ChevronRight, FileText, PanelLeftClose, PanelLeft, ExternalLink,
@@ -140,6 +141,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <div className="text-right text-sm">
               <p className="font-medium">{user?.name}</p>
               <p className="text-xs text-muted-foreground">{profile?.agency || "Agent"}</p>
