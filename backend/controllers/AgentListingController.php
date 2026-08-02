@@ -214,7 +214,6 @@ class AgentListingController
       ->inArray('type', ['apartment', 'villa', 'townhouse', 'penthouse', 'studio', 'land', 'commercial'], 'Type')
       ->required('purpose', 'Purpose')
       ->inArray('purpose', ['buy', 'rent', 'shortlet'], 'Purpose')
-      ->required('price', 'Price')
       ->numeric('price', 'Price')
       ->required('city', 'City')
       ->required('address', 'Address')
@@ -222,6 +221,10 @@ class AgentListingController
       ->numeric('lat', 'Latitude')
       ->required('lng', 'Longitude')
       ->numeric('lng', 'Longitude');
+
+    if (($input['purpose'] ?? 'buy') !== 'shortlet') {
+      $validator->required('price', 'Price');
+    }
 
     if (isset($input['nightly_price'])) {
       $validator->numeric('nightly_price', 'Nightly price');
@@ -258,10 +261,10 @@ class AgentListingController
       ':description' => $data['description'],
       ':type'        => $data['type'],
       ':purpose'     => $data['purpose'],
-      ':price'       => (int)$data['price'],
-      ':nightly_price' => isset($data['nightly_price']) ? (int)$data['nightly_price'] : null,
-      ':min_stay'      => (int)($data['min_stay'] ?? 1),
-      ':max_stay'      => isset($data['max_stay']) ? (int)$data['max_stay'] : null,
+      ':price'       => (int)(($input['price'] ?? '') !== '' ? $input['price'] : ($input['nightly_price'] ?? 0)),
+      ':nightly_price' => ($input['nightly_price'] ?? '') === '' ? null : (int)$input['nightly_price'],
+      ':min_stay'      => ($input['min_stay'] ?? '') === '' ? 1 : (int)$input['min_stay'],
+      ':max_stay'      => ($input['max_stay'] ?? '') === '' ? null : (int)$input['max_stay'],
       ':beds'        => (int)($data['beds'] ?? 0),
       ':baths'       => (int)($data['baths'] ?? 0),
       ':area'        => (int)($data['area'] ?? 0),
@@ -275,7 +278,7 @@ class AgentListingController
       ':virtual_tour_url' => $data['virtual_tour_url'] ?? null,
       ':floor_plan_url'   => $data['floor_plan_url'] ?? null,
       ':is_off_plan'      => !empty($data['is_off_plan']) ? 1 : 0,
-      ':completion_date'  => $data['completion_date'] ?? null,
+      ':completion_date'  => ($input['completion_date'] ?? '') === '' ? null : $input['completion_date'],
       ':amenities'        => json_encode($data['amenities'] ?? []),
       ':agent_id'    => $agentId,
       ':featured'    => !empty($data['featured']) ? 1 : 0,
@@ -367,23 +370,37 @@ class AgentListingController
       'virtual_tour_url', 'floor_plan_url', 'amenities', 'featured', 'is_off_plan', 'completion_date'];
 
     foreach ($allowed as $field) {
-      if (array_key_exists($field, $input)) {
-        if ($field === 'amenities') {
-          $fields[] = "{$field} = :{$field}";
-          $updateParams[":{$field}"] = json_encode($input[$field]);
-        } elseif (in_array($field, ['featured', 'is_off_plan'])) {
-          $fields[] = "{$field} = :{$field}";
-          $updateParams[":{$field}"] = !empty($input[$field]) ? 1 : 0;
-        } elseif (in_array($field, ['price', 'beds', 'baths', 'area'])) {
-          $fields[] = "{$field} = :{$field}";
-          $updateParams[":{$field}"] = (int)$input[$field];
-        } elseif (in_array($field, ['lat', 'lng'])) {
-          $fields[] = "{$field} = :{$field}";
-          $updateParams[":{$field}"] = (float)$input[$field];
-        } else {
-          $fields[] = "{$field} = :{$field}";
-          $updateParams[":{$field}"] = $input[$field];
+      if (!array_key_exists($field, $input)) {
+        continue;
+      }
+      if ($field === 'amenities') {
+        $fields[] = "{$field} = :{$field}";
+        $updateParams[":{$field}"] = json_encode($input[$field]);
+      } elseif (in_array($field, ['featured', 'is_off_plan'])) {
+        $fields[] = "{$field} = :{$field}";
+        $updateParams[":{$field}"] = !empty($input[$field]) ? 1 : 0;
+      } elseif (in_array($field, ['price', 'nightly_price', 'min_stay', 'max_stay', 'beds', 'baths', 'area'])) {
+        if ($field === 'price' && $input[$field] === '') {
+          continue;
         }
+        $fields[] = "{$field} = :{$field}";
+        $value = $input[$field];
+        if ($field === 'min_stay' && ($value === '' || $value === null)) {
+          $updateParams[":{$field}"] = 1;
+        } elseif ($value === '' || $value === null) {
+          $updateParams[":{$field}"] = null;
+        } else {
+          $updateParams[":{$field}"] = (int)$value;
+        }
+      } elseif ($field === 'completion_date') {
+        $fields[] = "{$field} = :{$field}";
+        $updateParams[":{$field}"] = ($input[$field] === '' || $input[$field] === null) ? null : $input[$field];
+      } elseif (in_array($field, ['lat', 'lng'])) {
+        $fields[] = "{$field} = :{$field}";
+        $updateParams[":{$field}"] = (float)$input[$field];
+      } else {
+        $fields[] = "{$field} = :{$field}";
+        $updateParams[":{$field}"] = $input[$field];
       }
     }
 

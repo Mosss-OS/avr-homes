@@ -139,11 +139,15 @@ class AdminController
     AuthMiddleware::authenticateAdmin();
 
     $input = $_POST;
+    $purpose = $input['purpose'] ?? 'buy';
     $validator = new Validator($input);
     $validator
       ->required('title', 'Title')
-      ->required('description', 'Description')
-      ->required('price', 'Price');
+      ->required('description', 'Description');
+
+    if ($purpose !== 'shortlet') {
+      $validator->required('price', 'Price');
+    }
 
     if ($validator->fails()) {
       Response::error('Validation failed', 422, $validator->getErrors());
@@ -151,6 +155,8 @@ class AdminController
 
     $data = $validator->validated();
     $db = Database::getConnection();
+
+    $slug = self::generateSlug($data['title'], $db);
 
     $imageUrl = null;
     if (!empty($_FILES['image']['tmp_name'])) {
@@ -162,20 +168,33 @@ class AdminController
 
     $amenities = !empty($input['amenities']) ? json_encode(json_decode($input['amenities'], true) ?: []) : '[]';
 
+    $price = $purpose === 'shortlet'
+      ? (int)(($input['price'] ?? '') !== '' ? $input['price'] : ($input['nightly_price'] ?? 0))
+      : (int)($input['price'] ?? 0);
+    $rawNightly = $input['nightly_price'] ?? null;
+    $nightlyPrice = ($rawNightly === '' || $rawNightly === null) ? null : (int)$rawNightly;
+    $rawMinStay = $input['min_stay'] ?? null;
+    $minStay = ($rawMinStay === '' || $rawMinStay === null) ? 1 : (int)$rawMinStay;
+    $rawMaxStay = $input['max_stay'] ?? null;
+    $maxStay = ($rawMaxStay === '' || $rawMaxStay === null) ? null : (int)$rawMaxStay;
+    $rawCompletion = $input['completion_date'] ?? null;
+    $completionDate = ($rawCompletion === '' || $rawCompletion === null) ? null : $rawCompletion;
+
     $stmt = $db->prepare('
-      INSERT INTO properties (title, description, type, purpose, price, beds, baths, area, amenities,
+      INSERT INTO properties (title, slug, description, type, purpose, price, nightly_price, min_stay, max_stay, beds, baths, area, amenities,
         city, community, address, lat, lng, image, video_url, virtual_tour_url, floor_plan_url,
         is_off_plan, completion_date, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     ');
     $stmt->execute([
-      $data['title'], $data['description'], $input['type'] ?? 'apartment', $input['purpose'] ?? 'buy',
-      (int)$data['price'], (int)($input['beds'] ?? 0), (int)($input['baths'] ?? 0), (float)($input['area'] ?? 0),
+      $data['title'], $slug, $data['description'], $input['type'] ?? 'apartment', $purpose,
+      $price, $nightlyPrice, $minStay, $maxStay,
+      (int)($input['beds'] ?? 0), (int)($input['baths'] ?? 0), (float)($input['area'] ?? 0),
       $amenities, $input['city'] ?? '', $input['community'] ?? '', $input['address'] ?? '',
       (float)($input['lat'] ?? 0), (float)($input['lng'] ?? 0), $imageUrl,
       $input['video_url'] ?? '', $input['virtual_tour_url'] ?? '', $input['floor_plan_url'] ?? '',
       !empty($input['is_off_plan']) ? 1 : 0,
-      $input['completion_date'] ?? null,
+      $completionDate,
       ($input['status'] ?? 'published') === 'published' ? 1 : 0,
     ]);
 
@@ -376,10 +395,29 @@ class AdminController
 
     $fields = [];
     $binds = [];
-    foreach (['title','description','type','purpose','price','beds','baths','area','city','community','address','lat','lng','image','video_url','virtual_tour_url','floor_plan_url','is_off_plan','completion_date'] as $f) {
-      if (array_key_exists($f, $input)) {
-        $fields[] = "$f = ?";
-        $binds[] = $f === 'is_off_plan' ? (!empty($input[$f]) ? 1 : 0) : $input[$f];
+    foreach (['title','description','type','purpose','price','nightly_price','min_stay','max_stay','beds','baths','area','city','community','address','lat','lng','image','video_url','virtual_tour_url','floor_plan_url','is_off_plan','completion_date'] as $f) {
+      if (!array_key_exists($f, $input)) {
+        continue;
+      }
+      if ($f === 'price' && $input[$f] === '') {
+        continue;
+      }
+      $fields[] = "$f = ?";
+      $val = $input[$f];
+      if ($f === 'is_off_plan') {
+        $binds[] = !empty($val) ? 1 : 0;
+      } elseif ($f === 'completion_date') {
+        $binds[] = ($val === '' || $val === null) ? null : $val;
+      } elseif (in_array($f, ['price', 'nightly_price', 'max_stay'], true)) {
+        $binds[] = ($val === '' || $val === null) ? null : (int)$val;
+      } elseif ($f === 'min_stay') {
+        $binds[] = ($val === '' || $val === null) ? 1 : (int)$val;
+      } elseif (in_array($f, ['beds', 'baths', 'area'], true)) {
+        $binds[] = (int)$val;
+      } elseif (in_array($f, ['lat', 'lng'], true)) {
+        $binds[] = (float)$val;
+      } else {
+        $binds[] = $val;
       }
     }
     if (array_key_exists('amenities', $input)) {
@@ -392,6 +430,11 @@ class AdminController
     }
 
     if (empty($fields)) Response::error('No fields to update', 400);
+
+    if (array_key_exists('title', $input)) {
+      $fields[] = "slug = ?";
+      $binds[] = self::generateSlug($input['title'], $db, $id);
+    }
 
     $fields[] = "updated_at = NOW()";
     $binds[] = $id;
@@ -1492,5 +1535,41 @@ class AdminController
     }
 
     Response::success([], 'Image deleted');
+  }
+
+  /**
+   * Generate a URL-safe, unique slug from a title.
+   *
+   * @param string   $title     Property title.
+   * @param PDO      $db        Database connection.
+   * @param int|null $excludeId Optional property ID to exclude from uniqueness check.
+   * @return string The generated unique slug.
+   */
+  private static function generateSlug(string $title, PDO $db, ?int $excludeId = null): string
+  {
+    $slug = strtolower(trim($title));
+    $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
+    $slug = preg_replace('/[\s-]+/', '-', $slug);
+    $slug = trim($slug, '-');
+
+    $original = $slug;
+    $counter = 1;
+
+    while (true) {
+      if ($excludeId) {
+        $stmt = $db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ? AND id != ?');
+        $stmt->execute([$slug, $excludeId]);
+      } else {
+        $stmt = $db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ?');
+        $stmt->execute([$slug]);
+      }
+      if ((int)$stmt->fetchColumn() === 0) {
+        break;
+      }
+      $slug = "{$original}-{$counter}";
+      $counter++;
+    }
+
+    return $slug;
   }
 }
