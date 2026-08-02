@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
+import { amenities as AMENITIES } from "@/lib/properties";
 import { Loader2, ChevronLeft, Upload, X } from "lucide-react";
 import { MediaField } from "@/components/media-field";
 import { LocationPicker } from "@/components/location-picker";
@@ -29,8 +30,6 @@ const PROPERTY_TYPES = [
 const PURPOSES = [
   ["buy", "For Sale"], ["rent", "For Rent"], ["shortlet", "Short-Let"],
 ];
-const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
-
 const STATUS_OPTIONS = [
   ["published", "Published"], ["draft", "Draft"], ["archived", "Archived"],
 ];

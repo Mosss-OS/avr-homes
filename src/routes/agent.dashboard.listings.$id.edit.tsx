@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { amenities as AMENITIES } from "@/lib/properties";
 import { api, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,6 @@ export const Route = createFileRoute("/agent/dashboard/listings/$id/edit")({
 });
 
 const STEPS = ["Basic Info", "Details", "Location", "Review"];
-const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
 
 /** Form state for editing an existing listing. */
 interface EditForm {

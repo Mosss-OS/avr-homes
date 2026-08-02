@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { amenities as AMENITIES } from "@/lib/properties";
 import { api, ApiError } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,6 @@ const PROPERTY_TYPES = [
   ["apartment", "Apartment"], ["villa", "Villa"], ["townhouse", "Townhouse"],
   ["penthouse", "Penthouse"], ["studio", "Studio"],
 ];
-const AMENITIES = ["Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC", "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home"];
-
 /** Form state for creating a new property listing. */
 interface ListingForm {
   title: string; description: string; type: string; purpose: string; price: string;

@@ -182,6 +182,14 @@ export const purposes: { value: Purpose; label: string }[] = [
   { value: "shortlet", label: "Short-Let" },
 ];
 
+/** Selectable amenities shown in the property listing forms (admin + agent). */
+export const amenities = [
+  "Pool", "Gym", "Parking", "Security", "CCTV", "Generator", "AC",
+  "Furnished", "Balcony", "Garden", "Staff Quarters", "Smart Home",
+  "Fully Equipped Kitchen", "Smart TV", "24/7 Electricity", "Treated Water",
+  "Beautiful Views", "Serene Environment", "Easy Road Access",
+];
+
 /** Currency symbol lookup. */
 const SYMBOL: Record<Currency, string> = { NGN: "₦", USD: "$", GBP: "£" };
 
