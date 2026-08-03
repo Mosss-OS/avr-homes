@@ -59,7 +59,6 @@ function Detail() {
   const agent = p.agent_name
     ? { name: p.agent_name, agency: p.agent_agency || "", phone: p.agent_phone || "", email: p.agent_email || "", avatarHue: p.agent_avatar_hue || 0, listings: 0, languages: p.agent_languages || [], isVerified: p.agent_is_verified || false }
     : null;
-  const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(() => isSaved(String(p.id)));
   const [shared, setShared] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -210,20 +209,31 @@ function Detail() {
 
         <div className="mt-3">
           {mediaTab === "photos" && (
-            <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
-              <button onClick={() => { setLightboxIndex(active); setLightboxOpen(true); }}
-                className="aspect-[4/3] overflow-hidden rounded-2xl text-left">
-                <img src={p.gallery[active] || p.image} alt={p.title} className="h-full w-full object-cover" />
-              </button>
-              {p.gallery.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 md:grid-cols-1">
-                  {p.gallery.slice(0, 3).map((src: string, i: number) => (
-                    <button key={i} onClick={() => setActive(i)}
-                      className={`aspect-[4/3] overflow-hidden rounded-xl ring-2 transition ${active === i ? "ring-primary" : "ring-transparent hover:ring-border"}`}>
-                      <img src={src} alt="" className="h-full w-full object-cover" />
+            <div>
+              {p.gallery.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                  {p.gallery.map((src: string, i: number) => (
+                    <button
+                      key={`${src}-${i}`}
+                      onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
+                      className={`group relative aspect-[4/3] overflow-hidden rounded-xl ring-2 ring-transparent transition hover:ring-primary/60 ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
+                    >
+                      <img
+                        src={src}
+                        alt={`${p.title} — photo ${i + 1}`}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
                     </button>
                   ))}
                 </div>
+              ) : (
+                <button
+                  onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
+                  className="aspect-[4/3] w-full overflow-hidden rounded-2xl"
+                >
+                  <img src={p.image || ""} alt={p.title} className="h-full w-full object-cover" />
+                </button>
               )}
             </div>
           )}
