@@ -7,7 +7,7 @@ class AdminAnnouncementController
   private static function adminAuth(): array
   {
     $user = AuthMiddleware::authenticate();
-    if (!in_array($user['role'] ?? '', ['admin', 'super_admin'])) {
+    if (!in_array($user['role'] ?? '', ['admin', 'superadmin'])) {
       Response::error('Unauthorized', 403);
     }
     return $user;
@@ -22,20 +22,26 @@ class AdminAnnouncementController
     $perPage = 20;
     $offset = ($page - 1) * $perPage;
 
-    $totalStmt = $db->query('SELECT COUNT(*) FROM notifications');
-    $total = (int)$totalStmt->fetchColumn();
+    try {
+      $totalStmt = $db->query('SELECT COUNT(*) FROM notifications');
+      $total = (int)$totalStmt->fetchColumn();
 
-    $stmt = $db->prepare(
-      'SELECT n.*, u.full_name AS created_by_name,
-        (SELECT COUNT(*) FROM notification_recipients nr WHERE nr.notification_id = n.id) AS recipient_count,
-        (SELECT COUNT(*) FROM notification_recipients nr WHERE nr.notification_id = n.id AND nr.is_read = 1) AS read_count
-       FROM notifications n
-       JOIN users u ON u.id = n.created_by
-       ORDER BY n.created_at DESC
-       LIMIT ? OFFSET ?'
-    );
-    $stmt->execute([$perPage, $offset]);
-    $items = $stmt->fetchAll();
+      $stmt = $db->prepare(
+        'SELECT n.*, u.full_name AS created_by_name,
+          (SELECT COUNT(*) FROM notification_recipients nr WHERE nr.notification_id = n.id) AS recipient_count,
+          (SELECT COUNT(*) FROM notification_recipients nr WHERE nr.notification_id = n.id AND nr.is_read = 1) AS read_count
+         FROM notifications n
+         JOIN users u ON u.id = n.created_by
+         ORDER BY n.created_at DESC
+         LIMIT ? OFFSET ?'
+      );
+      $stmt->execute([$perPage, $offset]);
+      $items = $stmt->fetchAll();
+    } catch (PDOException $e) {
+      // Notifications tables may not exist yet on this database — degrade gracefully.
+      $items = [];
+      $total = 0;
+    }
 
     foreach ($items as &$item) {
       $item['id'] = (int)$item['id'];
@@ -61,14 +67,20 @@ class AdminAnnouncementController
     }
 
     $db = Database::getConnection();
-    $stmt = $db->prepare(
-      'SELECT n.*, u.full_name AS created_by_name
-       FROM notifications n
-       JOIN users u ON u.id = n.created_by
-       WHERE n.id = ?'
-    );
-    $stmt->execute([$id]);
-    $notification = $stmt->fetch();
+
+    try {
+      $stmt = $db->prepare(
+        'SELECT n.*, u.full_name AS created_by_name
+         FROM notifications n
+         JOIN users u ON u.id = n.created_by
+         WHERE n.id = ?'
+      );
+      $stmt->execute([$id]);
+      $notification = $stmt->fetch();
+    } catch (PDOException $e) {
+      // Notifications tables may not exist yet on this database — degrade gracefully.
+      Response::error('Notification not found', 404);
+    }
 
     if (!$notification) {
       Response::error('Notification not found', 404);
@@ -78,13 +90,17 @@ class AdminAnnouncementController
     $notification['created_by'] = (int)$notification['created_by'];
 
     // Get delivery stats per role for display
-    $statsStmt = $db->prepare(
-      'SELECT
-        (SELECT COUNT(*) FROM notification_recipients WHERE notification_id = ?) AS total_sent,
-        (SELECT COUNT(*) FROM notification_recipients WHERE notification_id = ? AND is_read = 1) AS total_read'
-    );
-    $statsStmt->execute([$id, $id]);
-    $stats = $statsStmt->fetch();
+    try {
+      $statsStmt = $db->prepare(
+        'SELECT
+          (SELECT COUNT(*) FROM notification_recipients WHERE notification_id = ?) AS total_sent,
+          (SELECT COUNT(*) FROM notification_recipients WHERE notification_id = ? AND is_read = 1) AS total_read'
+      );
+      $statsStmt->execute([$id, $id]);
+      $stats = $statsStmt->fetch();
+    } catch (PDOException $e) {
+      $stats = ['total_sent' => 0, 'total_read' => 0];
+    }
 
     Response::success([
       'notification' => $notification,
