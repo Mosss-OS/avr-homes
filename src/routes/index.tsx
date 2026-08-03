@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SearchBar } from "@/components/search-bar";
 import { PropertyCard } from "@/components/property-card";
 import { BrowseSection } from "@/components/browse-section";
+import { PoolBrowseSection } from "@/components/pool-browse-section";
 import { AiSearchWidget } from "@/components/ai-search-widget";
 import { fetchProperties } from "@/lib/properties";
 import { api } from "@/lib/api-client";
@@ -171,6 +172,9 @@ function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Pooled buying / pay small small */}
+      <PoolBrowseSection />
 
       {/* Browse sections */}
       <BrowseSection category="buy" />

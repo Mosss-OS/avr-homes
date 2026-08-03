@@ -173,15 +173,34 @@ function PoolDetail() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+    const applyFallback = () => {
+      if (cancelled) return;
+      const found = FALLBACK.find((f) => f.id === Number(id));
+      if (found) setPool(found);
+      setLoading(false);
+    };
+    const timer = setTimeout(applyFallback, 6000);
     api
       .get<Pool>(`/api/pools/${id}`)
-      .then((r) => setPool(r.data))
-      .catch(() => {
-        const found = FALLBACK.find((f) => f.id === Number(id));
-        if (found) setPool(found);
+      .then((r) => {
+        if (!cancelled) {
+          clearTimeout(timer);
+          setPool(r.data);
+        }
       })
-      .finally(() => setLoading(false));
+      .catch(applyFallback)
+      .finally(() => {
+        if (!cancelled) {
+          clearTimeout(timer);
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [id]);
 
   useEffect(() => {
