@@ -226,7 +226,7 @@ function PoolDetail() {
 
   async function handleJoin() {
     setError(null);
-    if (!user) return;
+    if (!user || !pool) return;
     const body: Record<string, unknown> = { plan_type: effectivePlan };
     if (effectivePlan !== "lump_sum") {
       body.monthly_amount = monthlyAmount || pool.default_monthly;

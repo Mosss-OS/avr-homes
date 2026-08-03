@@ -58,7 +58,6 @@ class PaystackService
     $response = curl_exec($ch);
     $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
-    curl_close($ch);
 
     if ($error) {
       return ['ok' => false, 'status' => $httpCode, 'body' => [], 'error' => "cURL error: {$error}"];
