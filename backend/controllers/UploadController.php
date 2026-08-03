@@ -147,6 +147,89 @@ class UploadController
   }
 
   /**
+   * Attach already-uploaded Cloudinary URLs to a property.
+   *
+   * The browser uploads directly to Cloudinary (via /api/upload/sign), then
+   * calls this endpoint to register the returned URLs against the property.
+   * This avoids the slow server-side double hop for large images.
+   *
+   * Body: { property_id, images: [{ url, is_primary? }] }
+   *
+   * @param array $params Route parameters (unused).
+   */
+  public static function attach(array $params): void
+  {
+    $user = AuthMiddleware::authenticate();
+
+    $input = json_decode(file_get_contents('php://input'), true) ?: [];
+    $propertyId = (int)($input['property_id'] ?? 0);
+    $images = $input['images'] ?? [];
+
+    if ($propertyId <= 0) {
+      Response::error('Property ID is required', 422);
+    }
+    if (!is_array($images) || count($images) === 0) {
+      Response::error('images is required', 422);
+    }
+
+    $db = Database::getConnection();
+
+    // Verify the agent owns this property.
+    $agentStmt = $db->prepare('SELECT id FROM agents WHERE user_id = ? AND is_active = 1');
+    $agentStmt->execute([(int)$user['id']]);
+    $agent = $agentStmt->fetch();
+    if (!$agent) {
+      Response::error('Agent profile not found. Complete your profile first.', 404);
+    }
+
+    $propStmt = $db->prepare('SELECT id FROM properties WHERE id = ? AND agent_id = ?');
+    $propStmt->execute([$propertyId, (int)$agent['id']]);
+    if (!$propStmt->fetch()) {
+      Response::error('Property not found', 404);
+    }
+
+    $stmt = $db->prepare(
+      'INSERT INTO property_images (property_id, file_path, file_name, file_size, mime_type, is_primary)
+       VALUES (?, ?, ?, 0, ?, ?)'
+    );
+    $attached = [];
+
+    foreach ($images as $img) {
+      $url = trim((string)($img['url'] ?? ''));
+      if (!$url) continue;
+
+      $isPrimary = !empty($img['is_primary']) ? 1 : 0;
+      $fileName = basename(parse_url($url, PHP_URL_PATH)) ?: 'cloudinary-image';
+      $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+      $mime = $ext === 'png' ? 'image/png' : ($ext === 'webp' ? 'image/webp' : 'image/jpeg');
+
+      $stmt->execute([$propertyId, $url, $fileName, $mime, $isPrimary]);
+      $imageId = (int)$db->lastInsertId();
+
+      if ($isPrimary) {
+        $db->prepare('UPDATE properties SET image = ? WHERE id = ?')
+          ->execute([$url, $propertyId]);
+      }
+
+      $attached[] = [
+        'id'        => $imageId,
+        'url'       => $url,
+        'path'      => $url,
+        'file_name' => $fileName,
+      ];
+    }
+
+    if (count($attached) === 0) {
+      Response::error('No valid images supplied', 422);
+    }
+
+    Response::success([
+      'uploaded' => $attached,
+      'errors'   => [],
+    ], count($attached) . ' image(s) attached successfully', 201);
+  }
+
+  /**
    * Delete a property image.
    *
    * @param array $params Route parameters containing 'id' (image ID).

@@ -8,6 +8,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { amenities as AMENITIES } from "@/lib/properties";
 import { api, ApiError } from "@/lib/api-client";
+import { uploadImageToCloudinary } from "@/lib/media-utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,46 +127,39 @@ function CreateListingPage() {
       const res = await api.post<{ id: number }>("/api/agent/listings", payload);
       const propertyId = res.data?.id;
 
-      // Upload images after property creation
+      // Upload images directly to Cloudinary, then attach the URLs to the property.
       if (images.length > 0 && propertyId) {
         const loadingId = toast.loading(`Uploading ${images.length} image(s)...`);
+        const uploaded: { url: string; is_primary: boolean }[] = [];
+        let failed = 0;
 
-        // Upload first image as primary
-        const primaryFd = new FormData();
-        primaryFd.append("file", images[0]);
-        primaryFd.append("property_id", String(propertyId));
-        primaryFd.append("is_primary", "1");
-
-        try {
-          await api.post("/api/upload", primaryFd);
-          toast.success("Main image uploaded", { id: loadingId });
-        } catch (uploadErr) {
-          const msg = uploadErr instanceof ApiError ? uploadErr.message : "Server rejected the file";
-          toast.error(`Main image failed: ${msg}`, { id: loadingId });
+        for (let i = 0; i < images.length; i++) {
+          const url = await uploadImageToCloudinary(images[i], "avr-homes/properties");
+          if (url) {
+            uploaded.push({ url, is_primary: i === 0 });
+          } else {
+            failed++;
+          }
         }
 
-        // Upload remaining images as gallery
-        if (images.length > 1) {
-          const galleryFd = new FormData();
-          for (let i = 1; i < images.length; i++) {
-            galleryFd.append("files[]", images[i]);
-          }
-          galleryFd.append("property_id", String(propertyId));
-
+        if (uploaded.length > 0) {
           try {
-            const galleryRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/gallery", galleryFd);
-            const uploaded = galleryRes.data?.uploaded?.length ?? 0;
-            const failed = galleryRes.data?.errors?.length ?? 0;
-            if (failed > 0) {
-              toast.error(`${uploaded} uploaded, ${failed} failed`);
-              galleryRes.data.errors.forEach((e) => toast.error(e));
-            } else if (uploaded > 0) {
-              toast.success(`${uploaded} gallery image(s) uploaded`);
-            }
-          } catch (galleryErr) {
-            const msg = galleryErr instanceof ApiError ? galleryErr.message : "Server rejected the upload";
-            toast.error(`Gallery upload failed: ${msg}`);
+            await api.post("/api/upload/attach", {
+              property_id: propertyId,
+              images: uploaded,
+            });
+          } catch (attachErr) {
+            const msg = attachErr instanceof ApiError ? attachErr.message : "Failed to attach images";
+            toast.error(`Image attach failed: ${msg}`);
           }
+        }
+
+        if (failed > 0) {
+          toast.error(`${uploaded.length} uploaded, ${failed} failed`, { id: loadingId });
+        } else if (uploaded.length > 0) {
+          toast.success(`${uploaded.length} image(s) uploaded`, { id: loadingId });
+        } else {
+          toast.dismiss(loadingId);
         }
       }
 

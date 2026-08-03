@@ -8,6 +8,7 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { amenities as AMENITIES } from "@/lib/properties";
 import { api, ApiError } from "@/lib/api-client";
+import { uploadImageToCloudinary } from "@/lib/media-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,18 +140,18 @@ function EditListingPage() {
         floor_plan_url: form.floor_plan_url || null,
         completion_date: form.completion_date || null,
       });
-      // Upload new gallery images after save
+      // Upload new gallery images directly to Cloudinary, then attach URLs.
       if (newImageFiles.length > 0) {
-        const imgFd = new FormData();
-        for (const img of newImageFiles) imgFd.append("files[]", img);
-        imgFd.append("property_id", String(id));
-        try {
-          const galleryRes = await api.post<{ uploaded: any[]; errors: string[] }>("/api/upload/gallery", imgFd);
-          const failed = galleryRes.data?.errors?.length ?? 0;
-          if (failed > 0) {
-            toast.error(`${galleryRes.data.uploaded?.length ?? 0} uploaded, ${failed} gallery image(s) failed`);
-          }
-        } catch { /* non-blocking */ }
+        const uploaded: { url: string; is_primary: boolean }[] = [];
+        for (const img of newImageFiles) {
+          const url = await uploadImageToCloudinary(img, "avr-homes/properties");
+          if (url) uploaded.push({ url, is_primary: false });
+        }
+        if (uploaded.length > 0) {
+          try {
+            await api.post("/api/upload/attach", { property_id: id, images: uploaded });
+          } catch { /* non-blocking */ }
+        }
       }
 
       // Upload new videos after save

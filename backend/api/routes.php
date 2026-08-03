@@ -243,6 +243,7 @@ route('POST', '/api/upload', ['UploadController', 'upload']);
 route('POST', '/api/upload/gallery', ['UploadController', 'uploadGallery']);
 route('POST', '/api/upload/media', ['UploadController', 'uploadMedia']);
 route('POST', '/api/upload/from-url', ['UploadController', 'uploadFromUrl']);
+route('POST', '/api/upload/attach', ['UploadController', 'attach']);
 route('POST', '/api/upload/video-gallery', ['UploadController', 'uploadVideoGallery']);
 route('POST', '/api/upload/video-url', ['UploadController', 'addVideoUrl']);
 route('DELETE', '/api/upload/video/{id}', ['UploadController', 'destroyVideo']);
