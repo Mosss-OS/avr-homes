@@ -9,7 +9,7 @@ class CouponController
    */
   public static function adminIndex(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $page = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
     $q = trim($_GET['q'] ?? '');
@@ -60,7 +60,7 @@ class CouponController
    */
   public static function adminCreate(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $input = json_decode(file_get_contents('php://input'), true);
 
     $validator = new Validator($input);
@@ -112,7 +112,7 @@ class CouponController
    */
   public static function adminUpdate(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Coupon ID required', 400);
 
@@ -146,7 +146,7 @@ class CouponController
    */
   public static function adminDelete(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Coupon ID required', 400);
 
@@ -162,7 +162,7 @@ class CouponController
    */
   public static function adminUsage(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Coupon ID required', 400);
 

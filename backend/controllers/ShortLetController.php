@@ -239,7 +239,7 @@ class ShortLetController
    */
   public static function adminAvailability(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) Response::error('Invalid property ID', 400);
 
@@ -321,7 +321,7 @@ class ShortLetController
    */
   public static function adminUpdateAvailability(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $data = json_decode(file_get_contents('php://input'), true);
 
     $propertyId = (int)($data['property_id'] ?? 0);
@@ -349,7 +349,7 @@ class ShortLetController
    */
   public static function adminBatchAvailability(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $data = json_decode(file_get_contents('php://input'), true);
 
     $propertyId = (int)($data['property_id'] ?? 0);
@@ -379,7 +379,7 @@ class ShortLetController
    */
   public static function adminPropertyBookings(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) Response::error('Invalid property ID', 400);
 
@@ -426,7 +426,7 @@ class ShortLetController
    */
   public static function adminDashboardStats(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     $stmt = $db->query(
@@ -464,12 +464,17 @@ class ShortLetController
    */
   public static function bookings(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAgent();
+    $agentId = self::agentId($user);
 
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) Response::error('Invalid property ID', 400);
 
     $db = Database::getConnection();
+    if (!self::agentOwnsProperty($db, $agentId, $id)) {
+      Response::error('Property not found', 404);
+    }
+
     $stmt = $db->prepare(
       "SELECT * FROM property_bookings WHERE property_id = ? ORDER BY check_in DESC LIMIT 50"
     );
@@ -497,7 +502,8 @@ class ShortLetController
    */
   public static function updateBookingStatus(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAgent();
+    $agentId = self::agentId($user);
 
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) Response::error('Invalid booking ID', 400);
@@ -511,9 +517,55 @@ class ShortLetController
     }
 
     $db = Database::getConnection();
+    $stmt = $db->prepare(
+      "SELECT pb.id FROM property_bookings pb
+       JOIN properties p ON p.id = pb.property_id
+       WHERE pb.id = ? AND p.agent_id = ?"
+    );
+    $stmt->execute([$id, $agentId]);
+    if (!$stmt->fetch()) {
+      Response::error('Booking not found', 404);
+    }
+
     $stmt = $db->prepare("UPDATE property_bookings SET status = ? WHERE id = ?");
     $stmt->execute([$status, $id]);
 
     Response::success(['id' => $id, 'status' => $status], 'Booking status updated');
+  }
+
+  /**
+   * Resolve the authenticated user's agent profile id.
+   *
+   * @param array<string,mixed> $user The authenticated user row.
+   * @return int The agent id.
+   */
+  private static function agentId(array $user): int
+  {
+    if (!empty($user['agent_id'])) {
+      return (int)$user['agent_id'];
+    }
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT id FROM agents WHERE user_id = ? AND is_active = 1');
+    $stmt->execute([$user['id']]);
+    $agent = $stmt->fetch();
+    if (!$agent) {
+      Response::error('Agent profile not found. Complete your agent profile first.', 404);
+    }
+    return (int)$agent['id'];
+  }
+
+  /**
+   * Check whether an agent owns a property listing.
+   *
+   * @param PDO $db      Database connection.
+   * @param int $agentId The agent id.
+   * @param int $propertyId The property id.
+   * @return bool True when the property belongs to the agent.
+   */
+  private static function agentOwnsProperty($db, int $agentId, int $propertyId): bool
+  {
+    $stmt = $db->prepare('SELECT id FROM properties WHERE id = ? AND agent_id = ? AND is_active = 1');
+    $stmt->execute([$propertyId, $agentId]);
+    return (bool)$stmt->fetch();
   }
 }

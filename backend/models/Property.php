@@ -167,7 +167,7 @@ class Property
        a.languages as agent_languages, a.bio as agent_bio, a.is_verified as agent_is_verified
        FROM properties p 
        LEFT JOIN agents a ON p.agent_id = a.id 
-       WHERE p.id = ?"
+       WHERE p.id = ? AND p.is_active = 1"
     );
     $stmt->execute([$id]);
     $property = $stmt->fetch();

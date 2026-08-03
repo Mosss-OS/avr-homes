@@ -21,7 +21,7 @@ class ImportExportController
 
   public static function exportProperties(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query(
       "SELECT p.*, a.name as agent_name, a.agency as agent_agency
@@ -55,7 +55,7 @@ class ImportExportController
 
   public static function exportUsers(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query("SELECT * FROM users ORDER BY id ASC")->fetchAll();
 
@@ -76,7 +76,7 @@ class ImportExportController
 
   public static function exportAgents(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query(
       "SELECT a.*, u.email as user_email FROM agents a LEFT JOIN users u ON a.user_id = u.id ORDER BY a.id ASC"
@@ -101,7 +101,7 @@ class ImportExportController
 
   public static function exportBookings(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query(
       "SELECT b.*, p.title as property_title
@@ -128,7 +128,7 @@ class ImportExportController
 
   public static function sampleCsv(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $entity = $_GET['entity'] ?? 'properties';
 
     $samples = [
@@ -163,7 +163,7 @@ class ImportExportController
 
   public static function importProperties(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     if (! isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
@@ -189,7 +189,10 @@ class ImportExportController
     $line = 1;
     while (($row = fgetcsv($fp)) !== false) {
       $line++;
-      $vals = array_pad($row, count($h), '');
+      if ($row === [null] || $row === ['']) {
+        continue; // Blank trailing line.
+      }
+      $vals = array_pad(array_slice($row, 0, count($h)), count($h), '');
       $data = array_combine($h, $vals);
 
       if (empty($data['title']) || empty($data['type']) || empty($data['purpose']) || empty($data['price'])) {
@@ -232,7 +235,7 @@ class ImportExportController
 
   public static function importUsers(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     if (! isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
@@ -254,7 +257,10 @@ class ImportExportController
     $line = 1;
     while (($row = fgetcsv($fp)) !== false) {
       $line++;
-      $vals = array_pad($row, count($h), '');
+      if ($row === [null] || $row === ['']) {
+        continue; // Blank trailing line.
+      }
+      $vals = array_pad(array_slice($row, 0, count($h)), count($h), '');
       $data = array_combine($h, $vals);
 
       if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
@@ -283,7 +289,7 @@ class ImportExportController
 
   public static function importAgents(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     if (! isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
@@ -308,7 +314,10 @@ class ImportExportController
     $line = 1;
     while (($row = fgetcsv($fp)) !== false) {
       $line++;
-      $vals = array_pad($row, count($h), '');
+      if ($row === [null] || $row === ['']) {
+        continue; // Blank trailing line.
+      }
+      $vals = array_pad(array_slice($row, 0, count($h)), count($h), '');
       $data = array_combine($h, $vals);
 
       if (empty($data['name']) || empty($data['email']) || empty($data['phone'])) {

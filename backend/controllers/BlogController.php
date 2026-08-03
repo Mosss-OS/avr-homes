@@ -255,7 +255,8 @@ class BlogController
    */
   public static function store(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
@@ -294,6 +295,7 @@ class BlogController
     );
 
     $status = $data['status'] ?? 'draft';
+    $status = $isAdmin ? $status : 'pending';
     $publishedAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
 
     $stmt->execute([
@@ -303,7 +305,7 @@ class BlogController
       $data['content'],
       $data['featured_image'] ?? null,
       $data['author_name'] ?? 'AVR Homes',
-      $data['author_id'] ?? null,
+      $isAdmin ? ($data['author_id'] ?? null) : $user['id'],
       $data['category_id'] ?? null,
       $status,
       json_encode($data['tags'] ?? []),
@@ -328,7 +330,8 @@ class BlogController
    */
   public static function update(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $id = (int)($params['id'] ?? 0);
     if (!$id) {
@@ -350,17 +353,18 @@ class BlogController
       Response::error('Post not found', 404);
     }
 
+    if (!$isAdmin && (int)$post['author_id'] !== (int)$user['id']) {
+      Response::error('You can only edit your own blog posts', 403);
+    }
+
     $fields = [];
     $bindings = [];
 
-    foreach (['title', 'excerpt', 'content', 'featured_image', 'author_name', 'category_id', 'tags', 'meta_title', 'meta_description', 'is_featured'] as $field) {
+    foreach (['title', 'excerpt', 'content', 'featured_image', 'author_name', 'category_id', 'tags', 'meta_title', 'meta_description'] as $field) {
       if (isset($input[$field])) {
         if ($field === 'tags') {
           $fields[] = "tags = ?";
           $bindings[] = json_encode($input[$field]);
-        } elseif ($field === 'is_featured') {
-          $fields[] = "is_featured = ?";
-          $bindings[] = $input[$field] ? 1 : 0;
         } else {
           $fields[] = "{$field} = ?";
           $bindings[] = $input[$field];
@@ -368,10 +372,16 @@ class BlogController
       }
     }
 
+    if ($isAdmin && isset($input['is_featured'])) {
+      $fields[] = "is_featured = ?";
+      $bindings[] = $input['is_featured'] ? 1 : 0;
+    }
+
     if (isset($input['status'])) {
+      $newStatus = $isAdmin ? $input['status'] : 'pending';
       $fields[] = "status = ?";
-      $bindings[] = $input['status'];
-      if ($input['status'] === 'published' && !$post['published_at']) {
+      $bindings[] = $newStatus;
+      if ($newStatus === 'published' && !$post['published_at']) {
         $fields[] = "published_at = NOW()";
       }
     }
@@ -394,7 +404,8 @@ class BlogController
    */
   public static function destroy(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $id = (int)($params['id'] ?? 0);
     if (!$id) {
@@ -402,6 +413,16 @@ class BlogController
     }
 
     $db = Database::getConnection();
+
+    if (!$isAdmin) {
+      $stmt = $db->prepare("SELECT author_id FROM blog_posts WHERE id = ?");
+      $stmt->execute([$id]);
+      $authorId = $stmt->fetchColumn();
+      if ((int)$authorId !== (int)$user['id']) {
+        Response::error('You can only delete your own blog posts', 403);
+      }
+    }
+
     $stmt = $db->prepare("DELETE FROM blog_posts WHERE id = ?");
     $stmt->execute([$id]);
 

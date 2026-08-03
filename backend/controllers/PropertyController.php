@@ -88,7 +88,8 @@ class PropertyController
    */
   public static function store(array $params): void
   {
-    $user = AuthMiddleware::authenticate();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
@@ -117,6 +118,20 @@ class PropertyController
     }
 
     $data = $validator->validated();
+
+    if (!$isAdmin) {
+      $db = Database::getConnection();
+      $stmt = $db->prepare('SELECT id FROM agents WHERE user_id = ? AND is_active = 1');
+      $stmt->execute([$user['id']]);
+      $agent = $stmt->fetch();
+      if (!$agent) {
+        Response::error('Agent profile not found. Complete your agent profile first.', 403);
+      }
+      $data['agent_id'] = (int)$agent['id'];
+      $data['featured'] = false;
+      $data['is_verified'] = false;
+    }
+
     $propertyId = Property::create($data);
 
     // Log activity
@@ -139,7 +154,8 @@ class PropertyController
    */
   public static function update(array $params): void
   {
-    $user = AuthMiddleware::authenticate();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) {
@@ -149,6 +165,10 @@ class PropertyController
     $existing = Property::findById($id);
     if (!$existing) {
       Response::error('Property not found', 404);
+    }
+
+    if (!$isAdmin && !self::ownsProperty($user, (int)$existing['agent_id'])) {
+      Response::error('You can only edit your own property listings', 403);
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
@@ -204,7 +224,8 @@ class PropertyController
    */
   public static function destroy(array $params): void
   {
-    $user = AuthMiddleware::authenticate();
+    $user = AuthMiddleware::authenticateAgent();
+    $isAdmin = in_array($user['role'], ['admin', 'superadmin'], true);
 
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) {
@@ -216,6 +237,10 @@ class PropertyController
       Response::error('Property not found', 404);
     }
 
+    if (!$isAdmin && !self::ownsProperty($user, (int)$existing['agent_id'])) {
+      Response::error('You can only delete your own property listings', 403);
+    }
+
     Property::delete($id);
 
     // Log activity
@@ -224,5 +249,26 @@ class PropertyController
     $logStmt->execute([$user['id'], 'delete_property', 'property', $id, $_SERVER['REMOTE_ADDR'] ?? '']);
 
     Response::success(null, 'Property deleted successfully');
+  }
+
+  /**
+   * Check whether the authenticated user owns the given property listing.
+   *
+   * Admins are handled by the caller; this resolves the agent profile linked
+   * to a non-admin user and compares it against the property's assigned agent.
+   *
+   * @param array<string,mixed> $user     The authenticated user row.
+   * @param int                 $agentId  The agent_id assigned to the property (0 for company-owned).
+   * @return bool True when the user's agent profile matches the property.
+   */
+  private static function ownsProperty(array $user, int $agentId): bool
+  {
+    if ($agentId <= 0) {
+      return false;
+    }
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT id FROM agents WHERE id = ? AND user_id = ? AND is_active = 1');
+    $stmt->execute([$agentId, $user['id']]);
+    return (bool)$stmt->fetch();
   }
 }

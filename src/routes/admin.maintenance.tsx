@@ -26,7 +26,12 @@ function AdminMaintenance() {
 
   async function save() {
     setSaving(true);
-    try { await api.post("/api/settings", settings); toast.success("Saved"); }
+    try {
+      const keys = ["maintenance_mode", "maintenance_title", "maintenance_message", "maintenance_allowed_ips", "meta_title", "meta_description", "ga_id"];
+      const payload: Record<string, string> = {};
+      for (const k of keys) { payload[k] = settings[k] ?? ""; }
+      await api.post("/api/settings", payload); toast.success("Saved");
+    }
     catch { toast.error("Failed to save"); }
     setSaving(false);
   }

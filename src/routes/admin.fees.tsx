@@ -29,7 +29,14 @@ function AdminFees() {
 
   async function save() {
     setSaving(true);
-    try { await api.post("/api/settings", settings); toast.success("Fees saved"); }
+    try {
+      const payload: Record<string, string> = {};
+      for (const f of fields) {
+        if (!('key' in f) || !f.key) continue;
+        payload[f.key] = settings[f.key] ?? "";
+      }
+      await api.post("/api/settings", payload); toast.success("Fees saved");
+    }
     catch { toast.error("Failed to save"); }
     setSaving(false);
   }

@@ -32,8 +32,8 @@ function AdminImportExport() {
   }
 
   const handleExport = async (entity: string) => {
-    const url = `${import.meta.env.VITE_API_URL || ""}/api/admin/export/${entity}`;
-    const token = localStorage.getItem("token");
+    const url = `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000")}/api/admin/export/${entity}`;
+    const token = localStorage.getItem("auth_token");
     const toastId = toast.loading(`Exporting ${entity}...`);
     try {
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -51,8 +51,8 @@ function AdminImportExport() {
   };
 
   const handleDownloadSample = async (entity: string) => {
-    const url = `${import.meta.env.VITE_API_URL || ""}/api/admin/export/sample?entity=${entity}`;
-    const token = localStorage.getItem("token");
+    const url = `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000")}/api/admin/export/sample?entity=${entity}`;
+    const token = localStorage.getItem("auth_token");
     try {
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       const blob = await res.blob();

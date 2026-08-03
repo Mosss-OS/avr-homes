@@ -23,7 +23,7 @@ function AdminSettings() {
   const [saved, setSaved] = useState(false);
 
   /* Load all settings on mount */
-useEffect(() => {
+  useEffect(() => {
     api.get<Record<string, string>>("/api/settings")
       .then((r) => setSettings(r.data))
       .catch(() => toast.error("Failed to load settings"))
@@ -35,11 +35,15 @@ useEffect(() => {
     return null;
   }
 
-  /** Persist all settings to the API. Shows "Saved!" confirmation for 2 seconds. */
+  /** Persist managed settings to the API. Shows "Saved!" confirmation for 2 seconds. */
   async function save() {
     setSaving(true);
     try {
-      await api.post("/api/settings", settings);
+      const payload: Record<string, string> = {};
+      for (const { key } of FIELDS) {
+        payload[key] = settings[key] ?? "";
+      }
+      await api.post("/api/settings", payload);
       setSaved(true);
       toast.success("Settings saved successfully");
       setTimeout(() => setSaved(false), 2000);

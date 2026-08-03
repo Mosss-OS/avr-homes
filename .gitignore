@@ -46,4 +46,8 @@ backend/storage/backups/*
 .env*.local
 .env.vercel
 .env*
+.env.production
+*.env.prod.bak
+*.env.bak
+*.zip
 !backend/.env.example

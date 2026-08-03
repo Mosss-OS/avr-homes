@@ -132,7 +132,7 @@ class InquiryController
    */
   public static function index(array $params): void
   {
-    $user = AuthMiddleware::authenticate();
+    AuthMiddleware::authenticateAdmin();
 
     $page    = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
@@ -188,7 +188,7 @@ class InquiryController
    */
   public static function destroy(array $params): void
   {
-    $user = AuthMiddleware::authenticate();
+    AuthMiddleware::authenticateAdmin();
 
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) {

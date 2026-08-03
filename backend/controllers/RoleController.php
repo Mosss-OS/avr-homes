@@ -8,7 +8,7 @@ class RoleController
 
   public static function adminRoles(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     $roles = $db->query(
@@ -30,7 +30,7 @@ class RoleController
 
   public static function adminRoleDetail(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     $db = Database::getConnection();
 
@@ -56,7 +56,7 @@ class RoleController
 
   public static function adminCreateRole(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $input = json_decode(file_get_contents('php://input'), true);
     if (empty($input['name']) || empty($input['slug'])) {
       Response::error('Name and slug are required', 400); return;
@@ -71,7 +71,7 @@ class RoleController
 
   public static function adminUpdateRole(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$id) { Response::error('Role ID required', 400); return; }
@@ -89,7 +89,7 @@ class RoleController
 
   public static function adminDeleteRole(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) { Response::error('Role ID required', 400); return; }
 
@@ -109,7 +109,7 @@ class RoleController
 
   public static function adminPermissions(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query(
       "SELECT * FROM admin_permissions ORDER BY permission_group, id ASC"
@@ -131,7 +131,7 @@ class RoleController
 
   public static function adminUpdateRolePermissions(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) { Response::error('Role ID required', 400); return; }
 
@@ -164,7 +164,7 @@ class RoleController
 
   public static function adminRoleUsers(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
     $rows = $db->query(
       "SELECT u.id, u.name, u.email, u.role, u.admin_role_id,
@@ -185,7 +185,7 @@ class RoleController
 
   public static function adminAssignRole(): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $input = json_decode(file_get_contents('php://input'), true);
     $userId = (int)($input['user_id'] ?? 0);
     $roleId = $input['role_id'] !== null ? (int)$input['role_id'] : null;
@@ -208,7 +208,7 @@ class RoleController
 
   public static function adminMyPermissions(): void
   {
-    $user = AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAdmin();
 
     // Superadmin bypass: return all permissions
     if ($user['role'] === 'superadmin') {

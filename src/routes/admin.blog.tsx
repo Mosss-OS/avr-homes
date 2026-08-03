@@ -15,7 +15,8 @@ export const Route = createFileRoute("/admin/blog")({
 interface BlogRow {
   id: number; title: string; category_name: string;
   is_published: boolean; author_name: string; status: string;
-  created_at: string;
+  created_at: string; excerpt?: string; content?: string;
+  featured_image?: string | null; category_id?: number | null; tags?: string | string[];
 }
 
 const emptyForm = { title: "", excerpt: "", content: "", status: "draft", featured_image: "", category_id: "", tags: "" };
@@ -58,14 +59,21 @@ function AdminBlog() {
   function resetForm() { setForm({ ...emptyForm }); setEditingId(null); setShowForm(false); }
 
   function openEdit(row: BlogRow) {
+    let rawTags: string[] = Array.isArray(row.tags) ? row.tags : [];
+    if (typeof row.tags === "string" && row.tags.trim()) {
+      try {
+        const parsed = JSON.parse(row.tags);
+        if (Array.isArray(parsed)) rawTags = parsed;
+      } catch { rawTags = row.tags.split(",").map((t: string) => t.trim()).filter(Boolean); }
+    }
     setForm({
       title: row.title,
-      excerpt: "",
-      content: "",
+      excerpt: row.excerpt ?? "",
+      content: row.content ?? "",
       status: row.status || (row.is_published ? "published" : "draft"),
-      featured_image: "",
-      category_id: "",
-      tags: "",
+      featured_image: row.featured_image ?? "",
+      category_id: row.category_id != null ? String(row.category_id) : "",
+      tags: rawTags.join(", "),
     });
     setEditingId(row.id);
     setShowForm(true);

@@ -67,7 +67,7 @@ class SavedSearchController
 
   public static function adminIndex(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $page = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
     $q = trim($_GET['q'] ?? '');
@@ -108,7 +108,7 @@ class SavedSearchController
 
   public static function adminDelete(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Search ID required', 400);
     $db = Database::getConnection();

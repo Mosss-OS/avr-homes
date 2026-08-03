@@ -13,7 +13,7 @@ class EmailTemplateController
 
   public static function adminTemplates(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $page = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
     $category = $_GET['category'] ?? '';
@@ -44,7 +44,7 @@ class EmailTemplateController
 
   public static function adminCreateTemplate(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $input = json_decode(file_get_contents('php://input'), true);
 
     $validator = new Validator($input);
@@ -66,7 +66,7 @@ class EmailTemplateController
 
   public static function adminUpdateTemplate(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Template ID required', 400);
 
@@ -90,7 +90,7 @@ class EmailTemplateController
 
   public static function adminDeleteTemplate(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Template ID required', 400);
 
@@ -109,7 +109,7 @@ class EmailTemplateController
 
   public static function adminBroadcasts(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $page = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
     $status = $_GET['status'] ?? '';
@@ -139,7 +139,7 @@ class EmailTemplateController
 
   public static function adminCreateBroadcast(array $params): void
   {
-    $user = AuthMiddleware::authenticateAgent();
+    $user = AuthMiddleware::authenticateAdmin();
     $input = json_decode(file_get_contents('php://input'), true);
 
     $validator = new Validator($input);
@@ -162,7 +162,7 @@ class EmailTemplateController
 
   public static function adminUpdateBroadcast(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) Response::error('Broadcast ID required', 400);
 

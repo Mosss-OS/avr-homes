@@ -23,6 +23,14 @@ class PoolCronController
 
   public static function daily(array $params): void
   {
+    $secret = $_ENV['CRON_SECRET'] ?? '';
+    if ($secret !== '') {
+      $provided = $_GET['secret'] ?? ($_SERVER['HTTP_X_CRON_SECRET'] ?? '');
+      if (!hash_equals($secret, (string)$provided)) {
+        Response::error('Forbidden', 403);
+      }
+    }
+
     $summary = [
       'schedules_generated' => self::safeTask('generateSchedules'),
       'reminders_sent' => self::safeTask('sendReminders'),

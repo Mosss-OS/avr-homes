@@ -51,7 +51,10 @@ function AdminActivity() {
     const params = new URLSearchParams();
     if (actionFilter) params.set("action", actionFilter);
     if (entityFilter) params.set("entity_type", entityFilter);
-    window.open(`/api/admin/activity/export?${params}`, "_blank");
+    const token = localStorage.getItem("auth_token");
+    if (token) params.set("token", token);
+    const base = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    window.open(`${base}/api/admin/activity/export?${params}`, "_blank");
   }
 
   return (

@@ -152,7 +152,7 @@ class ReferralController
    */
   public static function adminIndex(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $page = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
     $status = $_GET['status'] ?? '';
@@ -212,7 +212,7 @@ class ReferralController
    */
   public static function adminStats(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $db = Database::getConnection();
 
     $stmt = $db->query(
@@ -245,7 +245,7 @@ class ReferralController
    */
   public static function adminUpdateReward(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) { Response::error('Referral ID required', 400); return; }
 
@@ -264,7 +264,7 @@ class ReferralController
    */
   public static function adminMarkPaid(array $params): void
   {
-    AuthMiddleware::authenticateAgent();
+    AuthMiddleware::authenticateAdmin();
     $id = (int)($params['id'] ?? 0);
     if (!$id) { Response::error('Referral ID required', 400); return; }
 

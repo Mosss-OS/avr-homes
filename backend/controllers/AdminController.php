@@ -1007,7 +1007,8 @@ class AdminController
       foreach ($rows as &$r) {
         $r['id'] = (int)$r['id'];
         $r['category_id'] = (int)$r['category_id'];
-        $r['is_published'] = (bool)$r['is_published'];
+        $r['is_published'] = $r['status'] === 'published';
+        $r['is_featured'] = (bool)$r['is_featured'];
       }
     } catch (Exception $e) {
       $rows = []; $total = 0;

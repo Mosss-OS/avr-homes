@@ -45,6 +45,7 @@ export function FileGallery({
     setUploading(true);
 
     const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    const accumulated: FileGalleryItem[] = [...items];
 
     for (const file of fileArray) {
       try {
@@ -92,7 +93,8 @@ export function FileGallery({
           url: result.secure_url,
           file_name: file.name,
         };
-        onChange([...items, newItem]);
+        accumulated.push(newItem);
+        onChange([...accumulated]);
         toast.success(`${file.name} uploaded`);
       } catch (err: any) {
         console.error("Upload error:", err);

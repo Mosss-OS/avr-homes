@@ -51,7 +51,7 @@ class SettingController
    */
   public static function update(array $params): void
   {
-    AuthMiddleware::authenticateAdmin();
+    $user = AuthMiddleware::authenticateAdmin();
 
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input || empty($input)) {

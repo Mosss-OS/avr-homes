@@ -35,12 +35,27 @@ class InquiryMessageController
     try {
       $user = AuthMiddleware::authenticate();
       $isAgent = true;
+
+      // Agents may only view threads on their own properties
+      if (!in_array($user['role'], ['admin', 'superadmin'], true)) {
+        $stmt = $db->prepare(
+          'SELECT p.id FROM inquiries i
+           JOIN properties p ON i.property_id = p.id
+           JOIN agents a ON a.id = p.agent_id
+           WHERE i.id = ? AND a.user_id = ?'
+        );
+        $stmt->execute([$inquiryId, $user['id']]);
+        if (!$stmt->fetch()) {
+          Response::error('Unauthorized', 401);
+        }
+      }
     } catch (\Throwable $e) {
       // Not an agent — check user auth via email header
       $userEmail = $_SERVER['HTTP_X_INQUIRY_EMAIL'] ?? '';
       if (!$userEmail || strtolower($userEmail) !== strtolower($inquiry['email'])) {
         Response::error('Unauthorized', 401);
       }
+      $isAgent = false;
     }
 
     // If agent, also return the inquiry contact details
@@ -131,6 +146,20 @@ class InquiryMessageController
       // Authenticated as agent/admin
       $senderType = 'agent';
       $senderEmail = $user['email'] ?? null;
+
+      // Agents may only reply on threads for their own properties
+      if (!in_array($user['role'], ['admin', 'superadmin'], true)) {
+        $stmt = $db->prepare(
+          'SELECT p.id FROM inquiries i
+           JOIN properties p ON i.property_id = p.id
+           JOIN agents a ON a.id = p.agent_id
+           WHERE i.id = ? AND a.user_id = ?'
+        );
+        $stmt->execute([$inquiryId, $user['id']]);
+        if (!$stmt->fetch()) {
+          Response::error('Unauthorized', 401);
+        }
+      }
 
       // Update inquiry status to 'contacted' on first agent reply
       if ($inquiry['status'] === 'new') {
