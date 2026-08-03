@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatches, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -39,6 +39,8 @@ interface Membership {
 function AccountPools() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const matches = useMatches();
+  const hasDetailChild = matches.some((m) => m.routeId === "/account/pools/$id");
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +55,8 @@ function AccountPools() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [user?.id]);
+
+  if (hasDetailChild) return <Outlet />;
 
   if (!isLoading && !user) {
     return (
