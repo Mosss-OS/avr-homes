@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { api, ApiError } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 import { Loader2, ShieldCheck, CheckCircle2, ArrowLeft, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/pools/$id/payment")({
@@ -25,6 +26,7 @@ declare global {
 function PoolPayment() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const search = Route.useSearch() as {
     membership_id?: number;
     schedule_id?: number;
@@ -93,7 +95,7 @@ function PoolPayment() {
     setPopupOpen(true);
     window.PaystackPop.setup({
       key,
-      email: "",
+      email: user?.email || "",
       amount: amt * 100,
       currency: "NGN",
       access_code: accessCode,
