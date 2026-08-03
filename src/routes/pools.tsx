@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatches } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
 import {
@@ -147,6 +147,8 @@ const FALLBACK_POOLS: Pool[] = [
 ];
 
 function PoolMarketplace() {
+  const matches = useMatches();
+  const hasDetailChild = matches.some((m) => m.routeId === "/pools/$id");
   const [pools, setPools] = useState<Pool[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -157,6 +159,8 @@ function PoolMarketplace() {
       .catch(() => setPools(FALLBACK_POOLS))
       .finally(() => setLoading(false));
   }, []);
+
+  if (hasDetailChild) return <Outlet />;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatches, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -160,6 +160,8 @@ const FALLBACK: Pool[] = [
 
 function PoolDetail() {
   const { id } = Route.useParams();
+  const matches = useMatches();
+  const hasPaymentChild = matches.some((m) => m.routeId === "/pools/$id/payment");
   const { user, isAgent } = useAuth();
   const navigate = useNavigate();
 
@@ -206,6 +208,8 @@ function PoolDetail() {
   useEffect(() => {
     if (pool && pool.default_monthly) setMonthlyAmount(pool.default_monthly);
   }, [pool?.id]);
+
+  if (hasPaymentChild) return <Outlet />;
 
   if (loading) {
     return (
