@@ -82,6 +82,19 @@ class PoolController
 
     self::hydratePool($pool);
 
+    // Flag membership for logged-in users so the UI can disable the join form.
+    $pool['is_member'] = false;
+    $user = AuthMiddleware::tryAuthenticate();
+    if ($user) {
+      $stmt = $db->prepare(
+        "SELECT id FROM pool_memberships WHERE pool_id = ? AND user_id = ? AND status IN ('active','paused','defaulted')"
+      );
+      $stmt->execute([(int)$pool['id'], (int)$user['id']]);
+      if ($stmt->fetch()) {
+        $pool['is_member'] = true;
+      }
+    }
+
     Response::success($pool);
   }
 

@@ -45,6 +45,7 @@ interface Pool {
   property_city: string | null;
   property_image: string | null;
   property_address: string | null;
+  is_member?: boolean;
 }
 
 const FALLBACK: Pool[] = [
@@ -427,6 +428,28 @@ function PoolDetail() {
               <p className="rounded-xl bg-secondary p-4 text-sm text-muted-foreground">
                 This pool is no longer accepting contributions.
               </p>
+            ) : pool.is_member ? (
+              <div className="rounded-xl bg-emerald-500/10 p-4 text-sm">
+                <p className="font-medium text-emerald-700 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4" /> You're already a member of this pool
+                </p>
+                <p className="mt-1 text-xs text-emerald-600/80">
+                  You can view your membership and make contributions from your pool dashboard.
+                </p>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-3 w-full cursor-not-allowed rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground opacity-50"
+                >
+                  Already Joined
+                </button>
+                <Link
+                  to="/account/pools"
+                  className="mt-2 block text-center text-xs font-semibold text-primary hover:underline"
+                >
+                  View my pool dashboard →
+                </Link>
+              </div>
             ) : (
               <div className="space-y-4">
                 {/* Plan type */}

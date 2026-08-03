@@ -52,6 +52,32 @@ class AuthMiddleware
   }
 
   /**
+   * Authenticate a user from the bearer token if present, returning null when
+   * the request is unauthenticated or the token is invalid/expired.
+   *
+   * @return array<string,mixed>|null Authenticated user row or null.
+   */
+  public static function tryAuthenticate(): ?array
+  {
+    $token = self::getBearerToken();
+    if (!$token) {
+      return null;
+    }
+
+    $payload = self::validateToken($token);
+    if (!$payload) {
+      return null;
+    }
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare('SELECT id, name, email, role, admin_role_id FROM users WHERE id = ? AND is_active = 1');
+    $stmt->execute([$payload['user_id']]);
+    $user = $stmt->fetch();
+
+    return $user ?: null;
+  }
+
+  /**
    * Authenticate and ensure the user has an active agent profile.
    *
    * @return array<string,mixed> Authenticated user row with agent_id injected.
