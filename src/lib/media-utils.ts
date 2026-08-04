@@ -6,7 +6,7 @@ export async function uploadUrlToCloudinary(
   // Skip embed-only platforms — can't fetch those
   if (/youtube\.com|youtu\.be|vimeo\.com/i.test(url)) return null;
 
-  const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
   try {
     const res = await fetch(`${apiUrl}/api/upload/from-url`, {
@@ -49,7 +49,7 @@ export async function uploadImageToCloudinary(
   onProgress?: (pct: number) => void
 ): Promise<string | null> {
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
     const signRes = await fetch(`${apiUrl}/api/upload/sign?folder=${encodeURIComponent(folder)}`, {
       credentials: "include",
     });

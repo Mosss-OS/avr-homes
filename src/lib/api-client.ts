@@ -2,11 +2,17 @@
  * HTTP API client with automatic auth token injection, JSON serialisation,
  * and typed error handling.
  *
+ * The API is served by the same Next.js app under `/api`, so the base URL
+ * is empty (same origin) unless overridden via NEXT_PUBLIC_API_URL.
+ *
  * @module api-client
  */
 
-/** Base URL for the REST API — falls back from Vite env to a production URL. */
-export const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+/** Base URL for the REST API — same origin by default. */
+export const API_URL =
+  typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
+    : "";
 
 /** Generic envelope returned by the API for every response. */
 interface ApiResponse<T> {

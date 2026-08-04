@@ -1,17 +1,22 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "eslint.config.js"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "next.config.ts", "eslint.config.mjs", "vitest.config.ts"],
   "compilerOptions": {
     "target": "ES2022",
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["node"],
 
     /* Bundler mode */
     "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
     "noEmit": true,
+
+    /* Next.js */
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "isolatedModules": true,
 
     /* Linting */
     "skipLibCheck": true,
@@ -19,7 +24,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": ["./src/*"]
     }
