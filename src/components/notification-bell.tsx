@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Check, Loader2, Eye } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 
 interface NotificationItem {
   recipient_id: number;
@@ -19,7 +19,7 @@ interface NotificationItem {
 
 export function NotificationBell() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -86,7 +86,7 @@ export function NotificationBell() {
     }
     setOpen(false);
     if (item.link) {
-      navigate({ to: item.link as any });
+      navigate.push(item.link);
     }
   }
 

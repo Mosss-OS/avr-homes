@@ -4,7 +4,8 @@
  */
 
 import { useState, useEffect, type ReactNode } from "react";
-import { Link, useRouter } from "@tanstack/react-router";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -30,8 +31,7 @@ const NAV_ITEMS = [
 /** Agent dashboard shell wrapping page content with sidebar and top header. */
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
-  const router = useRouter();
-  const pathname = router.state.location.pathname;
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [unreadLeads, setUnreadLeads] = useState(0);
@@ -76,7 +76,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             {NAV_ITEMS.map(({ icon: Icon, label, to }) => {
               const active = pathname === to;
               return (
-                <Link key={to} to={to as any} onClick={() => setSidebarOpen(false)}
+                <Link key={to} href={to} onClick={() => setSidebarOpen(false)}
                   className={`flex items-center rounded-lg text-sm font-medium transition-colors ${
                     collapsed ? "justify-center px-2 py-3" : "gap-3 px-3 py-2.5"
                   } ${

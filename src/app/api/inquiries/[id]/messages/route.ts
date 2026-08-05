@@ -1,6 +1,6 @@
 /**
- * GET /api/inquiries/{inquiry_id}/messages — list messages for an inquiry (user by email or agent JWT).
- * POST /api/inquiries/{inquiry_id}/messages — send a message on an inquiry thread.
+ * GET /api/inquiries/{id}/messages — list messages for an inquiry (user by email or agent JWT).
+ * POST /api/inquiries/{id}/messages — send a message on an inquiry thread.
  */
 
 import { NextRequest } from "next/server";
@@ -12,8 +12,8 @@ import { readJson } from "@/server/http";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ inquiry_id: string }> }): Promise<NextResponse> {
-  const { inquiry_id } = await params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const { id: inquiry_id } = await params;
   const inquiryId = Number(inquiry_id);
   if (!inquiryId || inquiryId <= 0) {
     return error("Invalid inquiry ID", 400);
@@ -87,8 +87,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ inqu
   return success({ inquiry: inquiryData, messages }, "Messages retrieved");
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ inquiry_id: string }> }): Promise<NextResponse> {
-  const { inquiry_id } = await params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const { id: inquiry_id } = await params;
   const inquiryId = Number(inquiry_id);
   if (!inquiryId || inquiryId <= 0) {
     return error("Invalid inquiry ID", 400);

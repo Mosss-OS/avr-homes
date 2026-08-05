@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { Sparkles, X, Send, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/properties";
 
@@ -110,8 +110,7 @@ export function AiSearchWidget() {
                     {m.matches.map((mm) => (
                       <Link
                         key={mm.id}
-                        to="/properties/$id"
-                        params={{ id: String(mm.id) }}
+                        href={`/properties/${mm.id}`}
                         onClick={() => setOpen(false)}
                         className="block rounded-xl border border-border bg-card px-3 py-2 text-xs hover:border-primary transition"
                       >

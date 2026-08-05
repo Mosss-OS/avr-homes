@@ -20,7 +20,7 @@ export function ProgressTimeline({ propertyId }: { propertyId: number }) {
   const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
-    api.get<{ data: ProgressItem[] }>(`/api/properties/${propertyId}/progress`)
+    api.get<ProgressItem[]>(`/api/properties/${propertyId}/progress`)
       .then((r) => setItems(r.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));

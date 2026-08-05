@@ -3,7 +3,7 @@
  * key features, and save/bookmark ability.
  */
 
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { BedDouble, Bath, Maximize2, MapPin, BadgeCheck, Heart, Play, HardHat } from "lucide-react";
 import { useState } from "react";
 import { formatPrice, type Currency, type Property } from "@/lib/properties";
@@ -19,8 +19,7 @@ export function PropertyCard({ p }: { p: Property }) {
   const [currency, setCurrency] = useState<Currency>("NGN");
   return (
     <Link
-      to="/properties/$id"
-      params={{ id: String(p.id) }}
+      href={`/properties/${p.id}`}
       className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
     >
       <div className="relative block aspect-[4/3] overflow-hidden">
@@ -60,6 +59,7 @@ export function PropertyCard({ p }: { p: Property }) {
             e.preventDefault();
             e.stopPropagation();
             toggleSavedProp(String(p.id));
+            window.dispatchEvent(new Event("saved-props-change"));
             setSaved((s) => !s);
           }}
           aria-label="Save"

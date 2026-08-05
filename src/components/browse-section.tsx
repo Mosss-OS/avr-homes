@@ -3,7 +3,7 @@
  * three property cards, and a linked mini-map.
  */
 
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
 import { MiniMap } from "@/components/mini-map";
@@ -88,7 +88,7 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
               <p className="mt-2 text-sm text-muted-foreground sm:text-base">{meta.blurb}</p>
             </div>
             <Link
-              to={meta.to}
+              href={meta.to}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
               {meta.ctaLabel} <ArrowRight className="h-4 w-4" />
@@ -97,16 +97,18 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
 
           {/* State chips — horizontal scroll on mobile */}
           <div className="mt-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-            {nigerianStates.map((city) => (
-              <Link
-                key={city}
-                to="/properties"
-                search={stateSearch(category, city)}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground/80 hover:border-primary hover:text-primary transition"
-              >
-                <MapPin className="h-3 w-3" /> {city}
-              </Link>
-            ))}
+            {nigerianStates.map((city) => {
+              const href = `/properties?${new URLSearchParams(stateSearch(category, city)).toString()}`;
+              return (
+                <Link
+                  key={city}
+                  href={href}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground/80 hover:border-primary hover:text-primary transition"
+                >
+                  <MapPin className="h-3 w-3" /> {city}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -119,8 +121,7 @@ export function BrowseSection({ category, dark = false }: { category: BrowseCate
               </div>
             ))}
             <Link
-              to="/map"
-              search={mapSearch(category)}
+              href={`/map?${new URLSearchParams(mapSearch(category)).toString()}`}
               className="hidden w-[280px] shrink-0 snap-start sm:block sm:w-[320px]"
               aria-label={`View ${meta.title} on the map`}
             >

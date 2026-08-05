@@ -60,8 +60,8 @@ export function LocationPicker({ lat, lng, area, propertyType, address, city, co
   const latNum = parseFloat(lat) || 6.45;
   const lngNum = parseFloat(lng) || 3.42;
   const isLand = propertyType === "land";
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const geoTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const geoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMounted(true);

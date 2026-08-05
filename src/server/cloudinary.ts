@@ -72,7 +72,7 @@ export async function upload(
   if (options.tags) fd.append("tags", options.tags);
   fd.append("api_key", apiKey);
   fd.append("signature", signature);
-  fd.append("file", new Blob([fileBuffer]), originalName);
+  fd.append("file", new Blob([new Uint8Array(fileBuffer)]), originalName);
 
   try {
     const res = await fetch(url, {

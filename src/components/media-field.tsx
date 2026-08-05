@@ -34,7 +34,7 @@ export function MediaField({
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function uploadViaProxy(file: File, loadingId: string | number): Promise<string> {
-    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+    const apiUrl = "";
     const fd = new FormData();
     fd.append("file", file);
     fd.append("folder", folder);
@@ -77,7 +77,7 @@ export function MediaField({
     const loadingId = toast.loading(`Uploading ${file.name}...`);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://api.avrusthomes.com" : "http://localhost:8000");
+      const apiUrl = "";
 
       // Try direct Cloudinary upload first
       let url: string;

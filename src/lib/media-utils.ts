@@ -141,7 +141,7 @@ async function resizeImageForUpload(file: File): Promise<Blob> {
   }
 }
 
-export function sizeHint(mediaType: "image" | "video" | "document"): string {
+export function sizeHint(mediaType: "image" | "video" | "document" | "auto"): string {
   if (mediaType === "video") return "Max 100 MB per video.";
   if (mediaType === "image") return "Max 10 MB per image.";
   return "";

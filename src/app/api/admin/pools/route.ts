@@ -72,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   return success({ id: Number(result.insertId) }, "Pool created successfully", 201);
 }
 
-export function hydratePool(pool: Record<string, any>): Record<string, any> {
+function hydratePool(pool: Record<string, any>): Record<string, any> {
   const out: Record<string, any> = { ...pool };
   out.id = Number(out.id);
   out.target_property_id = out.target_property_id !== null ? Number(out.target_property_id) : null;
@@ -95,7 +95,7 @@ export function hydratePool(pool: Record<string, any>): Record<string, any> {
   return out;
 }
 
-export function generateSlug(title: string): string {
+function generateSlug(title: string): string {
   let slug = title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/[\s-]+/g, "-").replace(/^-+|-+$/g, "");
   if (slug === "") {
     slug = "pool-" + Math.floor(Date.now() / 1000);

@@ -3,14 +3,14 @@
  * type dropdowns, and a submit button that navigates to /properties.
  */
 
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { cities, propertyTypes, purposes, type Purpose } from "@/lib/properties";
 
 /** Search form that navigates to the properties listing with query params. */
 export function SearchBar({ compact = false }: { compact?: boolean }) {
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [purpose, setPurpose] = useState<Purpose>("buy");
   const [city, setCity] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -18,12 +18,12 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    navigate({
-      to: "/properties",
-      search: {
-        purpose, q: q || undefined, city: city || undefined, type: type || undefined,
-      } as never,
-    });
+    const params = new URLSearchParams();
+    params.set("purpose", purpose);
+    if (q) params.set("q", q);
+    if (city) params.set("city", city);
+    if (type) params.set("type", type);
+    navigate.push(`/properties?${params.toString()}`);
   }
 
   return (

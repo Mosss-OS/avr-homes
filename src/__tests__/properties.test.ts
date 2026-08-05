@@ -84,7 +84,7 @@ describe('propertyFromApi', () => {
   })
 
   it('returns null when no images', () => {
-    const noImages = { ...base, image: null, images: undefined } as PropertyData
+    const noImages = { ...base, image: null, images: undefined } as unknown as PropertyData
     const result = propertyFromApi(noImages)
     expect(result.image).toBeNull()
   })

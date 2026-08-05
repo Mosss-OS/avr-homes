@@ -4,7 +4,7 @@
  * to each pool's detail page, styled like the property BrowseSection.
  */
 
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import { ArrowRight, MapPin, Users, HandCoins } from "lucide-react";
 import { ScrollableSection } from "@/components/scrollable-section";
 import { api } from "@/lib/api-client";
@@ -145,7 +145,7 @@ export function PoolBrowseSection() {
               </p>
             </div>
             <Link
-              to="/pools"
+              href="/pools"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
               Browse all pools <ArrowRight className="h-4 w-4" />
@@ -167,8 +167,7 @@ export function PoolBrowseSection() {
             {pools.map((pool) => (
               <Link
                 key={pool.id}
-                to="/pools/$id"
-                params={{ id: String(pool.id) }}
+                href={`/pools/${pool.id}`}
                 className="group w-[280px] shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] sm:w-[320px]"
               >
                 <div className="relative aspect-[16/9] overflow-hidden">

@@ -1,4 +1,5 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Heart,
   Map,
@@ -38,6 +39,16 @@ import { fetchSettings, type AppSettings } from "@/lib/settings";
 import { NotificationBell } from "@/components/notification-bell";
 const LOGO_URL =
   "https://res.cloudinary.com/dv0tt80vn/image/upload/v1782211724/AVRUST_LOGO-removebg-preview_rhui5h.png";
+
+function hrefWithSearch(to: string, search?: Record<string, unknown>): string {
+  if (!search) return to;
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(search)) {
+    if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+  }
+  const qs = params.toString();
+  return qs ? `${to}?${qs}` : to;
+}
 
 interface MegaItem {
   label: string;
@@ -141,7 +152,7 @@ export function SiteHeader() {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
-  const pathname = router.state.location.pathname;
+  const pathname = usePathname();
   const isPropertyPage = pathname.startsWith("/properties/") && pathname.split("/").length === 3;
 
   useEffect(() => {
@@ -150,7 +161,7 @@ export function SiteHeader() {
 
   function handleLogout() {
     logout();
-    router.navigate({ to: "/" });
+    router.push("/");
   }
 
   async function share() {
@@ -187,7 +198,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 supports-[backdrop-filter]:bg-background/70">
       <div className="pointer-events-none absolute inset-0 -z-10 supports-[backdrop-filter]:backdrop-blur-md" />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
+        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <img
             src={LOGO_URL}
             alt="AVR Homes"
@@ -261,8 +272,7 @@ export function SiteHeader() {
                         return (
                           <Link
                             key={item.label}
-                            to={item.to}
-                            search={item.search as never}
+                            href={hrefWithSearch(item.to, item.search)}
                             onClick={() => setActiveMega(null)}
                           >
                             {content}
@@ -303,7 +313,7 @@ export function SiteHeader() {
           {user && isAgent ? (
             <>
               <Link
-                to="/agent/dashboard"
+                href="/agent/dashboard"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
@@ -330,7 +340,7 @@ export function SiteHeader() {
           ) : user ? (
             <>
               <Link
-                to="/account/pools"
+                href="/account/pools"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
@@ -356,7 +366,7 @@ export function SiteHeader() {
             </>
           ) : (
             <Link
-              to="/register"
+              href="/register"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium transition hover:bg-secondary"
             >
               <LogIn className="h-3.5 w-3.5" />
@@ -364,7 +374,7 @@ export function SiteHeader() {
             </Link>
           )}
           <Link
-            to="/contact"
+            href="/contact"
             className="hidden rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 sm:inline-flex sm:items-center sm:gap-1.5"
           >
             Contact
@@ -407,8 +417,7 @@ export function SiteHeader() {
                         return (
                           <MobileLink
                             key={item.label}
-                            to={item.to}
-                            search={item.search}
+                            href={hrefWithSearch(item.to, item.search)}
                             onClick={() => setOpen(false)}
                           >
                             {item.icon && <item.icon className="h-4 w-4" />}
@@ -434,7 +443,7 @@ export function SiteHeader() {
             <hr className="my-2 border-border" />
             {user && isAgent ? (
               <>
-                <MobileLink to="/agent/dashboard" onClick={() => setOpen(false)}>
+                <MobileLink href="/agent/dashboard" onClick={() => setOpen(false)}>
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
                 </MobileLink>
@@ -451,7 +460,7 @@ export function SiteHeader() {
               </>
             ) : user ? (
               <>
-                <MobileLink to="/account/pools" onClick={() => setOpen(false)}>
+                <MobileLink href="/account/pools" onClick={() => setOpen(false)}>
                   <LayoutDashboard className="h-4 w-4" />
                   My Pools
                 </MobileLink>
@@ -468,11 +477,11 @@ export function SiteHeader() {
               </>
             ) : (
               <>
-                <MobileLink to="/register" onClick={() => setOpen(false)}>
+                <MobileLink href="/register" onClick={() => setOpen(false)}>
                   <LogIn className="h-4 w-4" />
                   Login / Register
                 </MobileLink>
-                <MobileLink to="/agent/register" onClick={() => setOpen(false)}>
+                <MobileLink href="/agent/register" onClick={() => setOpen(false)}>
                   <ShieldCheck className="h-4 w-4" />
                   Become an Agent
                 </MobileLink>
@@ -502,23 +511,19 @@ export function SiteHeader() {
 }
 
 function MobileLink({
-  to,
-  search,
+  href,
   children,
   onClick,
 }: {
-  to: string;
-  search?: Record<string, unknown>;
+  href: string;
   children: React.ReactNode;
   onClick?: () => void;
 }) {
   return (
     <Link
-      to={to}
-      search={search as never}
+      href={href}
       onClick={onClick}
       className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-secondary"
-      activeProps={{ className: "bg-secondary text-foreground" }}
     >
       {children}
     </Link>
@@ -589,39 +594,36 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold text-foreground mb-3">Explore</h4>
             <div className="flex flex-col gap-2">
               <Link
-                to="/properties"
-                search={{ purpose: "buy" } as never}
+                href={hrefWithSearch("/properties", { purpose: "buy" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Buy
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "rent" } as never}
+                href={hrefWithSearch("/properties", { purpose: "rent" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Rent
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "shortlet" } as never}
+                href={hrefWithSearch("/properties", { purpose: "shortlet" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Shortlet
               </Link>
-              <Link to="/map" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground">
                 Map View
               </Link>
-              <Link to="/agents" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/agents" className="text-sm text-muted-foreground hover:text-foreground">
                 Agents
               </Link>
-              <Link to="/insights" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/insights" className="text-sm text-muted-foreground hover:text-foreground">
                 Market Insights
               </Link>
-              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/invest" className="text-sm text-muted-foreground hover:text-foreground">
                 Fractional Investment
               </Link>
-              <Link to="/pools" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/pools" className="text-sm text-muted-foreground hover:text-foreground">
                 Pooled Buying (Ajo)
               </Link>
             </div>
@@ -632,41 +634,36 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold text-foreground mb-3">For Sale</h4>
             <div className="flex flex-col gap-2">
               <Link
-                to="/properties"
-                search={{ purpose: "buy", type: "apartment" } as never}
+                href={hrefWithSearch("/properties", { purpose: "buy", type: "apartment" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Flats & Apartments
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "buy", type: "villa" } as never}
+                href={hrefWithSearch("/properties", { purpose: "buy", type: "villa" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Houses & Villas
               </Link>
               <Link
-                to="/properties"
-                search={{ type: "land" } as never}
+                href={hrefWithSearch("/properties", { type: "land" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Lands
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "buy" } as never}
+                href={hrefWithSearch("/properties", { purpose: "buy" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Commercial Property
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "buy" } as never}
+                href={hrefWithSearch("/properties", { purpose: "buy" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Luxury Homes
               </Link>
-              <Link to="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/diaspora" className="text-sm text-muted-foreground hover:text-foreground">
                 Diaspora Investment
               </Link>
             </div>
@@ -677,29 +674,25 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold text-foreground mb-3">Rent & Shortlet</h4>
             <div className="flex flex-col gap-2">
               <Link
-                to="/properties"
-                search={{ purpose: "rent" } as never}
+                href={hrefWithSearch("/properties", { purpose: "rent" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Homes for Rent
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "shortlet" } as never}
+                href={hrefWithSearch("/properties", { purpose: "shortlet" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Shortlets
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "shortlet" } as never}
+                href={hrefWithSearch("/properties", { purpose: "shortlet" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Vacation Rentals
               </Link>
               <Link
-                to="/properties"
-                search={{ purpose: "rent", type: "apartment" } as never}
+                href={hrefWithSearch("/properties", { purpose: "rent", type: "apartment" })}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Serviced Apartments
@@ -707,29 +700,29 @@ export function SiteFooter() {
             </div>
             <h4 className="text-sm font-semibold text-foreground mt-6 mb-3">Resources</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
                 Blog
               </Link>
-              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">
                 About Us
               </Link>
-              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
                 Contact
               </Link>
-              <Link to="/invest" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/invest" className="text-sm text-muted-foreground hover:text-foreground">
                 Fractional Investment
               </Link>
-              <Link to="/pools" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link href="/pools" className="text-sm text-muted-foreground hover:text-foreground">
                 Pooled Buying
               </Link>
               <Link
-                to="/agent/register"
+                href="/agent/register"
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Become an Agent
               </Link>
               <Link
-                to="/agent/login"
+                href="/agent/login"
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Agent Login
@@ -798,8 +791,7 @@ export function SiteFooter() {
             {LOCATIONS.map((loc) => (
               <div key={loc.state}>
                 <Link
-                  to="/properties"
-                  search={{ city: loc.state } as never}
+                  href={hrefWithSearch("/properties", { city: loc.state })}
                   className="text-sm font-medium text-foreground hover:text-primary"
                 >
                   {loc.state}
@@ -808,8 +800,7 @@ export function SiteFooter() {
                   {loc.cities.slice(0, 4).map((city) => (
                     <Link
                       key={city}
-                      to="/properties"
-                      search={{ city } as never}
+                      href={hrefWithSearch("/properties", { city })}
                       className="text-xs text-muted-foreground hover:text-foreground"
                     >
                       {city}
